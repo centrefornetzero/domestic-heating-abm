@@ -68,7 +68,7 @@ def create_households(
             property_value=household.property_value,
             floor_area_sqm=household.floor_area_sqm,
             off_gas_grid=household.off_gas_grid,
-            construction_year_band=household.construction_year_band,  # pd interval
+            construction_year_band=household.construction_year_band,
             property_type=PropertyType[household.property_type.upper()],
             built_form=BuiltForm[household.built_form.upper()],
             heating_system=HeatingSystem[household.heating_system.upper()],
