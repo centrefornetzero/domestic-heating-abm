@@ -1,6 +1,6 @@
+import datetime
 from typing import TYPE_CHECKING, Any, Callable, List
 
-import datetime
 from abm import collect_when
 from simulation.agents import Household
 
