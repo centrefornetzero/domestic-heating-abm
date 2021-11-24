@@ -1,6 +1,13 @@
 from abm import write_jsonlines
 from simulation.model import create_and_run_simulation
-from simulation.settings import *
+from simulation.settings import (
+    HISTORY_FILENAME,
+    HOUSEHOLD_DISTRIBUTION,
+    NUM_HOUSEHOLDS,
+    NUM_STEPS,
+    START_DATETIME,
+    STEP_INTERVAL,
+)
 
 history = create_and_run_simulation(
     START_DATETIME,
