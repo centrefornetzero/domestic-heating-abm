@@ -38,15 +38,16 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 
-args = parse_args()
+if __name__ == "__main__":
+    args = parse_args()
 
-history = create_and_run_simulation(
-    args.start_datetime,
-    args.step_interval,
-    args.num_steps,
-    args.num_households,
-    args.household_distribution,
-    args.heat_pump_awareness,
-)
+    history = create_and_run_simulation(
+        args.start_datetime,
+        args.step_interval,
+        args.num_steps,
+        args.num_households,
+        args.household_distribution,
+        args.heat_pump_awareness,
+    )
 
-write_jsonlines(history, args.history_filename)
+    write_jsonlines(history, args.history_filename)
