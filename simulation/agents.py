@@ -13,8 +13,6 @@ from simulation.constants import (
     PropertyType,
 )
 
-HEAT_PUMP_AWARENESS = 0.4
-
 
 class Household(Agent):
     def __init__(
@@ -34,7 +32,7 @@ class Household(Agent):
         windows_energy_efficiency: int,
         roof_energy_efficiency: int,
         is_heat_pump_suitable_archetype: bool,
-        is_heat_pump_aware: float,
+        is_heat_pump_aware: bool,
     ):
         # Property / tenure attributes
         self.location = location
