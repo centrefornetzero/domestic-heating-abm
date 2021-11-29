@@ -1,7 +1,5 @@
 import random
 
-import pandas as pd
-
 from abm import Agent
 from simulation.constants import (
     HEATING_SYSTEM_FUEL,
@@ -14,7 +12,8 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
-from simulation.settings import HEAT_PUMP_AWARENESS
+
+HEAT_PUMP_AWARENESS = 0.4
 
 
 class Household(Agent):
@@ -35,6 +34,7 @@ class Household(Agent):
         windows_energy_efficiency: int,
         roof_energy_efficiency: int,
         is_heat_pump_suitable_archetype: bool,
+        is_heat_pump_aware: float,
     ):
         # Property / tenure attributes
         self.location = location
@@ -56,7 +56,7 @@ class Household(Agent):
         self.walls_energy_efficiency = walls_energy_efficiency
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
-        self.is_heat_pump_aware = random.random() < HEAT_PUMP_AWARENESS
+        self.is_heat_pump_aware = is_heat_pump_aware
 
     @property
     def heating_fuel(self) -> HeatingFuel:

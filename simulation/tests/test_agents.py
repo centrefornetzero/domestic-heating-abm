@@ -1,15 +1,13 @@
-import pandas as pd
-
 from simulation.agents import Household
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
+    ConstructionYearBand,
     Epc,
     HeatingFuel,
     HeatingSystem,
     OccupantType,
     PropertyType,
-    ConstructionYearBand,
 )
 
 
@@ -30,6 +28,7 @@ def household_factory(**agent_attributes):
         "windows_energy_efficiency": 3,
         "roof_energy_efficiency": 3,
         "is_heat_pump_suitable_archetype": True,
+        "is_heat_pump_aware": True,
     }
     return Household(**{**default_values, **agent_attributes})
 
@@ -52,6 +51,7 @@ class TestHousehold:
             windows_energy_efficiency=4,
             roof_energy_efficiency=2,
             is_heat_pump_suitable_archetype=True,
+            is_heat_pump_aware=True,
         )
         assert household.location == "London"
         assert household.property_value == 400_000
@@ -70,4 +70,4 @@ class TestHousehold:
         assert household.roof_energy_efficiency == 2
         assert household.is_heat_pump_suitable_archetype
         assert household.heating_fuel == HeatingFuel.ELECTRICITY
-        assert household.is_heat_pump_aware is not None
+        assert household.is_heat_pump_aware

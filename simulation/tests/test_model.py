@@ -5,11 +5,11 @@ import pytest
 
 from simulation.constants import (
     BuiltForm,
+    ConstructionYearBand,
     Epc,
     HeatingSystem,
     OccupantType,
     PropertyType,
-    ConstructionYearBand,
 )
 from simulation.model import CnzAgentBasedModel, create_households
 
@@ -46,7 +46,10 @@ def test_create_households_yields_correctly_initialised_household() -> None:
         }
     )
     num_households = 1
-    households = create_households(num_households, household_distribution)
+    heat_pump_awareness = 0.4
+    households = create_households(
+        num_households, household_distribution, heat_pump_awareness
+    )
     household = next(households)
 
     assert household.location == "Birmingham"
@@ -64,6 +67,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     assert household.windows_energy_efficiency == 3
     assert household.roof_energy_efficiency == 3
     assert household.is_heat_pump_suitable_archetype
+    assert household.is_heat_pump_aware is not None
 
     with pytest.raises(StopIteration):
         next(households)
@@ -90,5 +94,8 @@ def test_create_many_households() -> None:
         }
     )
     num_households = 100
-    households = create_households(num_households, household_distribution)
+    heat_pump_awareness = 0.4
+    households = create_households(
+        num_households, household_distribution, heat_pump_awareness
+    )
     assert len(list(households)) == num_households

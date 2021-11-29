@@ -1,6 +1,6 @@
 import datetime
-from collections import Counter
-from typing import Dict, Iterator
+import random
+from typing import Iterator
 
 import pandas as pd
 
@@ -41,6 +41,7 @@ def parse_string_interval(string_range: str) -> pd.Interval:
 def create_households(
     num_households: int,
     household_distribution: pd.DataFrame,
+    heat_pump_awareness: float,
 ) -> Iterator[Household]:
 
     households = household_distribution.sample(num_households, replace=True)
@@ -63,6 +64,7 @@ def create_households(
             windows_energy_efficiency=household.windows_energy_efficiency,
             roof_energy_efficiency=household.roof_energy_efficiency,
             is_heat_pump_suitable_archetype=household.is_heat_pump_suitable_archetype,
+            is_heat_pump_aware=random.random() < heat_pump_awareness,
         )
 
 
@@ -72,13 +74,16 @@ def create_and_run_simulation(
     num_steps: int,
     num_households: int,
     household_distribution: pd.DataFrame,
+    heat_pump_awareness: float,
 ):
     model = CnzAgentBasedModel(
         start_datetime=start_datetime,
         step_interval=step_interval,
     )
 
-    households = create_households(num_households, household_distribution)
+    households = create_households(
+        num_households, household_distribution, heat_pump_awareness
+    )
     model.add_agents(households)
 
     agent_collectors = get_agent_collectors(model)
