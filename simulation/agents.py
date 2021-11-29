@@ -7,6 +7,7 @@ from simulation.constants import (
     HEATING_SYSTEM_FUEL,
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
+    ConstructionYearBand,
     Epc,
     HeatingFuel,
     HeatingSystem,
@@ -23,7 +24,7 @@ class Household(Agent):
         property_value: int,
         floor_area_sqm: int,
         off_gas_grid: bool,
-        construction_year_band: pd.Interval,
+        construction_year_band: ConstructionYearBand,
         property_type: PropertyType,
         built_form: BuiltForm,
         heating_system: HeatingSystem,
@@ -43,9 +44,7 @@ class Household(Agent):
         self.floor_area_sqm = floor_area_sqm
         self.property_value = property_value
         self.is_solid_wall = is_solid_wall
-        self.construction_year = self.sample_uniformly_from_interval(
-            construction_year_band.left, construction_year_band.right
-        )
+        self.construction_year_band = construction_year_band
         self.is_heat_pump_suitable_archetype = is_heat_pump_suitable_archetype
 
         # Heating / energy performance attributes
@@ -58,13 +57,6 @@ class Household(Agent):
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
         self.is_heat_pump_aware = random.random() < HEAT_PUMP_AWARENESS
-
-    @staticmethod
-    def sample_uniformly_from_interval(
-        lower_bound: int,
-        upper_bound: int,
-    ) -> float:
-        return random.uniform(lower_bound, upper_bound)
 
     @property
     def heating_fuel(self) -> HeatingFuel:

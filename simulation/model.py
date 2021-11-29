@@ -9,6 +9,7 @@ from simulation.agents import Household
 from simulation.collectors import get_agent_collectors, model_collectors
 from simulation.constants import (
     BuiltForm,
+    ConstructionYearBand,
     Epc,
     HeatingSystem,
     OccupantType,
@@ -28,23 +29,7 @@ class CnzAgentBasedModel(AgentBasedModel):
 
         super().__init__(UnorderedSpace())
 
-    @property
-    def current_agent_count(self) -> Dict:
-        return Counter([agent.__class__ for agent in self.space.agents])
-
-    @property
-    def current_heating_system_count(self) -> Dict[HeatingSystem, int]:
-        return Counter(
-            [
-                agent.heating_system
-                for agent in self.space.agents
-                if isinstance(agent, Household)
-            ]
-        )
-
     def step(self):
-        if self.current_datetime == self.start_datetime:
-            self.initial_heating_system_count = self.current_heating_system_count
         self.current_datetime += self.step_interval
 
 
@@ -57,9 +42,6 @@ def create_households(
     num_households: int,
     household_distribution: pd.DataFrame,
 ) -> Iterator[Household]:
-    household_distribution["construction_year_band"] = household_distribution[
-        "construction_year_band"
-    ].apply(parse_string_interval)
 
     households = household_distribution.sample(num_households, replace=True)
     for household in households.itertuples():
@@ -68,7 +50,9 @@ def create_households(
             property_value=household.property_value,
             floor_area_sqm=household.floor_area_sqm,
             off_gas_grid=household.off_gas_grid,
-            construction_year_band=household.construction_year_band,
+            construction_year_band=ConstructionYearBand[
+                household.construction_year_band.upper()
+            ],
             property_type=PropertyType[household.property_type.upper()],
             built_form=BuiltForm[household.built_form.upper()],
             heating_system=HeatingSystem[household.heating_system.upper()],

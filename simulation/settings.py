@@ -10,14 +10,11 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 
-args = parse_args()
-
 # simulation run parameters
 START_DATETIME = datetime.datetime.combine(datetime.date.today(), datetime.time())
 STEP_INTERVAL = datetime.timedelta(minutes=1440)
 NUM_STEPS = 365
 NUM_HOUSEHOLDS = 500
-HOUSEHOLD_DISTRIBUTION = args.household_distribution
 HISTORY_FILENAME = "history.jsonl"
 
 # agent parameters

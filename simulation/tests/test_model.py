@@ -9,6 +9,7 @@ from simulation.constants import (
     HeatingSystem,
     OccupantType,
     PropertyType,
+    ConstructionYearBand,
 )
 from simulation.model import CnzAgentBasedModel, create_households
 
@@ -31,7 +32,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
             "property_value": [264_000],
             "floor_area_sqm": [82],
             "off_gas_grid": [False],
-            "construction_year_band": ["1945-1964"],
+            "construction_year_band": ["BUILT_POST_1999"],
             "property_type": ["house"],
             "built_form": ["mid_terrace"],
             "heating_system": ["boiler_gas"],
@@ -52,7 +53,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     assert household.property_value == 264_000
     assert household.floor_area_sqm == 82
     assert not household.off_gas_grid
-    assert 1945 <= household.construction_year <= 1964
+    assert household.construction_year_band == ConstructionYearBand.BUILT_POST_1999
     assert household.property_type == PropertyType.HOUSE
     assert household.built_form == BuiltForm.MID_TERRACE
     assert household.heating_system == HeatingSystem.BOILER_GAS
@@ -75,7 +76,7 @@ def test_create_many_households() -> None:
             "property_value": [264_000],
             "floor_area_sqm": [82],
             "off_gas_grid": [False],
-            "construction_year_band": ["1945-1964"],
+            "construction_year_band": ["BUILT_POST_1999"],
             "property_type": ["house"],
             "built_form": ["mid_terrace"],
             "heating_system": ["boiler_gas"],

@@ -18,7 +18,7 @@ class BuiltForm(enum.Enum):
 class OccupantType(enum.Enum):
     OWNER_OCCUPIER = 0
     RENTER_PRIVATE = 1
-    RENTER_SOCIAL = 1
+    RENTER_SOCIAL = 2
 
 
 class Epc(enum.Enum):
@@ -54,3 +54,13 @@ HEATING_SYSTEM_FUEL: Dict[HeatingSystem, HeatingFuel] = {
 }
 
 HEATING_SYSTEM_LIFETIME_YEARS = 15
+
+
+class ConstructionYearBand(enum.Enum):
+    BUILT_PRE_1919 = 0
+    BUILT_1919_1944 = 1
+    BUILT_1945_1964 = 2
+    BUILT_1965_1982 = 3
+    BUILT_1983_1992 = 4
+    BUILT_1993_1999 = 5
+    BUILT_POST_1999 = 6
