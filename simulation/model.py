@@ -33,11 +33,6 @@ class CnzAgentBasedModel(AgentBasedModel):
         self.current_datetime += self.step_interval
 
 
-def parse_string_interval(string_range: str) -> pd.Interval:
-    min_value, max_value = [int(i) for i in string_range.split("-")]
-    return pd.Interval(min_value, max_value, closed="both")
-
-
 def create_households(
     num_households: int,
     household_distribution: pd.DataFrame,
