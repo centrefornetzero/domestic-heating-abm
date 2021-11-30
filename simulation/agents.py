@@ -1,7 +1,6 @@
 import datetime
 import math
 import random
-from typing import Dict
 
 from abm import Agent
 from simulation.constants import (
