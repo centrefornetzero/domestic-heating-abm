@@ -85,7 +85,7 @@ class Household(Agent):
         return beta * (-math.log(1 + epsilon - percentile)) ** (1 / alpha)
 
     @staticmethod
-    def evaluate_trial(p: float) -> bool:
+    def true_with_probability(p: float) -> bool:
         return random.random() < p
 
     @property
@@ -115,7 +115,7 @@ class Household(Agent):
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         proba_renovate = model.annual_renovation_rate * step_interval_years
 
-        self.is_renovating = self.evaluate_trial(proba_renovate)
+        self.is_renovating = self.true_with_probability(proba_renovate)
 
     def decide_renovation_scope(self) -> None:
 
@@ -124,8 +124,10 @@ class Household(Agent):
         PROBA_HEATING_SYSTEM_UPDATE = 0.18
         PROBA_INSULATION_UPDATE = 0.33
 
-        self.renovate_heating_system = self.evaluate_trial(PROBA_HEATING_SYSTEM_UPDATE)
-        self.renovate_insulation = self.evaluate_trial(PROBA_INSULATION_UPDATE)
+        self.renovate_heating_system = self.true_with_probability(
+            PROBA_HEATING_SYSTEM_UPDATE
+        )
+        self.renovate_insulation = self.true_with_probability(PROBA_INSULATION_UPDATE)
 
     def step(self, model):
         self.evaluate_renovation(model)
