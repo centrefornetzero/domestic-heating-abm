@@ -34,6 +34,7 @@ def parse_args(args=None):
     parser.add_argument("--history-filename", default="history.jsonl")
     parser.add_argument("--household-distribution", type=pd.read_csv)
     parser.add_argument("--heat-pump-awareness", type=float, default=0.4)
+    parser.add_argument("--annual-renovation-rate", type=float, default=0.05)
 
     return parser.parse_args(args)
 
@@ -48,6 +49,7 @@ if __name__ == "__main__":
         args.num_households,
         args.household_distribution,
         args.heat_pump_awareness,
+        args.annual_renovation_rate,
     )
 
     write_jsonlines(history, args.history_filename)

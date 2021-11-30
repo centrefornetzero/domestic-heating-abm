@@ -1,3 +1,4 @@
+import datetime
 import math
 import random
 
@@ -61,6 +62,9 @@ class Household(Agent):
         self.windows_energy_efficiency = windows_energy_efficiency
         self.is_heat_pump_aware = is_heat_pump_aware
 
+        # Renovation attributes
+        self.is_renovating = False
+
     @property
     def heating_fuel(self) -> HeatingFuel:
         return HEATING_SYSTEM_FUEL[self.heating_system]
@@ -79,6 +83,10 @@ class Household(Agent):
 
         epsilon = 0.0000001
         return beta * (-math.log(1 + epsilon - percentile)) ** (1 / alpha)
+
+    @staticmethod
+    def true_with_probability(p: float) -> bool:
+        return random.random() < p
 
     @property
     def wealth_percentile(self) -> float:
@@ -102,5 +110,26 @@ class Household(Agent):
             self.wealth_percentile,
         )
 
+    def evaluate_renovation(self, model) -> None:
+
+        step_interval_years = model.step_interval / datetime.timedelta(days=365)
+        proba_renovate = model.annual_renovation_rate * step_interval_years
+
+        self.is_renovating = self.true_with_probability(proba_renovate)
+
+    def decide_renovation_scope(self) -> None:
+
+        # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+        # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+        PROBA_HEATING_SYSTEM_UPDATE = 0.18
+        PROBA_INSULATION_UPDATE = 0.33
+
+        self.renovate_heating_system = self.true_with_probability(
+            PROBA_HEATING_SYSTEM_UPDATE
+        )
+        self.renovate_insulation = self.true_with_probability(PROBA_INSULATION_UPDATE)
+
     def step(self, model):
-        pass
+        self.evaluate_renovation(model)
+        if self.is_renovating:
+            self.decide_renovation_scope()

@@ -1,3 +1,4 @@
+import datetime
 import random
 
 from simulation.agents import Household
@@ -11,6 +12,7 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
+from simulation.model import CnzAgentBasedModel
 
 
 def household_factory(**agent_attributes):
@@ -73,6 +75,7 @@ class TestHousehold:
         assert household.is_heat_pump_suitable_archetype
         assert household.heating_fuel == HeatingFuel.ELECTRICITY
         assert household.is_heat_pump_aware
+        assert household.is_renovating is not None
 
     def test_household_renovation_budget_increases_with_property_value(self) -> None:
         low_property_value_household = household_factory(property_value=100_000)
@@ -92,3 +95,18 @@ class TestHousehold:
 
         assert household.renovation_budget >= 0
         assert household.renovation_budget < household.property_value
+
+    def test_household_is_renovating_state_updates(
+        self,
+    ) -> None:
+
+        model = CnzAgentBasedModel(
+            start_datetime=datetime.datetime.now(),
+            step_interval=datetime.timedelta(days=365),
+            annual_renovation_rate=1.0,
+        )
+
+        household = household_factory()
+        assert not household.is_renovating
+        household.evaluate_renovation(model)
+        assert household.is_renovating
