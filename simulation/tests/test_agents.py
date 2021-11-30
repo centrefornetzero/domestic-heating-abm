@@ -1,3 +1,5 @@
+import random
+
 from simulation.agents import Household
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
@@ -71,3 +73,22 @@ class TestHousehold:
         assert household.is_heat_pump_suitable_archetype
         assert household.heating_fuel == HeatingFuel.ELECTRICITY
         assert household.is_heat_pump_aware
+
+    def test_household_renovation_budget_increases_with_property_value(self) -> None:
+        low_property_value_household = household_factory(property_value=100_000)
+        medium_property_value_household = household_factory(property_value=300_000)
+        high_property_value_household = household_factory(property_value=500_000)
+
+        assert (
+            low_property_value_household.renovation_budget
+            < medium_property_value_household.renovation_budget
+            < high_property_value_household.renovation_budget
+        )
+
+    def test_renovation_budget_greater_than_or_equal_to_zero_and_less_than_total_property_value(
+        self,
+    ) -> None:
+        household = household_factory(property_value=random.randint(0, 5_000_000))
+
+        assert household.renovation_budget >= 0
+        assert household.renovation_budget < household.property_value
