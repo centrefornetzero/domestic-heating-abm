@@ -1,3 +1,4 @@
+import datetime
 import math
 import random
 
@@ -61,6 +62,9 @@ class Household(Agent):
         self.windows_energy_efficiency = windows_energy_efficiency
         self.is_heat_pump_aware = is_heat_pump_aware
 
+        # Renovation attributes
+        self.is_renovating = False
+
     @property
     def heating_fuel(self) -> HeatingFuel:
         return HEATING_SYSTEM_FUEL[self.heating_system]
@@ -102,5 +106,14 @@ class Household(Agent):
             self.wealth_percentile,
         )
 
+    def evaluate_renovation(self, model) -> None:
+
+        step_interval_years = model.step_interval / datetime.timedelta(days=365)
+        proba_renovate = model.annual_renovation_rate * step_interval_years
+
+        self.is_renovating = True if random.random() < proba_renovate else False
+
     def step(self, model):
-        pass
+        self.evaluate_renovation(model)
+        if self.is_renovating:
+            pass
