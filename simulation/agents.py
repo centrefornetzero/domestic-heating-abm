@@ -85,6 +85,10 @@ class Household(Agent):
         epsilon = 0.0000001
         return beta * (-math.log(1 + epsilon - percentile)) ** (1 / alpha)
 
+    @staticmethod
+    def evaluate_trial(p: float) -> bool:
+        return random.random() < p
+
     @property
     def wealth_percentile(self) -> float:
 
@@ -112,21 +116,17 @@ class Household(Agent):
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         proba_renovate = model.annual_renovation_rate * step_interval_years
 
-        self.is_renovating = True if random.random() < proba_renovate else False
+        self.is_renovating = self.evaluate_trial(proba_renovate)
 
-    def decide_renovation_scope(self) -> Dict[str, bool]:
+    def decide_renovation_scope(self) -> None:
 
         # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
         # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
         PROBA_HEATING_SYSTEM_UPDATE = 0.18
         PROBA_INSULATION_UPDATE = 0.33
 
-        return {
-            "HEATING_SYSTEM": True
-            if random.random() < PROBA_HEATING_SYSTEM_UPDATE
-            else False,
-            "INSULATION": True if random.random() < PROBA_INSULATION_UPDATE else False,
-        }
+        self.renovate_heating_system = self.evaluate_trial(PROBA_HEATING_SYSTEM_UPDATE)
+        self.renovate_insulation = self.evaluate_trial(PROBA_INSULATION_UPDATE)
 
     def step(self, model):
         self.evaluate_renovation(model)
