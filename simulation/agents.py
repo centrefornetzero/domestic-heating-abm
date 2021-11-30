@@ -67,38 +67,21 @@ class Household(Agent):
 
     @staticmethod
     def get_weibull_percentile_from_value(
-        alpha: float, beta: float, input_value: int
+        alpha: float, beta: float, input_value: float
     ) -> float:
-
-        """
-        :param alpha: alpha (AKA shape) parameter of a Weibull distribution
-        :param beta: beta (AKA scale) parameter of a Weibull distribution
-        :param input_value: an integer value to be expressed as a percentile of the Weibull distribution
-        :return: the percentile (0.0-1.0) of the Weibull distribution that the input_value corresponds to
-        """
 
         return 1 - math.exp(-((input_value / beta) ** alpha))
 
     @staticmethod
     def get_weibull_value_from_percentile(
         alpha: float, beta: float, percentile: float
-    ) -> int:
+    ) -> float:
 
-        """
-        :param alpha: alpha (AKA shape) parameter of a Weibull distribution
-        :param beta: beta (AKA scale) parameter of a Weibull distribution
-        :param percentile: a percentile (0.0-1.0) to be expressed as a value from the Weibull distribution
-        :return: the value that the percentile of the Weibull distribution corresponds to
-        """
         epsilon = 0.0000001
         return beta * (-math.log(1 + epsilon - percentile)) ** (1 / alpha)
 
     @property
     def wealth_percentile(self) -> float:
-
-        """
-        :return: the percentile of the household's property value within GB
-        """
 
         return self.get_weibull_percentile_from_value(
             GB_PROPERTY_VALUE_WEIBULL_ALPHA,
@@ -111,12 +94,9 @@ class Household(Agent):
         # An amount a house may set aside for work related to home heating and energy efficiency
         # Expressed as a proportion of their total renovation budget (10%)
 
-        """
-        :return: the estimated renovation budget of a household, derived from the value of a distribution of GB
-        renovation budgets at a household's wealth percentile
-        """
+        HEATING_PROPORTION_OF_BUDGET = 0.1
 
-        return 0.1 * self.get_weibull_value_from_percentile(
+        return HEATING_PROPORTION_OF_BUDGET * self.get_weibull_value_from_percentile(
             GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
             GB_RENOVATION_BUDGET_WEIBULL_BETA,
             self.wealth_percentile,
