@@ -1,6 +1,7 @@
 import datetime
 import math
 import random
+from typing import Dict
 
 from abm import Agent
 from simulation.constants import (
@@ -113,7 +114,19 @@ class Household(Agent):
 
         self.is_renovating = True if random.random() < proba_renovate else False
 
+    def decide_renovation_scope(self) -> Dict[str, bool]:
+
+        PROBA_HEATING_SYSTEM_UPDATE = 0.18
+        PROBA_INSULATION_UPDATE = 0.33
+
+        return {
+            "HEATING_SYSTEM": True
+            if random.random() < PROBA_HEATING_SYSTEM_UPDATE
+            else False,
+            "INSULATION": True if random.random() < PROBA_INSULATION_UPDATE else False,
+        }
+
     def step(self, model):
         self.evaluate_renovation(model)
         if self.is_renovating:
-            pass
+            renovation_scope = self.decide_renovation_scope()
