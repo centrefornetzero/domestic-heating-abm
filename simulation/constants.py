@@ -76,3 +76,9 @@ GB_RENOVATION_BUDGET_WEIBULL_BETA = 21_994
 # A distribution aligned to Q2 2021 GB property values
 GB_PROPERTY_VALUE_WEIBULL_ALPHA = 1.61
 GB_PROPERTY_VALUE_WEIBULL_BETA = 280_000
+
+
+class Element(enum.Enum):
+    ROOF = 0
+    GLAZING = 1
+    WALLS = 2

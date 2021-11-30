@@ -1,6 +1,7 @@
 import datetime
 import math
 import random
+from typing import Set
 
 from abm import Agent
 from simulation.constants import (
@@ -12,6 +13,7 @@ from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
+    Element,
     Epc,
     HeatingFuel,
     HeatingSystem,
@@ -128,6 +130,26 @@ class Household(Agent):
             PROBA_HEATING_SYSTEM_UPDATE
         )
         self.renovate_insulation = self.true_with_probability(PROBA_INSULATION_UPDATE)
+
+    def get_upgradable_insulation_elements(self) -> Set[Element]:
+
+        measures_and_grades = zip(
+            [
+                self.walls_energy_efficiency,
+                self.roof_energy_efficiency,
+                self.windows_energy_efficiency,
+            ],
+            [Element.WALLS, Element.ROOF, Element.GLAZING],
+        )
+
+        MAX_ENERGY_EFFICIENCY_SCORE = 5
+        return set(
+            [
+                measure
+                for grade, measure in measures_and_grades
+                if grade < MAX_ENERGY_EFFICIENCY_SCORE
+            ]
+        )
 
     def step(self, model):
         self.evaluate_renovation(model)
