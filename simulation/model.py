@@ -22,10 +22,12 @@ class CnzAgentBasedModel(AgentBasedModel):
         self,
         start_datetime,
         step_interval,
+        annual_renovation_rate,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
         self.current_datetime = start_datetime
+        self.annual_renovation_rate = annual_renovation_rate
 
         super().__init__(UnorderedSpace())
 
@@ -70,10 +72,12 @@ def create_and_run_simulation(
     num_households: int,
     household_distribution: pd.DataFrame,
     heat_pump_awareness: float,
+    annual_renovation_rate: float,
 ):
     model = CnzAgentBasedModel(
         start_datetime=start_datetime,
         step_interval=step_interval,
+        annual_renovation_rate=annual_renovation_rate,
     )
 
     households = create_households(
