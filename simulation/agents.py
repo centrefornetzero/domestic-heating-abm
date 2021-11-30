@@ -116,6 +116,8 @@ class Household(Agent):
 
     def decide_renovation_scope(self) -> Dict[str, bool]:
 
+        # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+        # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
         PROBA_HEATING_SYSTEM_UPDATE = 0.18
         PROBA_INSULATION_UPDATE = 0.33
 
