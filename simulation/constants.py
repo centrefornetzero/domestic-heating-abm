@@ -67,8 +67,12 @@ class ConstructionYearBand(enum.Enum):
 
 
 # Parameters describing distributions
+
+# A distribution matching 50th/90th percentiles from 2020 Houzz & Home report (11k/100k respectively)
+# http://st.hzcdn.com/static/econ/en-GB/2020_HouzzAndHome_UK_Renovation_Trends_Study.pdf
 GB_RENOVATION_BUDGET_WEIBULL_ALPHA = 0.55
 GB_RENOVATION_BUDGET_WEIBULL_BETA = 21_994
 
+# A distribution aligned to Q2 2021 GB property values
 GB_PROPERTY_VALUE_WEIBULL_ALPHA = 1.61
 GB_PROPERTY_VALUE_WEIBULL_BETA = 280_000
