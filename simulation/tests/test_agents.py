@@ -150,3 +150,60 @@ class TestHousehold:
 
         assert set(insulation_quotes.keys()) == upgradable_elements
         assert all(quote > 0 for quote in insulation_quotes.values())
+
+    def test_household_chooses_one_to_three_insulation_measures_to_install(
+        self,
+    ) -> None:
+
+        household = household_factory()
+        assert 0 < household.choose_n_elements_to_insulate() <= 3
+
+    def test_household_chooses_cheapest_insulation_measures(
+        self,
+    ) -> None:
+
+        household = household_factory()
+        insulation_quotes = {
+            Element.WALLS: 5_000,
+            Element.GLAZING: 4_000,
+            Element.ROOF: 1_000,
+        }
+        chosen_measures = household.choose_insulation_elements(insulation_quotes, 2)
+
+        assert chosen_measures.keys() == set([Element.ROOF, Element.GLAZING])
+
+        chosen_measures = household.choose_insulation_elements(insulation_quotes, 1)
+
+        assert chosen_measures.keys() == {Element.ROOF}
+
+    def test_installation_of_insulation_measures_improves_element_energy_efficiency_and_epc(
+        self,
+    ) -> None:
+
+        household = household_factory(
+            roof_energy_efficiency=3, walls_energy_efficiency=2, epc=Epc.D
+        )
+        household.install_insulation_elements({Element.ROOF: 1_000})
+
+        assert household.roof_energy_efficiency == 5
+        assert household.epc == Epc.C
+
+        household.install_insulation_elements({Element.WALLS: 3_000})
+
+        assert household.walls_energy_efficiency == 5
+        assert household.epc == Epc.B
+
+    def test_impact_of_installing_insulation_measures_is_capped_at_epc_A(
+        self,
+    ) -> None:
+
+        epc_A_household = household_factory(
+            roof_energy_efficiency=4,
+            walls_energy_efficiency=5,
+            windows_energy_efficiency=5,
+            epc=Epc.A,
+        )
+        epc_A_household.install_insulation_elements({Element.ROOF: 1_000})
+
+        assert epc_A_household.roof_energy_efficiency == 5
+        assert epc_A_household.epc == Epc.A

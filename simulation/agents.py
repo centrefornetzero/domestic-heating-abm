@@ -226,10 +226,50 @@ class Household(Agent):
 
         return insulation_quotes
 
+    def choose_n_elements_to_insulate(self) -> int:
+
+        # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+        # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+
+        return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
+
+    def choose_insulation_elements(
+        self, insulation_quotes: Dict[Element, float], num_elements: int
+    ) -> Dict[Element, float]:
+
+        return {
+            element: insulation_quotes[element]
+            for element in sorted(insulation_quotes, key=insulation_quotes.get)[
+                :num_elements
+            ]
+        }
+
+    def install_insulation_elements(
+        self, insulation_elements: Dict[Element, float]
+    ) -> None:
+
+        for element in insulation_elements:
+            if element == Element.ROOF:
+                self.roof_energy_efficiency = 5
+            if element == Element.WALLS:
+                self.walls_energy_efficiency = 5
+            if element == Element.GLAZING:
+                self.windows_energy_efficiency = 5
+
+        n_measures = len(insulation_elements)
+        improved_epc_level = max(0, self.epc.value - n_measures)
+        self.epc = Epc(improved_epc_level)
+
     def step(self, model):
         self.evaluate_renovation(model)
         if self.is_renovating:
             self.decide_renovation_scope()
             if self.renovate_insulation:
                 upgradable_elements = self.get_upgradable_insulation_elements()
-                self.get_quote_insulation_elements(upgradable_elements)
+                insulation_quotes = self.get_quote_insulation_elements(
+                    upgradable_elements
+                )
+                chosen_elements = self.choose_insulation_elements(
+                    insulation_quotes, self.choose_n_elements_to_insulate()
+                )
+                self.install_insulation_elements(chosen_elements)
