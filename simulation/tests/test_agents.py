@@ -169,3 +169,12 @@ class TestHousehold:
 
         assert chosen_measures.keys() == {Element.ROOF}
 
+    def test_installation_of_insulation_measures_improves_element_energy_efficiency_and_epc(
+        self,
+    ) -> None:
+
+        household = household_factory(roof_energy_efficiency=3, epc=Epc.D)
+        household.install_insulation_elements({Element.ROOF: 1_000})
+
+        assert household.roof_energy_efficiency == 5
+        assert household.epc == Epc.C

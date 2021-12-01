@@ -235,6 +235,22 @@ class Household(Agent):
 
         return {k: quotes_sorted[k] for k in list(quotes_sorted.keys())[:n_elements]}
 
+    def install_insulation_elements(
+        self, insulation_elements: Dict[Element, float]
+    ) -> None:
+
+        for element in insulation_elements:
+            if element == Element.ROOF:
+                self.roof_energy_efficiency = 5
+            if element == Element.WALLS:
+                self.walls_energy_efficiency = 5
+            if element == Element.GLAZING:
+                self.windows_energy_efficiency = 5
+
+        n_measures = len(insulation_elements)
+        improved_epc_level = max(0, self.epc.value - n_measures)
+        self.epc = Epc(improved_epc_level)
+
     def step(self, model):
         self.evaluate_renovation(model)
         if self.is_renovating:
@@ -244,4 +260,5 @@ class Household(Agent):
                 insulation_quotes = self.get_quote_insulation_elements(
                     upgradable_elements
                 )
-                self.choose_insulation_elements(insulation_quotes, 2)
+                chosen_elements = self.choose_insulation_elements(insulation_quotes, 2)
+                self.install_insulation_elements(chosen_elements)
