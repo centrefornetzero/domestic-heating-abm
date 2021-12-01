@@ -125,10 +125,8 @@ class TestHousehold:
         self,
     ) -> None:
 
-        MAX_ENERGY_EFFICIENCY_SCORE = 5
-
         household = household_factory(
-            roof_energy_efficiency=MAX_ENERGY_EFFICIENCY_SCORE,
+            roof_energy_efficiency=5,
             windows_energy_efficiency=3,
             walls_energy_efficiency=2,
         )

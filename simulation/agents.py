@@ -198,13 +198,11 @@ class Household(Agent):
         )
 
         MAX_ENERGY_EFFICIENCY_SCORE = 5
-        return set(
-            [
-                measure
-                for measure, grade in measures_and_grades
-                if grade < MAX_ENERGY_EFFICIENCY_SCORE
-            ]
-        )
+        return {
+            measure
+            for measure, grade in measures_and_grades
+            if grade < MAX_ENERGY_EFFICIENCY_SCORE
+        }
 
     def get_quote_insulation_elements(
         self, elements: Set[Element]
