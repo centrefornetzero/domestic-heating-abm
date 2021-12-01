@@ -121,12 +121,14 @@ class TestHousehold:
         household = household_factory(roof_energy_efficiency=np.NaN)
         assert Element.ROOF not in household.get_upgradable_insulation_elements()
 
-    def test_household_upgradable_elements_reflect_energy_efficiency_scores(
+    def test_household_elements_under_max_energy_efficiency_score_are_upgradable(
         self,
     ) -> None:
 
+        MAX_ENERGY_EFFICIENCY_SCORE = 5
+
         household = household_factory(
-            roof_energy_efficiency=5,
+            roof_energy_efficiency=MAX_ENERGY_EFFICIENCY_SCORE,
             windows_energy_efficiency=3,
             walls_energy_efficiency=2,
         )
@@ -135,7 +137,7 @@ class TestHousehold:
             [Element.GLAZING, Element.WALLS]
         )
 
-    def test_household_gets_non_zero_insulation_quotes_for_upgradable_elements(
+    def test_household_gets_non_zero_insulation_quotes_for_all_upgradable_elements(
         self,
     ) -> None:
 

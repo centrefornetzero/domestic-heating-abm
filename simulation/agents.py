@@ -189,19 +189,19 @@ class Household(Agent):
     def get_upgradable_insulation_elements(self) -> Set[Element]:
 
         measures_and_grades = zip(
+            [Element.WALLS, Element.ROOF, Element.GLAZING],
             [
                 self.walls_energy_efficiency,
                 self.roof_energy_efficiency,
                 self.windows_energy_efficiency,
             ],
-            [Element.WALLS, Element.ROOF, Element.GLAZING],
         )
 
         MAX_ENERGY_EFFICIENCY_SCORE = 5
         return set(
             [
                 measure
-                for grade, measure in measures_and_grades
+                for measure, grade in measures_and_grades
                 if grade < MAX_ENERGY_EFFICIENCY_SCORE
             ]
         )
