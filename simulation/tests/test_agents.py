@@ -180,8 +180,30 @@ class TestHousehold:
         self,
     ) -> None:
 
-        household = household_factory(roof_energy_efficiency=3, epc=Epc.D)
+        household = household_factory(
+            roof_energy_efficiency=3, walls_energy_efficiency=2, epc=Epc.D
+        )
         household.install_insulation_elements({Element.ROOF: 1_000})
 
         assert household.roof_energy_efficiency == 5
         assert household.epc == Epc.C
+
+        household.install_insulation_elements({Element.WALLS: 3_000})
+
+        assert household.walls_energy_efficiency == 5
+        assert household.epc == Epc.B
+
+    def test_impact_of_installing_insulation_measures_is_capped_at_epc_A(
+        self,
+    ) -> None:
+
+        epc_A_household = household_factory(
+            roof_energy_efficiency=4,
+            walls_energy_efficiency=5,
+            windows_energy_efficiency=5,
+            epc=Epc.A,
+        )
+        epc_A_household.install_insulation_elements({Element.ROOF: 1_000})
+
+        assert epc_A_household.roof_energy_efficiency == 5
+        assert epc_A_household.epc == Epc.A
