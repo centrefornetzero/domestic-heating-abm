@@ -1,11 +1,14 @@
 import datetime
 import random
 
+import numpy as np
+
 from simulation.agents import Household
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
+    Element,
     Epc,
     HeatingFuel,
     HeatingSystem,
@@ -110,3 +113,40 @@ class TestHousehold:
         assert not household.is_renovating
         household.evaluate_renovation(model)
         assert household.is_renovating
+
+    def test_household_flat_without_roof_cannot_upgrade_roof_insulation(
+        self,
+    ) -> None:
+
+        household = household_factory(roof_energy_efficiency=np.NaN)
+        assert Element.ROOF not in household.get_upgradable_insulation_elements()
+
+    def test_household_elements_under_max_energy_efficiency_score_are_upgradable(
+        self,
+    ) -> None:
+
+        household = household_factory(
+            roof_energy_efficiency=5,
+            windows_energy_efficiency=3,
+            walls_energy_efficiency=2,
+        )
+
+        assert household.get_upgradable_insulation_elements() == set(
+            [Element.GLAZING, Element.WALLS]
+        )
+
+    def test_household_gets_non_zero_insulation_quotes_for_all_upgradable_elements(
+        self,
+    ) -> None:
+
+        household = household_factory(
+            roof_energy_efficiency=random.randint(1, 5),
+            windows_energy_efficiency=random.randint(1, 5),
+            walls_energy_efficiency=random.randint(1, 5),
+        )
+
+        upgradable_elements = household.get_upgradable_insulation_elements()
+        insulation_quotes = household.get_quote_insulation_elements(upgradable_elements)
+
+        assert set(insulation_quotes.keys()) == upgradable_elements
+        assert all(quote > 0 for quote in insulation_quotes.values())

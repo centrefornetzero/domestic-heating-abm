@@ -1,6 +1,9 @@
 import datetime
 import math
 import random
+from typing import Dict, Set
+
+import pandas as pd
 
 from abm import Agent
 from simulation.constants import (
@@ -12,12 +15,24 @@ from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
+    Element,
     Epc,
     HeatingFuel,
     HeatingSystem,
+    InsulationSegment,
     OccupantType,
     PropertyType,
 )
+from simulation.costs import (
+    CAVITY_WALL_INSULATION_COST,
+    DOUBLE_GLAZING_UPVC_COST,
+    INTERNAL_WALL_INSULATION_COST,
+    LOFT_INSULATION_JOISTS_COST,
+)
+
+
+def sample_interval_uniformly(interval: pd.Interval) -> float:
+    return random.randint(interval.left, interval.right)
 
 
 class Household(Agent):
@@ -110,6 +125,48 @@ class Household(Agent):
             self.wealth_percentile,
         )
 
+    @property
+    def insulation_segment(self) -> InsulationSegment:
+        # As per the property segmentation used in BEIS - WHAT DOES IT COST TO RETROFIT HOMES?
+
+        if self.property_type == PropertyType.FLAT:
+            if self.floor_area_sqm < 54:
+                return InsulationSegment.SMALL_FLAT
+            return InsulationSegment.LARGE_FLAT
+
+        if (
+            self.property_type == PropertyType.HOUSE
+            and self.built_form == BuiltForm.MID_TERRACE
+        ):
+            return (
+                InsulationSegment.SMALL_MID_TERRACE_HOUSE
+                if self.floor_area_sqm < 76
+                else InsulationSegment.LARGE_MID_TERRACE_HOUSE
+            )
+
+        if self.property_type == PropertyType.HOUSE and self.built_form in [
+            BuiltForm.END_TERRACE,
+            BuiltForm.SEMI_DETACHED,
+        ]:
+            return (
+                InsulationSegment.SMALL_SEMI_END_TERRACE_HOUSE
+                if self.floor_area_sqm < 80
+                else InsulationSegment.LARGE_SEMI_END_TERRACE_HOUSE
+            )
+
+        if (
+            self.property_type == PropertyType.HOUSE
+            and self.built_form == BuiltForm.DETACHED
+        ):
+            return (
+                InsulationSegment.SMALL_DETACHED_HOUSE
+                if self.floor_area_sqm < 117
+                else InsulationSegment.LARGE_DETACHED_HOUSE
+            )
+
+        if self.property_type == PropertyType.BUNGALOW:
+            return InsulationSegment.BUNGALOW
+
     def evaluate_renovation(self, model) -> None:
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
@@ -129,7 +186,50 @@ class Household(Agent):
         )
         self.renovate_insulation = self.true_with_probability(PROBA_INSULATION_UPDATE)
 
+    def get_upgradable_insulation_elements(self) -> Set[Element]:
+
+        measures_and_grades = zip(
+            [Element.WALLS, Element.ROOF, Element.GLAZING],
+            [
+                self.walls_energy_efficiency,
+                self.roof_energy_efficiency,
+                self.windows_energy_efficiency,
+            ],
+        )
+
+        MAX_ENERGY_EFFICIENCY_SCORE = 5
+        return {
+            measure
+            for measure, grade in measures_and_grades
+            if grade < MAX_ENERGY_EFFICIENCY_SCORE
+        }
+
+    def get_quote_insulation_elements(
+        self, elements: Set[Element]
+    ) -> Dict[Element, float]:
+
+        insulation_quotes = {element: 0 for element in elements}
+        for element in elements:
+            if element == Element.WALLS:
+                if self.is_solid_wall:
+                    cost_range = INTERNAL_WALL_INSULATION_COST[self.insulation_segment]
+                    insulation_quotes[element] = sample_interval_uniformly(cost_range)
+                else:
+                    cost_range = CAVITY_WALL_INSULATION_COST[self.insulation_segment]
+                    insulation_quotes[element] = sample_interval_uniformly(cost_range)
+            if element == Element.GLAZING:
+                cost_range = DOUBLE_GLAZING_UPVC_COST[self.insulation_segment]
+                insulation_quotes[element] = sample_interval_uniformly(cost_range)
+            if element == Element.ROOF:
+                cost_range = LOFT_INSULATION_JOISTS_COST[self.insulation_segment]
+                insulation_quotes[element] = sample_interval_uniformly(cost_range)
+
+        return insulation_quotes
+
     def step(self, model):
         self.evaluate_renovation(model)
         if self.is_renovating:
             self.decide_renovation_scope()
+            if self.renovate_insulation:
+                upgradable_elements = self.get_upgradable_insulation_elements()
+                self.get_quote_insulation_elements(upgradable_elements)
