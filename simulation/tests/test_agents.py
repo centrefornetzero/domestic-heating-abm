@@ -134,3 +134,19 @@ class TestHousehold:
         assert household.get_upgradable_insulation_elements() == set(
             [Element.GLAZING, Element.WALLS]
         )
+
+    def test_household_gets_non_zero_insulation_quotes_for_upgradable_elements(
+        self,
+    ) -> None:
+
+        household = household_factory(
+            roof_energy_efficiency=random.randint(1, 5),
+            windows_energy_efficiency=random.randint(1, 5),
+            walls_energy_efficiency=random.randint(1, 5),
+        )
+
+        upgradable_elements = household.get_upgradable_insulation_elements()
+        insulation_quotes = household.get_quote_insulation_elements(upgradable_elements)
+
+        assert set(insulation_quotes.keys()) == upgradable_elements
+        assert all(quote > 0 for quote in insulation_quotes.values())

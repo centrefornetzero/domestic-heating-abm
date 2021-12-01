@@ -82,3 +82,15 @@ class Element(enum.Enum):
     ROOF = 0
     GLAZING = 1
     WALLS = 2
+
+
+class InsulationSegment(enum.Enum):
+    SMALL_FLAT = 0
+    LARGE_FLAT = 1
+    SMALL_MID_TERRACE_HOUSE = 2
+    LARGE_MID_TERRACE_HOUSE = 3
+    SMALL_SEMI_END_TERRACE_HOUSE = 4
+    LARGE_SEMI_END_TERRACE_HOUSE = 5
+    SMALL_DETACHED_HOUSE = 6
+    LARGE_DETACHED_HOUSE = 7
+    BUNGALOW = 8
