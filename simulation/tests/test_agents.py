@@ -150,3 +150,22 @@ class TestHousehold:
 
         assert set(insulation_quotes.keys()) == upgradable_elements
         assert all(quote > 0 for quote in insulation_quotes.values())
+
+    def test_household_chooses_cheapest_insulation_measures(
+        self,
+    ) -> None:
+
+        household = household_factory()
+        insulation_quotes = {
+            Element.WALLS: 5_000,
+            Element.GLAZING: 4_000,
+            Element.ROOF: 1_000,
+        }
+        chosen_measures = household.choose_insulation_elements(insulation_quotes, 2)
+
+        assert chosen_measures.keys() == set([Element.ROOF, Element.GLAZING])
+
+        chosen_measures = household.choose_insulation_elements(insulation_quotes, 1)
+
+        assert chosen_measures.keys() == {Element.ROOF}
+

@@ -226,10 +226,22 @@ class Household(Agent):
 
         return insulation_quotes
 
+    def choose_insulation_elements(
+        self, insulation_quotes: Dict[Element, float], n_elements: int
+    ) -> Dict[Element, float]:
+
+        sorted_tuples = sorted(insulation_quotes.items(), key=lambda item: item[1])
+        quotes_sorted = {k: v for k, v in sorted_tuples}
+
+        return {k: quotes_sorted[k] for k in list(quotes_sorted.keys())[:n_elements]}
+
     def step(self, model):
         self.evaluate_renovation(model)
         if self.is_renovating:
             self.decide_renovation_scope()
             if self.renovate_insulation:
                 upgradable_elements = self.get_upgradable_insulation_elements()
-                self.get_quote_insulation_elements(upgradable_elements)
+                insulation_quotes = self.get_quote_insulation_elements(
+                    upgradable_elements
+                )
+                self.choose_insulation_elements(insulation_quotes, 2)
