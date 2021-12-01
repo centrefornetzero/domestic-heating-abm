@@ -226,6 +226,13 @@ class Household(Agent):
 
         return insulation_quotes
 
+    def choose_n_elements_to_insulate(self):
+
+        # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+        # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+
+        return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
+
     def choose_insulation_elements(
         self, insulation_quotes: Dict[Element, float], n_elements: int
     ) -> Dict[Element, float]:
@@ -260,5 +267,7 @@ class Household(Agent):
                 insulation_quotes = self.get_quote_insulation_elements(
                     upgradable_elements
                 )
-                chosen_elements = self.choose_insulation_elements(insulation_quotes, 2)
+                chosen_elements = self.choose_insulation_elements(
+                    insulation_quotes, self.choose_n_elements_to_insulate()
+                )
                 self.install_insulation_elements(chosen_elements)

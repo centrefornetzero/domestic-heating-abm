@@ -151,6 +151,13 @@ class TestHousehold:
         assert set(insulation_quotes.keys()) == upgradable_elements
         assert all(quote > 0 for quote in insulation_quotes.values())
 
+    def test_household_chooses_one_to_three_insulation_measures_to_install(
+        self,
+    ) -> None:
+
+        household = household_factory()
+        assert 0 < household.choose_n_elements_to_insulate() <= 3
+
     def test_household_chooses_cheapest_insulation_measures(
         self,
     ) -> None:
