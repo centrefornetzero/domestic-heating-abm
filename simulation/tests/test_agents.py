@@ -29,6 +29,7 @@ def household_factory(**agent_attributes):
         "built_form": BuiltForm.MID_TERRACE,
         "heating_system": HeatingSystem.BOILER_GAS,
         "epc": Epc.D,
+        "potential_epc": Epc.C,
         "occupant_type": OccupantType.OWNER_OCCUPIER,
         "is_solid_wall": False,
         "walls_energy_efficiency": 3,
@@ -52,6 +53,7 @@ class TestHousehold:
             built_form=BuiltForm.MID_TERRACE,
             heating_system=HeatingSystem.BOILER_ELECTRIC,
             epc=Epc.C,
+            potential_epc=Epc.B,
             occupant_type=OccupantType.RENTER_PRIVATE,
             is_solid_wall=False,
             walls_energy_efficiency=4,
@@ -70,6 +72,7 @@ class TestHousehold:
         assert household.heating_system == HeatingSystem.BOILER_ELECTRIC
         assert 0 <= household.heating_system_age <= HEATING_SYSTEM_LIFETIME_YEARS
         assert household.epc == Epc.C
+        assert household.potential_epc == Epc.B
         assert household.occupant_type == OccupantType.RENTER_PRIVATE
         assert not household.is_solid_wall
         assert household.walls_energy_efficiency == 4

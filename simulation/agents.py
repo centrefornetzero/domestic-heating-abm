@@ -47,6 +47,7 @@ class Household(Agent):
         built_form: BuiltForm,
         heating_system: HeatingSystem,
         epc: Epc,
+        potential_epc: Epc,
         occupant_type: OccupantType,
         is_solid_wall: bool,
         walls_energy_efficiency: int,
@@ -72,6 +73,7 @@ class Household(Agent):
         self.heating_system = heating_system
         self.heating_system_age = random.randint(0, HEATING_SYSTEM_LIFETIME_YEARS)
         self.epc = epc
+        self.potential_epc = potential_epc
         self.walls_energy_efficiency = walls_energy_efficiency
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
