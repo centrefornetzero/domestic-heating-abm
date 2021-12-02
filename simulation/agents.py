@@ -22,6 +22,7 @@ from simulation.constants import (
     ConstructionYearBand,
     Element,
     Epc,
+    EventTrigger,
     HeatingFuel,
     HeatingSystem,
     InsulationSegment,
@@ -34,6 +35,8 @@ from simulation.costs import (
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
 )
+
+HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
 
 
 def sample_interval_uniformly(interval: pd.Interval) -> float:
@@ -298,22 +301,23 @@ class Household(Agent):
         self.epc = Epc(improved_epc_level)
 
     def get_heating_system_options(
-        self, model: "CnzAgentBasedModel"
+        self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
 
         heating_system_options = model.heating_systems
         if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
-            heating_system_options -= set(
-                [
-                    HeatingSystem.HEAT_PUMP_AIR_SOURCE,
-                    HeatingSystem.HEAT_PUMP_GROUND_SOURCE,
-                ]
-            )
+            heating_system_options -= HEAT_PUMPS
 
         if self.off_gas_grid:
             heating_system_options -= {HeatingSystem.BOILER_GAS}
         else:
             heating_system_options -= {HeatingSystem.BOILER_OIL}
+
+        if event_trigger == EventTrigger.BREAKDOWN:
+            # if household already has a heat pump, they can reinstall that type of heat pump in a breakdown
+            # heat pumps are otherwise unfeasible in a breakdown due to installation lead times
+            unfeasible_heating_systems = HEAT_PUMPS - {self.heating_system}
+            heating_system_options -= unfeasible_heating_systems
 
         return heating_system_options
 
@@ -331,6 +335,9 @@ class Household(Agent):
 
     def step(self, model):
         self.update_heating_status(model)
+        if not self.heating_functioning:
+            self.get_heating_system_options(model, event_trigger=EventTrigger.BREAKDOWN)
+
         self.evaluate_renovation(model)
         if self.is_renovating:
             self.decide_renovation_scope()
@@ -343,3 +350,7 @@ class Household(Agent):
                     insulation_quotes, self.choose_n_elements_to_insulate()
                 )
                 self.install_insulation_elements(chosen_elements)
+            if self.renovate_heating_system:
+                self.get_heating_system_options(
+                    model, event_trigger=EventTrigger.RENOVATION
+                )

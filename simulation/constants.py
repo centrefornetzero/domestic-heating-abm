@@ -96,3 +96,8 @@ class InsulationSegment(enum.Enum):
     SMALL_DETACHED_HOUSE = 6
     LARGE_DETACHED_HOUSE = 7
     BUNGALOW = 8
+
+
+class EventTrigger(enum.Enum):
+    BREAKDOWN = 0
+    RENOVATION = 1
