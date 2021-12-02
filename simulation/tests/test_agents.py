@@ -29,6 +29,7 @@ def household_factory(**agent_attributes):
         "built_form": BuiltForm.MID_TERRACE,
         "heating_system": HeatingSystem.BOILER_GAS,
         "epc": Epc.D,
+        "potential_epc": Epc.C,
         "occupant_type": OccupantType.OWNER_OCCUPIER,
         "is_solid_wall": False,
         "walls_energy_efficiency": 3,
@@ -38,6 +39,18 @@ def household_factory(**agent_attributes):
         "is_heat_pump_aware": True,
     }
     return Household(**{**default_values, **agent_attributes})
+
+
+def model_factory(**model_attributes):
+    default_values = {
+        "start_datetime": datetime.datetime.now(),
+        "step_interval": datetime.timedelta(minutes=1440),
+        "annual_renovation_rate": 0.05,
+    }
+    return CnzAgentBasedModel(**{**default_values, **model_attributes})
+
+
+HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
 
 
 class TestHousehold:
@@ -52,6 +65,7 @@ class TestHousehold:
             built_form=BuiltForm.MID_TERRACE,
             heating_system=HeatingSystem.BOILER_ELECTRIC,
             epc=Epc.C,
+            potential_epc=Epc.B,
             occupant_type=OccupantType.RENTER_PRIVATE,
             is_solid_wall=False,
             walls_energy_efficiency=4,
@@ -70,6 +84,7 @@ class TestHousehold:
         assert household.heating_system == HeatingSystem.BOILER_ELECTRIC
         assert 0 <= household.heating_system_age <= HEATING_SYSTEM_LIFETIME_YEARS
         assert household.epc == Epc.C
+        assert household.potential_epc == Epc.B
         assert household.occupant_type == OccupantType.RENTER_PRIVATE
         assert not household.is_solid_wall
         assert household.walls_energy_efficiency == 4
@@ -207,3 +222,61 @@ class TestHousehold:
 
         assert epc_A_household.roof_energy_efficiency == 5
         assert epc_A_household.epc == Epc.A
+
+    def test_households_with_potential_epc_below_C_are_not_heat_pump_suitable(
+        self,
+    ) -> None:
+
+        low_potential_epc_household = household_factory(potential_epc=Epc.D)
+
+        assert not low_potential_epc_household.is_heat_pump_suitable
+
+    def test_households_not_suitable_archetype_are_not_heat_pump_suitable(
+        self,
+    ) -> None:
+
+        unsuitable_archetype_household = household_factory(
+            is_heat_pump_suitable_archetype=False
+        )
+
+        assert not unsuitable_archetype_household.is_heat_pump_suitable
+
+    def test_heat_pumps_not_in_heating_system_options_if_household_not_heat_pump_suitable(
+        self,
+    ) -> None:
+
+        unsuitable_household = household_factory(potential_epc=Epc.D)
+        model = model_factory()
+        assert not HEAT_PUMPS.intersection(
+            unsuitable_household.get_heating_system_options(model)
+        )
+
+    def test_heat_pumps_not_in_heating_system_options_if_household_not_heat_pump_aware(
+        self,
+    ) -> None:
+
+        unaware_household = household_factory(is_heat_pump_aware=False)
+        model = model_factory()
+        assert not HEAT_PUMPS.intersection(
+            unaware_household.get_heating_system_options(model)
+        )
+
+    def test_gas_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+        self,
+    ) -> None:
+
+        off_gas_grid_household = household_factory(off_gas_grid=True)
+        model = model_factory()
+        assert not {HeatingSystem.BOILER_GAS}.intersection(
+            off_gas_grid_household.get_heating_system_options(model)
+        )
+
+    def test_oil_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+        self,
+    ) -> None:
+
+        on_gas_grid_household = household_factory(off_gas_grid=False)
+        model = model_factory()
+        assert not {HeatingSystem.BOILER_OIL}.intersection(
+            on_gas_grid_household.get_heating_system_options(model)
+        )

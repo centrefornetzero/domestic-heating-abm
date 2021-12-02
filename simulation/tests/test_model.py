@@ -48,6 +48,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
             "built_form": ["mid_terrace"],
             "heating_system": ["boiler_gas"],
             "epc": ["C"],
+            "potential_epc": ["B"],
             "occupant_type": ["owner_occupier"],
             "is_solid_wall": [False],
             "walls_energy_efficiency": [3],
@@ -72,6 +73,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     assert household.built_form == BuiltForm.MID_TERRACE
     assert household.heating_system == HeatingSystem.BOILER_GAS
     assert household.epc == Epc.C
+    assert household.potential_epc == Epc.B
     assert household.occupant_type == OccupantType.OWNER_OCCUPIER
     assert not household.is_solid_wall
     assert household.walls_energy_efficiency == 3
@@ -96,6 +98,7 @@ def test_create_many_households() -> None:
             "built_form": ["mid_terrace"],
             "heating_system": ["boiler_gas"],
             "epc": ["C"],
+            "potential_epc": ["B"],
             "occupant_type": ["owner_occupier"],
             "is_solid_wall": [False],
             "walls_energy_efficiency": [3],

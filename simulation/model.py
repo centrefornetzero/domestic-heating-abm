@@ -28,6 +28,7 @@ class CnzAgentBasedModel(AgentBasedModel):
         self.step_interval = step_interval
         self.current_datetime = start_datetime
         self.annual_renovation_rate = annual_renovation_rate
+        self.heating_systems = set(HeatingSystem)
 
         super().__init__(UnorderedSpace())
 
@@ -55,6 +56,7 @@ def create_households(
             built_form=BuiltForm[household.built_form.upper()],
             heating_system=HeatingSystem[household.heating_system.upper()],
             epc=Epc[household.epc.upper()],
+            potential_epc=Epc[household.potential_epc.upper()],
             occupant_type=OccupantType[household.occupant_type.upper()],
             is_solid_wall=household.is_solid_wall,
             walls_energy_efficiency=household.walls_energy_efficiency,
