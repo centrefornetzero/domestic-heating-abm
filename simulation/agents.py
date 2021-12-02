@@ -174,16 +174,18 @@ class Household(Agent):
             return InsulationSegment.BUNGALOW
 
     @property
-    def is_heat_pump_suitable(self) -> float:
+    def is_heat_pump_suitable(self) -> bool:
 
-        if not all(
-            [
-                self.is_heat_pump_suitable_archetype,
-                self.potential_epc.value <= Epc.C.value,
-            ]
-        ):
-            return False
-        return True
+        return (
+            False
+            if not all(
+                [
+                    self.is_heat_pump_suitable_archetype,
+                    self.potential_epc.value <= Epc.C.value,
+                ]
+            )
+            else True
+        )
 
     def evaluate_renovation(self, model) -> None:
 
