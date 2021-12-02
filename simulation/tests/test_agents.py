@@ -301,7 +301,7 @@ class TestHousehold:
             )
         )
 
-    def test_heat_pump_not_in_heating_system_options_if_replacement_triggered_by_breakdown(
+    def test_heat_pump_not_in_heating_system_options_at_breakdown_event(
         self,
     ) -> None:
 
@@ -320,7 +320,7 @@ class TestHousehold:
         )
 
     @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
-    def test_heat_pump_in_heating_system_options_if_replacement_triggered_by_breakdown_but_household_has_heat_pump(
+    def test_heat_pump_in_heating_system_options_at_breakdown_event_if_household_has_heat_pump(
         self,
         heat_pump,
     ) -> None:

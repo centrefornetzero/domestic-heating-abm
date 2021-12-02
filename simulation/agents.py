@@ -115,7 +115,7 @@ class Household(Agent):
         return random.random() < p
 
     @staticmethod
-    def weibull_hazard_rate(alpha: float, beta: float, age_years: float):
+    def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
         # Source: # https://en.wikipedia.org/wiki/Weibull_distribution
 
         """
