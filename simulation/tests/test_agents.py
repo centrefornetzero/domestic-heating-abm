@@ -210,3 +210,61 @@ class TestHousehold:
 
         assert epc_A_household.roof_energy_efficiency == 5
         assert epc_A_household.epc == Epc.A
+
+    def test_households_with_potential_epc_below_C_are_not_heat_pump_suitable(
+        self,
+    ) -> None:
+
+        low_potential_epc_household = household_factory(potential_epc=Epc.D)
+
+        assert not low_potential_epc_household.is_heat_pump_suitable
+
+    def test_households_not_suitable_archetype_are_not_heat_pump_suitable(
+        self,
+    ) -> None:
+
+        unsuitable_archetype_household = household_factory(
+            is_heat_pump_suitable_archetype=False
+        )
+
+        assert not unsuitable_archetype_household.is_heat_pump_suitable
+
+    def test_heat_pumps_not_in_heating_system_options_if_household_not_heat_pump_suitable(
+        self,
+    ) -> None:
+
+        unsuitable_household = household_factory(potential_epc=Epc.D)
+        model = model_factory()
+        assert not HEAT_PUMPS.intersection(
+            unsuitable_household.get_heating_system_options(model)
+        )
+
+    def test_heat_pumps_not_in_heating_system_options_if_household_not_heat_pump_aware(
+        self,
+    ) -> None:
+
+        unaware_household = household_factory(is_heat_pump_aware=False)
+        model = model_factory()
+        assert not HEAT_PUMPS.intersection(
+            unaware_household.get_heating_system_options(model)
+        )
+
+    def test_gas_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+        self,
+    ) -> None:
+
+        off_gas_grid_household = household_factory(off_gas_grid=True)
+        model = model_factory()
+        assert not {HeatingSystem.BOILER_GAS}.intersection(
+            off_gas_grid_household.get_heating_system_options(model)
+        )
+
+    def test_oil_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+        self,
+    ) -> None:
+
+        on_gas_grid_household = household_factory(off_gas_grid=False)
+        model = model_factory()
+        assert not {HeatingSystem.BOILER_OIL}.intersection(
+            on_gas_grid_household.get_heating_system_options(model)
+        )

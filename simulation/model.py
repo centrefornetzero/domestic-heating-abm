@@ -28,6 +28,7 @@ class CnzAgentBasedModel(AgentBasedModel):
         self.step_interval = step_interval
         self.current_datetime = start_datetime
         self.annual_renovation_rate = annual_renovation_rate
+        self.heating_systems = set(HeatingSystem)
 
         super().__init__(UnorderedSpace())
 

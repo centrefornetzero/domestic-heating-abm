@@ -169,6 +169,18 @@ class Household(Agent):
         if self.property_type == PropertyType.BUNGALOW:
             return InsulationSegment.BUNGALOW
 
+    @property
+    def is_heat_pump_suitable(self) -> float:
+
+        if not all(
+            [
+                self.is_heat_pump_suitable_archetype,
+                self.potential_epc.value <= Epc.C.value,
+            ]
+        ):
+            return False
+        return True
+
     def evaluate_renovation(self, model) -> None:
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
