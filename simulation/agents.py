@@ -15,6 +15,8 @@ from simulation.constants import (
     GB_PROPERTY_VALUE_WEIBULL_BETA,
     GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
     GB_RENOVATION_BUDGET_WEIBULL_BETA,
+    HAZARD_RATE_HEATING_SYSTEM_ALPHA,
+    HAZARD_RATE_HEATING_SYSTEM_BETA,
     HEATING_SYSTEM_FUEL,
     BuiltForm,
     ConstructionYearBand,
@@ -109,6 +111,18 @@ class Household(Agent):
     def true_with_probability(p: float) -> bool:
         return random.random() < p
 
+    @staticmethod
+    def weibull_hazard_rate(alpha: float, beta: float, age_years: float):
+        # Source: # https://en.wikipedia.org/wiki/Weibull_distribution
+
+        """
+        alpha: A value > 1 indicates that failure rates increases over time (e.g. an ageing process)
+        beta: The larger this value, the more 'spread out' the distribution is
+        age_years: The age of an item subject to failures over time (e.g. heating_type, or vehicle)
+        """
+
+        return (alpha / beta) * (age_years / beta) ** (alpha - 1)
+
     @property
     def wealth_percentile(self) -> float:
 
@@ -186,6 +200,9 @@ class Household(Agent):
             )
             else True
         )
+
+    def heating_system_age_years(self, current_datetime: datetime.datetime) -> float:
+        return (current_datetime - self.heating_system_install_date).days / 365
 
     def evaluate_renovation(self, model) -> None:
 
@@ -300,7 +317,20 @@ class Household(Agent):
 
         return heating_system_options
 
+    def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
+
+        step_interval_years = model.step_interval / datetime.timedelta(days=365)
+        probability_density = self.weibull_hazard_rate(
+            HAZARD_RATE_HEATING_SYSTEM_ALPHA,
+            HAZARD_RATE_HEATING_SYSTEM_BETA,
+            self.heating_system_age_years(model.current_datetime),
+        )
+        proba_failure = probability_density * step_interval_years
+        if random.random() < proba_failure:
+            self.heating_functioning = False
+
     def step(self, model):
+        self.update_heating_status(model)
         self.evaluate_renovation(model)
         if self.is_renovating:
             self.decide_renovation_scope()

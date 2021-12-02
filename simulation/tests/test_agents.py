@@ -283,3 +283,16 @@ class TestHousehold:
         assert not {HeatingSystem.BOILER_OIL}.intersection(
             on_gas_grid_household.get_heating_system_options(model)
         )
+
+    def test_household_with_ancient_heating_system_experiences_failure(self) -> None:
+
+        household = household_factory(
+            heating_system_install_date=datetime.datetime(1960, 1, 1, 0, 0, 0)
+        )
+        model = model_factory(start_datetime=datetime.datetime.now())
+
+        assert household.heating_functioning
+
+        household.update_heating_status(model)
+
+        assert not household.heating_functioning
