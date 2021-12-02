@@ -16,7 +16,6 @@ from simulation.constants import (
     GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
     GB_RENOVATION_BUDGET_WEIBULL_BETA,
     HEATING_SYSTEM_FUEL,
-    HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -50,6 +49,7 @@ class Household(Agent):
         property_type: PropertyType,
         built_form: BuiltForm,
         heating_system: HeatingSystem,
+        heating_system_install_date: datetime.datetime,
         epc: Epc,
         potential_epc: Epc,
         occupant_type: OccupantType,
@@ -75,7 +75,7 @@ class Household(Agent):
         self.off_gas_grid = off_gas_grid
         self.heating_functioning = True
         self.heating_system = heating_system
-        self.heating_system_age = random.randint(0, HEATING_SYSTEM_LIFETIME_YEARS)
+        self.heating_system_install_date = heating_system_install_date
         self.epc = epc
         self.potential_epc = potential_epc
         self.walls_energy_efficiency = walls_energy_efficiency
