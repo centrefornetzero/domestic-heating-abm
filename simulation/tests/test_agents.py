@@ -41,6 +41,18 @@ def household_factory(**agent_attributes):
     return Household(**{**default_values, **agent_attributes})
 
 
+def model_factory(**model_attributes):
+    default_values = {
+        "start_datetime": datetime.datetime.now(),
+        "step_interval": datetime.timedelta(minutes=1440),
+        "annual_renovation_rate": 0.05,
+    }
+    return CnzAgentBasedModel(**{**default_values, **model_attributes})
+
+
+HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
+
+
 class TestHousehold:
     def test_create_household(self) -> None:
         household = household_factory(

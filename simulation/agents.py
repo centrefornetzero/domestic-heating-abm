@@ -1,11 +1,15 @@
 import datetime
 import math
 import random
-from typing import Dict, Set
+from typing import TYPE_CHECKING, Dict, Set
 
 import pandas as pd
 
 from abm import Agent
+
+if TYPE_CHECKING:
+    from simulation.model import CnzAgentBasedModel
+
 from simulation.constants import (
     GB_PROPERTY_VALUE_WEIBULL_ALPHA,
     GB_PROPERTY_VALUE_WEIBULL_BETA,
@@ -273,6 +277,26 @@ class Household(Agent):
         n_measures = len(insulation_elements)
         improved_epc_level = max(0, self.epc.value - n_measures)
         self.epc = Epc(improved_epc_level)
+
+    def get_heating_system_options(
+        self, model: "CnzAgentBasedModel"
+    ) -> Set[HeatingSystem]:
+
+        heating_system_options = model.heating_systems
+        if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
+            heating_system_options -= set(
+                [
+                    HeatingSystem.HEAT_PUMP_AIR_SOURCE,
+                    HeatingSystem.HEAT_PUMP_GROUND_SOURCE,
+                ]
+            )
+
+        if self.off_gas_grid:
+            heating_system_options -= {HeatingSystem.BOILER_GAS}
+        else:
+            heating_system_options -= {HeatingSystem.BOILER_OIL}
+
+        return heating_system_options
 
     def step(self, model):
         self.evaluate_renovation(model)
