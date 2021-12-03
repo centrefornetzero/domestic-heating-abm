@@ -268,11 +268,10 @@ class TestHousehold:
 
         unaware_household = household_factory(is_heat_pump_aware=False)
         model = model_factory()
-        assert not HEAT_PUMPS.intersection(
-            unaware_household.get_heating_system_options(
-                model, event_trigger=event_trigger
-            )
+        heating_system_options = unaware_household.get_heating_system_options(
+            model, event_trigger
         )
+        assert heating_system_options.intersection(HEAT_PUMPS) == set()
 
     @pytest.mark.parametrize("event_trigger", list(EventTrigger))
     def test_gas_boiler_not_in_heating_system_options_if_household_off_gas_grid(
@@ -281,11 +280,10 @@ class TestHousehold:
 
         off_gas_grid_household = household_factory(off_gas_grid=True)
         model = model_factory()
-        assert not {HeatingSystem.BOILER_GAS}.intersection(
-            off_gas_grid_household.get_heating_system_options(
-                model, event_trigger=event_trigger
-            )
+        heating_system_options = off_gas_grid_household.get_heating_system_options(
+            model, event_trigger
         )
+        assert heating_system_options.intersection({HeatingSystem.BOILER_GAS}) == set()
 
     @pytest.mark.parametrize("event_trigger", list(EventTrigger))
     def test_oil_boiler_not_in_heating_system_options_if_household_off_gas_grid(
@@ -295,11 +293,10 @@ class TestHousehold:
 
         on_gas_grid_household = household_factory(off_gas_grid=False)
         model = model_factory()
-        assert not {HeatingSystem.BOILER_OIL}.intersection(
-            on_gas_grid_household.get_heating_system_options(
-                model, event_trigger=event_trigger
-            )
+        heating_system_options = on_gas_grid_household.get_heating_system_options(
+            model, event_trigger
         )
+        assert heating_system_options.intersection({HeatingSystem.BOILER_OIL}) == set()
 
     def test_heat_pump_not_in_heating_system_options_at_breakdown_event(
         self,
@@ -311,16 +308,15 @@ class TestHousehold:
             heating_system=HeatingSystem.BOILER_GAS,
         )
         model = model_factory()
-        assert heat_pump_suitable_household.is_heat_pump_suitable
-
-        assert not HEAT_PUMPS.intersection(
+        heating_system_options = (
             heat_pump_suitable_household.get_heating_system_options(
-                model, event_trigger=EventTrigger.BREAKDOWN
+                model, EventTrigger.BREAKDOWN
             )
         )
+        assert heating_system_options.intersection(HEAT_PUMPS) == set()
 
     @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
-    def test_heat_pump_in_heating_system_options_at_breakdown_event_if_household_has_heat_pump(
+    def test_current_heat_pump_type_in_heating_system_options_at_breakdown_event_if_household_has_heat_pump(
         self,
         heat_pump,
     ) -> None:
@@ -330,12 +326,10 @@ class TestHousehold:
         )
         model = model_factory()
         assert household_with_heat_pump.is_heat_pump_suitable
-
-        assert {heat_pump}.intersection(
-            household_with_heat_pump.get_heating_system_options(
-                model, event_trigger=EventTrigger.BREAKDOWN
-            )
+        heating_system_options = household_with_heat_pump.get_heating_system_options(
+            model, EventTrigger.BREAKDOWN
         )
+        assert heating_system_options.intersection(HEAT_PUMPS) == {heat_pump}
 
     def test_household_with_ancient_heating_system_experiences_failure(self) -> None:
 
