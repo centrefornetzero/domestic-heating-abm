@@ -280,3 +280,12 @@ class TestHousehold:
         assert not {HeatingSystem.BOILER_OIL}.intersection(
             on_gas_grid_household.get_heating_system_options(model)
         )
+
+    def test_household_with_lower_wealth_has_higher_discount_rate(self) -> None:
+
+        household = household_factory(property_value=random.randint(50_000, 400_000))
+        higher_wealth_household = household_factory(
+            property_value=household.property_value * 1.1
+        )
+
+        assert household.discount_rate > higher_wealth_household.discount_rate
