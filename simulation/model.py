@@ -8,6 +8,7 @@ from abm import AgentBasedModel, UnorderedSpace
 from simulation.agents import Household
 from simulation.collectors import get_agent_collectors, model_collectors
 from simulation.constants import (
+    HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     Epc,
@@ -40,6 +41,7 @@ def create_households(
     num_households: int,
     household_distribution: pd.DataFrame,
     heat_pump_awareness: float,
+    simulation_start_datetime: datetime.datetime,
 ) -> Iterator[Household]:
 
     households = household_distribution.sample(num_households, replace=True)
@@ -55,6 +57,10 @@ def create_households(
             property_type=PropertyType[household.property_type.upper()],
             built_form=BuiltForm[household.built_form.upper()],
             heating_system=HeatingSystem[household.heating_system.upper()],
+            heating_system_install_date=simulation_start_datetime.date()
+            - datetime.timedelta(
+                days=random.randint(0, 365 * HEATING_SYSTEM_LIFETIME_YEARS)
+            ),
             epc=Epc[household.epc.upper()],
             potential_epc=Epc[household.potential_epc.upper()],
             occupant_type=OccupantType[household.occupant_type.upper()],
@@ -83,7 +89,10 @@ def create_and_run_simulation(
     )
 
     households = create_households(
-        num_households, household_distribution, heat_pump_awareness
+        num_households,
+        household_distribution,
+        heat_pump_awareness,
+        model.start_datetime,
     )
     model.add_agents(households)
 

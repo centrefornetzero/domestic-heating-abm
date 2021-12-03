@@ -2,14 +2,15 @@ import datetime
 import random
 
 import numpy as np
+import pytest
 
 from simulation.agents import Household
 from simulation.constants import (
-    HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     Element,
     Epc,
+    EventTrigger,
     HeatingFuel,
     HeatingSystem,
     OccupantType,
@@ -28,6 +29,7 @@ def household_factory(**agent_attributes):
         "property_type": PropertyType.HOUSE,
         "built_form": BuiltForm.MID_TERRACE,
         "heating_system": HeatingSystem.BOILER_GAS,
+        "heating_system_install_date": datetime.date(2021, 1, 1),
         "epc": Epc.D,
         "potential_epc": Epc.C,
         "occupant_type": OccupantType.OWNER_OCCUPIER,
@@ -64,6 +66,7 @@ class TestHousehold:
             property_type=PropertyType.HOUSE,
             built_form=BuiltForm.MID_TERRACE,
             heating_system=HeatingSystem.BOILER_ELECTRIC,
+            heating_system_install_date=datetime.date(1995, 1, 1),
             epc=Epc.C,
             potential_epc=Epc.B,
             occupant_type=OccupantType.RENTER_PRIVATE,
@@ -82,7 +85,7 @@ class TestHousehold:
         assert household.property_type == PropertyType.HOUSE
         assert household.built_form == BuiltForm.MID_TERRACE
         assert household.heating_system == HeatingSystem.BOILER_ELECTRIC
-        assert 0 <= household.heating_system_age <= HEATING_SYSTEM_LIFETIME_YEARS
+        assert household.heating_system_install_date == datetime.date(1995, 1, 1)
         assert household.epc == Epc.C
         assert household.potential_epc == Epc.B
         assert household.occupant_type == OccupantType.RENTER_PRIVATE
@@ -241,45 +244,103 @@ class TestHousehold:
 
         assert not unsuitable_archetype_household.is_heat_pump_suitable
 
+    @pytest.mark.parametrize("event_trigger", list(EventTrigger))
     def test_heat_pumps_not_in_heating_system_options_if_household_not_heat_pump_suitable(
         self,
+        event_trigger,
     ) -> None:
 
         unsuitable_household = household_factory(potential_epc=Epc.D)
         model = model_factory()
         assert not HEAT_PUMPS.intersection(
-            unsuitable_household.get_heating_system_options(model)
+            unsuitable_household.get_heating_system_options(
+                model, event_trigger=event_trigger
+            )
         )
 
+    @pytest.mark.parametrize("event_trigger", list(EventTrigger))
     def test_heat_pumps_not_in_heating_system_options_if_household_not_heat_pump_aware(
         self,
+        event_trigger,
     ) -> None:
 
         unaware_household = household_factory(is_heat_pump_aware=False)
         model = model_factory()
-        assert not HEAT_PUMPS.intersection(
-            unaware_household.get_heating_system_options(model)
+        heating_system_options = unaware_household.get_heating_system_options(
+            model, event_trigger
         )
+        assert heating_system_options.intersection(HEAT_PUMPS) == set()
 
+    @pytest.mark.parametrize("event_trigger", list(EventTrigger))
     def test_gas_boiler_not_in_heating_system_options_if_household_off_gas_grid(
-        self,
+        self, event_trigger
     ) -> None:
 
         off_gas_grid_household = household_factory(off_gas_grid=True)
         model = model_factory()
-        assert not {HeatingSystem.BOILER_GAS}.intersection(
-            off_gas_grid_household.get_heating_system_options(model)
+        heating_system_options = off_gas_grid_household.get_heating_system_options(
+            model, event_trigger
         )
+        assert heating_system_options.intersection({HeatingSystem.BOILER_GAS}) == set()
 
+    @pytest.mark.parametrize("event_trigger", list(EventTrigger))
     def test_oil_boiler_not_in_heating_system_options_if_household_off_gas_grid(
         self,
+        event_trigger,
     ) -> None:
 
         on_gas_grid_household = household_factory(off_gas_grid=False)
         model = model_factory()
-        assert not {HeatingSystem.BOILER_OIL}.intersection(
-            on_gas_grid_household.get_heating_system_options(model)
+        heating_system_options = on_gas_grid_household.get_heating_system_options(
+            model, event_trigger
         )
+        assert heating_system_options.intersection({HeatingSystem.BOILER_OIL}) == set()
+
+    def test_heat_pump_not_in_heating_system_options_at_breakdown_event(
+        self,
+    ) -> None:
+
+        heat_pump_suitable_household = household_factory(
+            epc=Epc.B,
+            is_heat_pump_suitable_archetype=True,
+            heating_system=HeatingSystem.BOILER_GAS,
+        )
+        model = model_factory()
+        heating_system_options = (
+            heat_pump_suitable_household.get_heating_system_options(
+                model, EventTrigger.BREAKDOWN
+            )
+        )
+        assert heating_system_options.intersection(HEAT_PUMPS) == set()
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_current_heat_pump_type_in_heating_system_options_at_breakdown_event_if_household_has_heat_pump(
+        self,
+        heat_pump,
+    ) -> None:
+
+        household_with_heat_pump = household_factory(
+            epc=Epc.B, is_heat_pump_suitable_archetype=True, heating_system=heat_pump
+        )
+        model = model_factory()
+        assert household_with_heat_pump.is_heat_pump_suitable
+        heating_system_options = household_with_heat_pump.get_heating_system_options(
+            model, EventTrigger.BREAKDOWN
+        )
+        assert heating_system_options.intersection(HEAT_PUMPS) == {heat_pump}
+
+    def test_household_with_ancient_heating_system_experiences_failure(self) -> None:
+
+        household = household_factory(
+            heating_system_install_date=datetime.date(1960, 1, 1)
+        )
+        model = model_factory(start_datetime=datetime.datetime.now())
+
+        assert household.heating_functioning
+
+        household.update_heating_status(model)
+
+        assert not household.heating_functioning
 
     def test_household_with_lower_wealth_has_higher_discount_rate(self) -> None:
 

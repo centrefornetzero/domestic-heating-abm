@@ -17,12 +17,14 @@ from simulation.constants import (
     GB_PROPERTY_VALUE_WEIBULL_BETA,
     GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
     GB_RENOVATION_BUDGET_WEIBULL_BETA,
+    HAZARD_RATE_HEATING_SYSTEM_ALPHA,
+    HAZARD_RATE_HEATING_SYSTEM_BETA,
     HEATING_SYSTEM_FUEL,
-    HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     Element,
     Epc,
+    EventTrigger,
     HeatingFuel,
     HeatingSystem,
     InsulationSegment,
@@ -35,6 +37,8 @@ from simulation.costs import (
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
 )
+
+HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
 
 
 def sample_interval_uniformly(interval: pd.Interval) -> float:
@@ -52,6 +56,7 @@ class Household(Agent):
         property_type: PropertyType,
         built_form: BuiltForm,
         heating_system: HeatingSystem,
+        heating_system_install_date: datetime.date,
         epc: Epc,
         potential_epc: Epc,
         occupant_type: OccupantType,
@@ -77,7 +82,7 @@ class Household(Agent):
         self.off_gas_grid = off_gas_grid
         self.heating_functioning = True
         self.heating_system = heating_system
-        self.heating_system_age = random.randint(0, HEATING_SYSTEM_LIFETIME_YEARS)
+        self.heating_system_install_date = heating_system_install_date
         self.epc = epc
         self.potential_epc = potential_epc
         self.walls_energy_efficiency = walls_energy_efficiency
@@ -110,6 +115,18 @@ class Household(Agent):
     @staticmethod
     def true_with_probability(p: float) -> bool:
         return random.random() < p
+
+    @staticmethod
+    def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
+        # Source: # https://en.wikipedia.org/wiki/Weibull_distribution
+
+        """
+        alpha: A value > 1 indicates that failure rates increases over time (e.g. an ageing process)
+        beta: The larger this value, the more 'spread out' the distribution is
+        age_years: The age of an item subject to failures over time (e.g. heating_type, or vehicle)
+        """
+
+        return (alpha / beta) * (age_years / beta) ** (alpha - 1)
 
     @property
     def wealth_percentile(self) -> float:
@@ -201,6 +218,9 @@ class Household(Agent):
             )
             else True
         )
+
+    def heating_system_age_years(self, current_date: datetime.date) -> float:
+        return (current_date - self.heating_system_install_date).days / 365
 
     def evaluate_renovation(self, model) -> None:
 
@@ -296,26 +316,43 @@ class Household(Agent):
         self.epc = Epc(improved_epc_level)
 
     def get_heating_system_options(
-        self, model: "CnzAgentBasedModel"
+        self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
 
         heating_system_options = model.heating_systems
         if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
-            heating_system_options -= set(
-                [
-                    HeatingSystem.HEAT_PUMP_AIR_SOURCE,
-                    HeatingSystem.HEAT_PUMP_GROUND_SOURCE,
-                ]
-            )
+            heating_system_options -= HEAT_PUMPS
 
         if self.off_gas_grid:
             heating_system_options -= {HeatingSystem.BOILER_GAS}
         else:
             heating_system_options -= {HeatingSystem.BOILER_OIL}
 
+        if event_trigger == EventTrigger.BREAKDOWN:
+            # if household already has a heat pump, they can reinstall that type of heat pump in a breakdown
+            # heat pumps are otherwise unfeasible in a breakdown due to installation lead times
+            unfeasible_heating_systems = HEAT_PUMPS - {self.heating_system}
+            heating_system_options -= unfeasible_heating_systems
+
         return heating_system_options
 
+    def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
+
+        step_interval_years = model.step_interval / datetime.timedelta(days=365)
+        probability_density = self.weibull_hazard_rate(
+            HAZARD_RATE_HEATING_SYSTEM_ALPHA,
+            HAZARD_RATE_HEATING_SYSTEM_BETA,
+            self.heating_system_age_years(model.current_datetime.date()),
+        )
+        proba_failure = probability_density * step_interval_years
+        if random.random() < proba_failure:
+            self.heating_functioning = False
+
     def step(self, model):
+        self.update_heating_status(model)
+        if not self.heating_functioning:
+            self.get_heating_system_options(model, event_trigger=EventTrigger.BREAKDOWN)
+
         self.evaluate_renovation(model)
         if self.is_renovating:
             self.decide_renovation_scope()
@@ -328,3 +365,7 @@ class Household(Agent):
                     insulation_quotes, self.choose_n_elements_to_insulate()
                 )
                 self.install_insulation_elements(chosen_elements)
+            if self.renovate_heating_system:
+                self.get_heating_system_options(
+                    model, event_trigger=EventTrigger.RENOVATION
+                )

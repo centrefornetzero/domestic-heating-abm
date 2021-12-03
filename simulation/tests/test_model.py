@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from simulation.constants import (
+    HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     Epc,
@@ -59,8 +60,12 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     )
     num_households = 1
     heat_pump_awareness = 0.4
+    simulation_start_datetime = datetime.datetime.now()
     households = create_households(
-        num_households, household_distribution, heat_pump_awareness
+        num_households,
+        household_distribution,
+        heat_pump_awareness,
+        simulation_start_datetime,
     )
     household = next(households)
 
@@ -72,6 +77,12 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     assert household.property_type == PropertyType.HOUSE
     assert household.built_form == BuiltForm.MID_TERRACE
     assert household.heating_system == HeatingSystem.BOILER_GAS
+    assert (
+        simulation_start_datetime.date()
+        - datetime.timedelta(days=365 * HEATING_SYSTEM_LIFETIME_YEARS)
+        <= household.heating_system_install_date
+        <= simulation_start_datetime.date()
+    )
     assert household.epc == Epc.C
     assert household.potential_epc == Epc.B
     assert household.occupant_type == OccupantType.OWNER_OCCUPIER
@@ -109,7 +120,11 @@ def test_create_many_households() -> None:
     )
     num_households = 100
     heat_pump_awareness = 0.4
+    simulation_start_datetime = datetime.datetime.now()
     households = create_households(
-        num_households, household_distribution, heat_pump_awareness
+        num_households,
+        household_distribution,
+        heat_pump_awareness,
+        simulation_start_datetime,
     )
     assert len(list(households)) == num_households
