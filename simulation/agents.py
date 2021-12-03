@@ -17,8 +17,11 @@ from simulation.constants import (
     GB_PROPERTY_VALUE_WEIBULL_BETA,
     GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
     GB_RENOVATION_BUDGET_WEIBULL_BETA,
+    HEAT_PUMP_CAPACITY_SCALE_FACTOR,
     HEATING_SYSTEM_FUEL,
     HEATING_SYSTEM_LIFETIME_YEARS,
+    MAX_HEAT_PUMP_CAPACITY_KW,
+    MIN_HEAT_PUMP_CAPACITY_KW,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -314,6 +317,16 @@ class Household(Agent):
             heating_system_options -= {HeatingSystem.BOILER_OIL}
 
         return heating_system_options
+
+    def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> float:
+
+        capacity_kw = (
+            HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.floor_area_sqm
+        )
+        return min(
+            max(capacity_kw, MIN_HEAT_PUMP_CAPACITY_KW[heat_pump_type]),
+            MAX_HEAT_PUMP_CAPACITY_KW[heat_pump_type],
+        )
 
     def step(self, model):
         self.evaluate_renovation(model)

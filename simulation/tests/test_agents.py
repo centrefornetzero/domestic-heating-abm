@@ -2,10 +2,13 @@ import datetime
 import random
 
 import numpy as np
+import pytest
 
 from simulation.agents import Household
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
+    MAX_HEAT_PUMP_CAPACITY_KW,
+    MIN_HEAT_PUMP_CAPACITY_KW,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -289,3 +292,30 @@ class TestHousehold:
         )
 
         assert household.discount_rate > higher_wealth_household.discount_rate
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_larger_household_has_equal_or_higher_required_heat_pump_kw_capacity(
+        self, heat_pump
+    ) -> None:
+
+        household = household_factory(floor_area_sqm=random.randint(20, 180))
+        larger_household = household_factory(
+            floor_area_sqm=household.floor_area_sqm * 1.1
+        )
+
+        assert household.compute_heat_pump_capacity_kw(
+            heat_pump
+        ) <= larger_household.compute_heat_pump_capacity_kw(heat_pump)
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_household_required_heat_pump_kw_capacity_within_allowed_range(
+        self, heat_pump
+    ) -> None:
+
+        household = household_factory(floor_area_sqm=random.randint(20, 180))
+
+        assert (
+            MIN_HEAT_PUMP_CAPACITY_KW[heat_pump]
+            <= household.compute_heat_pump_capacity_kw(heat_pump)
+            <= MAX_HEAT_PUMP_CAPACITY_KW[heat_pump]
+        )

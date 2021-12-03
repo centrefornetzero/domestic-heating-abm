@@ -101,3 +101,22 @@ class InsulationSegment(enum.Enum):
 # Individual Time Preferences and Energy Efficiency (NBER Working Paper No. 20969)
 DISCOUNT_RATE_WEIBULL_ALPHA = 0.8
 DISCOUNT_RATE_WEIBULL_BETA = 0.165
+
+
+# Scale factor is inferred from general relationship between estimated floor area and kW capacity
+# https://www.boilerguide.co.uk/articles/size-heat-pump-need (see table)
+# https://www.imsheatpumps.co.uk/blog/what-size-heat-pump-do-i-need-for-my-house/
+HEAT_PUMP_CAPACITY_SCALE_FACTOR = {
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 0.1,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 0.08,
+}
+
+MAX_HEAT_PUMP_CAPACITY_KW = {
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 20.0,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 25.0,
+}
+
+MIN_HEAT_PUMP_CAPACITY_KW = {
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 1.0,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 1.0,
+}
