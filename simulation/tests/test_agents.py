@@ -6,7 +6,6 @@ import pytest
 
 from simulation.agents import Household
 from simulation.constants import (
-    HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -30,7 +29,7 @@ def household_factory(**agent_attributes):
         "property_type": PropertyType.HOUSE,
         "built_form": BuiltForm.MID_TERRACE,
         "heating_system": HeatingSystem.BOILER_GAS,
-        "heating_system_install_date": datetime.datetime(2021, 1, 1, 0, 0, 0),
+        "heating_system_install_date": datetime.date(2021, 1, 1),
         "epc": Epc.D,
         "potential_epc": Epc.C,
         "occupant_type": OccupantType.OWNER_OCCUPIER,
@@ -67,7 +66,7 @@ class TestHousehold:
             property_type=PropertyType.HOUSE,
             built_form=BuiltForm.MID_TERRACE,
             heating_system=HeatingSystem.BOILER_ELECTRIC,
-            heating_system_install_date=datetime.datetime(1995, 1, 1, 0, 0, 0),
+            heating_system_install_date=datetime.date(1995, 1, 1),
             epc=Epc.C,
             potential_epc=Epc.B,
             occupant_type=OccupantType.RENTER_PRIVATE,
@@ -86,9 +85,7 @@ class TestHousehold:
         assert household.property_type == PropertyType.HOUSE
         assert household.built_form == BuiltForm.MID_TERRACE
         assert household.heating_system == HeatingSystem.BOILER_ELECTRIC
-        assert household.heating_system_install_date == datetime.datetime(
-            1995, 1, 1, 0, 0, 0
-        )
+        assert household.heating_system_install_date == datetime.date(1995, 1, 1)
         assert household.epc == Epc.C
         assert household.potential_epc == Epc.B
         assert household.occupant_type == OccupantType.RENTER_PRIVATE
