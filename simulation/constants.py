@@ -98,6 +98,13 @@ class InsulationSegment(enum.Enum):
     BUNGALOW = 8
 
 
+# parameters chosen to align to a distribution of discount rates obtained from an investigation of 1,217 random
+# U.S. homeowners given choice experiments relating to the purchase of a water heater (mean 19%; std. 23%)
+# Individual Time Preferences and Energy Efficiency (NBER Working Paper No. 20969)
+DISCOUNT_RATE_WEIBULL_ALPHA = 0.8
+DISCOUNT_RATE_WEIBULL_BETA = 0.165
+
+
 class EventTrigger(enum.Enum):
     BREAKDOWN = 0
     RENOVATION = 1

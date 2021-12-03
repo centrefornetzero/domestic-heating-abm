@@ -6,6 +6,7 @@ import pytest
 
 from simulation.agents import Household
 from simulation.constants import (
+    HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -343,3 +344,12 @@ class TestHousehold:
         household.update_heating_status(model)
 
         assert not household.heating_functioning
+
+    def test_household_with_lower_wealth_has_higher_discount_rate(self) -> None:
+
+        household = household_factory(property_value=random.randint(50_000, 400_000))
+        higher_wealth_household = household_factory(
+            property_value=household.property_value * 1.1
+        )
+
+        assert household.discount_rate > higher_wealth_household.discount_rate

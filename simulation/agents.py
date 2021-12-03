@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from simulation.model import CnzAgentBasedModel
 
 from simulation.constants import (
+    DISCOUNT_RATE_WEIBULL_ALPHA,
+    DISCOUNT_RATE_WEIBULL_BETA,
     GB_PROPERTY_VALUE_WEIBULL_ALPHA,
     GB_PROPERTY_VALUE_WEIBULL_BETA,
     GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
@@ -133,6 +135,19 @@ class Household(Agent):
             GB_PROPERTY_VALUE_WEIBULL_ALPHA,
             GB_PROPERTY_VALUE_WEIBULL_BETA,
             self.property_value,
+        )
+
+    @property
+    def discount_rate(self) -> float:
+
+        return max(
+            1
+            - self.get_weibull_value_from_percentile(
+                DISCOUNT_RATE_WEIBULL_ALPHA,
+                DISCOUNT_RATE_WEIBULL_BETA,
+                self.wealth_percentile,
+            ),
+            0,
         )
 
     @property
