@@ -108,3 +108,23 @@ DISCOUNT_RATE_WEIBULL_BETA = 0.165
 class EventTrigger(enum.Enum):
     BREAKDOWN = 0
     RENOVATION = 1
+
+
+# Scale factor is inferred from general relationship between estimated floor area and kW capacity
+# https://www.boilerguide.co.uk/articles/size-heat-pump-need (see table)
+# https://www.imsheatpumps.co.uk/blog/what-size-heat-pump-do-i-need-for-my-house/
+# https://www.homeheatingguide.co.uk/renewables-advice/air-source-heat-pumps-a-sizing-guide
+HEAT_PUMP_CAPACITY_SCALE_FACTOR = {
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 0.1,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 0.08,
+}
+
+MAX_HEAT_PUMP_CAPACITY_KW = {
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 20.0,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 25.0,
+}
+
+MIN_HEAT_PUMP_CAPACITY_KW = {
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 2.0,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 2.0,
+}

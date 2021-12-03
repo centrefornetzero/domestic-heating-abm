@@ -19,7 +19,10 @@ from simulation.constants import (
     GB_RENOVATION_BUDGET_WEIBULL_BETA,
     HAZARD_RATE_HEATING_SYSTEM_ALPHA,
     HAZARD_RATE_HEATING_SYSTEM_BETA,
+    HEAT_PUMP_CAPACITY_SCALE_FACTOR,
     HEATING_SYSTEM_FUEL,
+    MAX_HEAT_PUMP_CAPACITY_KW,
+    MIN_HEAT_PUMP_CAPACITY_KW,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -347,6 +350,16 @@ class Household(Agent):
         proba_failure = probability_density * step_interval_years
         if random.random() < proba_failure:
             self.heating_functioning = False
+
+    def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> float:
+
+        capacity_kw = (
+            HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.floor_area_sqm
+        )
+        return min(
+            max(capacity_kw, MIN_HEAT_PUMP_CAPACITY_KW[heat_pump_type]),
+            MAX_HEAT_PUMP_CAPACITY_KW[heat_pump_type],
+        )
 
     def step(self, model):
         self.update_heating_status(model)
