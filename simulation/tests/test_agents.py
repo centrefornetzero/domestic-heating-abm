@@ -340,7 +340,7 @@ class TestHousehold:
     def test_household_with_ancient_heating_system_experiences_failure(self) -> None:
 
         household = household_factory(
-            heating_system_install_date=datetime.datetime(1960, 1, 1, 0, 0, 0)
+            heating_system_install_date=datetime.date(1960, 1, 1)
         )
         model = model_factory(start_datetime=datetime.datetime.now())
 

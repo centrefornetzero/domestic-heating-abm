@@ -78,10 +78,10 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     assert household.built_form == BuiltForm.MID_TERRACE
     assert household.heating_system == HeatingSystem.BOILER_GAS
     assert (
-        simulation_start_datetime
+        simulation_start_datetime.date()
         - datetime.timedelta(days=365 * HEATING_SYSTEM_LIFETIME_YEARS)
         <= household.heating_system_install_date
-        <= simulation_start_datetime
+        <= simulation_start_datetime.date()
     )
     assert household.epc == Epc.C
     assert household.potential_epc == Epc.B

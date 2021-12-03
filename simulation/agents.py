@@ -54,7 +54,7 @@ class Household(Agent):
         property_type: PropertyType,
         built_form: BuiltForm,
         heating_system: HeatingSystem,
-        heating_system_install_date: datetime.datetime,
+        heating_system_install_date: datetime.date,
         epc: Epc,
         potential_epc: Epc,
         occupant_type: OccupantType,
@@ -204,8 +204,8 @@ class Household(Agent):
             else True
         )
 
-    def heating_system_age_years(self, current_datetime: datetime.datetime) -> float:
-        return (current_datetime - self.heating_system_install_date).days / 365
+    def heating_system_age_years(self, current_date: datetime.date) -> float:
+        return (current_date - self.heating_system_install_date).days / 365
 
     def evaluate_renovation(self, model) -> None:
 
@@ -327,7 +327,7 @@ class Household(Agent):
         probability_density = self.weibull_hazard_rate(
             HAZARD_RATE_HEATING_SYSTEM_ALPHA,
             HAZARD_RATE_HEATING_SYSTEM_BETA,
-            self.heating_system_age_years(model.current_datetime),
+            self.heating_system_age_years(model.current_datetime.date()),
         )
         proba_failure = probability_density * step_interval_years
         if random.random() < proba_failure:

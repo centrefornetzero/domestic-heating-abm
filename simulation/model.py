@@ -57,7 +57,7 @@ def create_households(
             property_type=PropertyType[household.property_type.upper()],
             built_form=BuiltForm[household.built_form.upper()],
             heating_system=HeatingSystem[household.heating_system.upper()],
-            heating_system_install_date=simulation_start_datetime
+            heating_system_install_date=simulation_start_datetime.date()
             - datetime.timedelta(
                 days=random.randint(0, 365 * HEATING_SYSTEM_LIFETIME_YEARS)
             ),
