@@ -6,7 +6,6 @@ import pytest
 
 from simulation.agents import Household
 from simulation.constants import (
-    HEATING_SYSTEM_LIFETIME_YEARS,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
     BuiltForm,
