@@ -54,6 +54,8 @@ HEATING_SYSTEM_FUEL: Dict[HeatingSystem, HeatingFuel] = {
 }
 
 HEATING_SYSTEM_LIFETIME_YEARS = 15
+HAZARD_RATE_HEATING_SYSTEM_ALPHA = 6
+HAZARD_RATE_HEATING_SYSTEM_BETA = 15
 
 
 class ConstructionYearBand(enum.Enum):
@@ -101,6 +103,11 @@ class InsulationSegment(enum.Enum):
 # Individual Time Preferences and Energy Efficiency (NBER Working Paper No. 20969)
 DISCOUNT_RATE_WEIBULL_ALPHA = 0.8
 DISCOUNT_RATE_WEIBULL_BETA = 0.165
+
+
+class EventTrigger(enum.Enum):
+    BREAKDOWN = 0
+    RENOVATION = 1
 
 
 # Scale factor is inferred from general relationship between estimated floor area and kW capacity
