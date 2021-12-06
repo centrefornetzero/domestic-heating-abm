@@ -189,9 +189,11 @@ def get_heating_fuel_costs_net_present_value(
     num_lookahead_years: int,
 ):
 
-    annual_heating_demand_kwh = (
-        household.annual_kwh_heating_demand * COEFFICIENT_OF_PERFORMANCE[heating_system]
+    SCALE_FACTOR_COP = (
+        COEFFICIENT_OF_PERFORMANCE[household.heating_system]
+        / COEFFICIENT_OF_PERFORMANCE[heating_system]
     )
+    annual_heating_demand_kwh = household.annual_kwh_heating_demand * SCALE_FACTOR_COP
     annual_heating_bill = (
         annual_heating_demand_kwh
         * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[heating_system]]

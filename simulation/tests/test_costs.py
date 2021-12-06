@@ -129,6 +129,8 @@ class TestCosts:
             property_value=household.property_value * 1.1
         )
 
+        assert household.discount_rate > wealthier_household.discount_rate
+
         assert get_heating_fuel_costs_net_present_value(
             household, heating_system, num_look_ahead_years
         ) < get_heating_fuel_costs_net_present_value(
