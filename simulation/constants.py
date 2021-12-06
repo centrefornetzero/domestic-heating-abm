@@ -134,3 +134,19 @@ class PropertySize(enum.Enum):
     SMALL = 0
     MEDIUM = 1
     LARGE = 2
+
+
+# Source: https://www.ovoenergy.com/guides/energy-guides/how-much-heating-energy-do-you-use
+# Assume figure of 133kWh/m2a a reflects an average heating system Coefficient of Performance of 0.92 (gas boiler)
+# 133 * 0.92 = 122kWh/m2a
+HEATING_KWH_PER_SQM_ANNUAL = 122
+
+COEFFICIENT_OF_PERFORMANCE: Dict[HeatingSystem, float] = {
+    # The conversion factor between 1kWh of fuel and useful heat. For example:
+    # Gas Boilers ~ 0.9, since 1kWh of gas produces ~0.9kWh of heat (due to inefficiencies in the boiler)
+    HeatingSystem.BOILER_GAS: 0.92,
+    HeatingSystem.BOILER_OIL: 0.92,
+    HeatingSystem.BOILER_ELECTRIC: 0.995,
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 3,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 4,
+}

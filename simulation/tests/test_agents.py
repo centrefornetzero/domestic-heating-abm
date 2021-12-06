@@ -379,3 +379,42 @@ class TestHousehold:
             <= household.compute_heat_pump_capacity_kw(heat_pump)
             <= MAX_HEAT_PUMP_CAPACITY_KW[heat_pump]
         )
+
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_annual_heating_demand_increases_with_floor_area(
+        self,
+        heating_system,
+    ) -> None:
+
+        household = household_factory(
+            floor_area_sqm=random.randint(20, 180), heating_system=heating_system
+        )
+        larger_household = household_factory(
+            floor_area_sqm=household.floor_area_sqm * 1.1,
+            heating_system=heating_system,
+        )
+
+        assert (
+            household.annual_kwh_heating_demand
+            < larger_household.annual_kwh_heating_demand
+        )
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_annual_heating_demand_is_lower_for_more_efficient_heating_systems(
+        self,
+        heat_pump,
+    ) -> None:
+
+        household_with_gas_boiler = household_factory(
+            floor_area_sqm=random.randint(20, 180),
+            heating_system=HeatingSystem.BOILER_GAS,
+        )
+        household_with_heat_pump = household_factory(
+            floor_area_sqm=household_with_gas_boiler.floor_area_sqm,
+            heating_system=heat_pump,
+        )
+
+        assert (
+            household_with_heat_pump.annual_kwh_heating_demand
+            < household_with_gas_boiler.annual_kwh_heating_demand
+        )

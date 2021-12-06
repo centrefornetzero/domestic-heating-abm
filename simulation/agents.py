@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from simulation.model import CnzAgentBasedModel
 
 from simulation.constants import (
+    COEFFICIENT_OF_PERFORMANCE,
     DISCOUNT_RATE_WEIBULL_ALPHA,
     DISCOUNT_RATE_WEIBULL_BETA,
     GB_PROPERTY_VALUE_WEIBULL_ALPHA,
@@ -20,6 +21,7 @@ from simulation.constants import (
     HAZARD_RATE_HEATING_SYSTEM_ALPHA,
     HAZARD_RATE_HEATING_SYSTEM_BETA,
     HEAT_PUMP_CAPACITY_SCALE_FACTOR,
+    HEATING_KWH_PER_SQM_ANNUAL,
     HEATING_SYSTEM_FUEL,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
@@ -237,6 +239,13 @@ class Household(Agent):
             return PropertySize.LARGE
         else:
             return PropertySize.MEDIUM
+
+    @property
+    def annual_kwh_heating_demand(self) -> float:
+
+        return (
+            self.floor_area_sqm * HEATING_KWH_PER_SQM_ANNUAL
+        ) / COEFFICIENT_OF_PERFORMANCE[self.heating_system]
 
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
