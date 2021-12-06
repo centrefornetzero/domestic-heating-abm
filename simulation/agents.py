@@ -32,6 +32,7 @@ from simulation.constants import (
     HeatingSystem,
     InsulationSegment,
     OccupantType,
+    PropertySize,
     PropertyType,
 )
 from simulation.costs import (
@@ -39,6 +40,7 @@ from simulation.costs import (
     DOUBLE_GLAZING_UPVC_COST,
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
+    get_unit_and_install_costs,
 )
 
 HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
@@ -222,6 +224,20 @@ class Household(Agent):
             else True
         )
 
+    @property
+    def property_size(self) -> PropertySize:
+
+        # Source: England/Wales EPC
+        FLOOR_AREA_SQM_33RD_PERCENTILE = 66
+        FLOOR_AREA_SQM_66TH_PERCENTILE = 89
+
+        if self.floor_area_sqm < FLOOR_AREA_SQM_33RD_PERCENTILE:
+            return PropertySize.SMALL
+        elif self.floor_area_sqm > FLOOR_AREA_SQM_66TH_PERCENTILE:
+            return PropertySize.LARGE
+        else:
+            return PropertySize.MEDIUM
+
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
 
@@ -351,20 +367,26 @@ class Household(Agent):
         if random.random() < proba_failure:
             self.heating_functioning = False
 
-    def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> float:
+    def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> int:
 
         capacity_kw = (
             HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.floor_area_sqm
         )
-        return min(
-            max(capacity_kw, MIN_HEAT_PUMP_CAPACITY_KW[heat_pump_type]),
-            MAX_HEAT_PUMP_CAPACITY_KW[heat_pump_type],
+        return math.ceil(
+            min(
+                max(capacity_kw, MIN_HEAT_PUMP_CAPACITY_KW[heat_pump_type]),
+                MAX_HEAT_PUMP_CAPACITY_KW[heat_pump_type],
+            )
         )
 
     def step(self, model):
         self.update_heating_status(model)
         if not self.heating_functioning:
-            self.get_heating_system_options(model, event_trigger=EventTrigger.BREAKDOWN)
+            heating_system_options = self.get_heating_system_options(
+                model, event_trigger=EventTrigger.BREAKDOWN
+            )
+            for heating_system in heating_system_options:
+                get_unit_and_install_costs(self, heating_system)
 
         self.evaluate_renovation(model)
         if self.is_renovating:

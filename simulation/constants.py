@@ -128,3 +128,9 @@ MIN_HEAT_PUMP_CAPACITY_KW = {
     HeatingSystem.HEAT_PUMP_AIR_SOURCE: 2.0,
     HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 2.0,
 }
+
+
+class PropertySize(enum.Enum):
+    SMALL = 0
+    MEDIUM = 1
+    LARGE = 2
