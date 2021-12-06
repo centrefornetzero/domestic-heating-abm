@@ -56,7 +56,7 @@ if __name__ == "__main__":
         args.household_distribution,
         args.heat_pump_awareness,
         args.annual_renovation_rate,
-        args.future_cashflow_lookahead_years,
+        args.household_num_lookahead_years,
     )
 
     write_jsonlines(history, args.history_filename)

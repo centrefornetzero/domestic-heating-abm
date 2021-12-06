@@ -1,5 +1,5 @@
 import random
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 import pandas as pd
 
@@ -11,6 +11,9 @@ from simulation.constants import (
     InsulationSegment,
     PropertySize,
 )
+
+if TYPE_CHECKING:
+    from simulation.agents import Household
 
 # Source: BEIS - WHAT DOES IT COST TO RETROFIT HOMES?
 
@@ -182,7 +185,7 @@ def discount_annual_cash_flow(
 
 def get_heating_fuel_costs_net_present_value(
     household: "Household",
-    heating_system: "HeatingSystem",
+    heating_system: HeatingSystem,
     num_lookahead_years: int,
 ):
 
