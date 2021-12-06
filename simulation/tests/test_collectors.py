@@ -9,6 +9,7 @@ def model_factory(**model_attributes):
         "start_datetime": datetime.datetime.now(),
         "step_interval": datetime.timedelta(minutes=1440),
         "annual_renovation_rate": 0.05,
+        "household_num_lookahead_years": 3,
     }
     return CnzAgentBasedModel(**{**default_values, **model_attributes})
 
