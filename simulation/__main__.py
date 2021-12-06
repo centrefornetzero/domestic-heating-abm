@@ -35,6 +35,12 @@ def parse_args(args=None):
     parser.add_argument("--household-distribution", type=pd.read_csv)
     parser.add_argument("--heat-pump-awareness", type=float, default=0.4)
     parser.add_argument("--annual-renovation-rate", type=float, default=0.05)
+    parser.add_argument(
+        "--household-num-lookahead-years",
+        type=int,
+        default=3,
+        help="The number of years households look ahead when making purchasing decisions; any cash flows to be exchanged further than this number of years in the future are valued at £0 by households",
+    )
 
     return parser.parse_args(args)
 
@@ -50,6 +56,7 @@ if __name__ == "__main__":
         args.household_distribution,
         args.heat_pump_awareness,
         args.annual_renovation_rate,
+        args.future_cashflow_lookahead_years,
     )
 
     write_jsonlines(history, args.history_filename)

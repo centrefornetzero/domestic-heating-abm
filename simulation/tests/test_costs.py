@@ -12,7 +12,10 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
-from simulation.costs import get_unit_and_install_costs
+from simulation.costs import (
+    get_heating_fuel_costs_net_present_value,
+    get_unit_and_install_costs,
+)
 from simulation.model import CnzAgentBasedModel
 
 
@@ -113,3 +116,21 @@ class TestCosts:
         assert get_unit_and_install_costs(
             household, boiler
         ) <= get_unit_and_install_costs(larger_household, boiler)
+
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_fuel_bills_net_present_value_decreases_as_discount_rate_increases(
+        self,
+        heating_system,
+    ) -> None:
+
+        num_look_ahead_years = random.randint(2, 10)
+        household = household_factory(property_value=random.randint(50_000, 300_000))
+        wealthier_household = household_factory(
+            property_value=household.property_value * 1.1
+        )
+
+        assert get_heating_fuel_costs_net_present_value(
+            household, heating_system, num_look_ahead_years
+        ) < get_heating_fuel_costs_net_present_value(
+            wealthier_household, heating_system, num_look_ahead_years
+        )

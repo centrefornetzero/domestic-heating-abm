@@ -3,7 +3,14 @@ from typing import Dict
 
 import pandas as pd
 
-from simulation.constants import HeatingSystem, InsulationSegment, PropertySize
+from simulation.constants import (
+    COEFFICIENT_OF_PERFORMANCE,
+    HEATING_SYSTEM_FUEL,
+    HeatingFuel,
+    HeatingSystem,
+    InsulationSegment,
+    PropertySize,
+)
 
 # Source: BEIS - WHAT DOES IT COST TO RETROFIT HOMES?
 
@@ -118,8 +125,9 @@ MEAN_COST_GBP_BOILER_GAS: Dict[PropertySize, int] = {
 
 MEAN_COST_GBP_BOILER_OIL: Dict[PropertySize, int] = {
     # Source: https://www.theecoexperts.co.uk/boilers/oil-boiler
+    # Adjusted for monotonicity - cost at each property size >= highest trailing value
     PropertySize.SMALL: 2350,
-    PropertySize.MEDIUM: 2183,
+    PropertySize.MEDIUM: 2350,
     PropertySize.LARGE: 3025,
 }
 
@@ -128,6 +136,12 @@ MEAN_COST_GBP_BOILER_ELECTRIC: Dict[PropertySize, int] = {
     PropertySize.SMALL: 1250,
     PropertySize.MEDIUM: 1750,
     PropertySize.LARGE: 2250,
+}
+
+HEATING_FUEL_PRICE_GBP_PER_KWH: Dict[HeatingFuel, float] = {
+    HeatingFuel.GAS: 0.038,
+    HeatingFuel.ELECTRICITY: 0.144,
+    HeatingFuel.OIL: 0.032,
 }
 
 
@@ -157,3 +171,29 @@ def get_unit_and_install_costs(household, heating_system):
         costs += MEAN_COST_GBP_BOILER_ELECTRIC[household.property_size]
 
     return costs
+
+
+def discount_annual_cash_flow(
+    discount_rate: float, cashflow_gbp: int, duration_years: int
+) -> float:
+
+    return sum([cashflow_gbp / (1 + discount_rate) ** t for t in range(duration_years)])
+
+
+def get_heating_fuel_costs_net_present_value(
+    household: "Household",
+    heating_system: "HeatingSystem",
+    num_lookahead_years: int,
+):
+
+    annual_heating_demand_kwh = (
+        household.annual_kwh_heating_demand * COEFFICIENT_OF_PERFORMANCE[heating_system]
+    )
+    annual_heating_bill = (
+        annual_heating_demand_kwh
+        * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[heating_system]]
+    )
+
+    return discount_annual_cash_flow(
+        household.discount_rate, annual_heating_bill, num_lookahead_years
+    )

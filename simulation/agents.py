@@ -42,6 +42,7 @@ from simulation.costs import (
     DOUBLE_GLAZING_UPVC_COST,
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
+    get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
 )
 
@@ -396,6 +397,9 @@ class Household(Agent):
             )
             for heating_system in heating_system_options:
                 get_unit_and_install_costs(self, heating_system)
+                get_heating_fuel_costs_net_present_value(
+                    self, heating_system, model.household_num_lookahead_years
+                )
 
         self.evaluate_renovation(model)
         if self.is_renovating:
