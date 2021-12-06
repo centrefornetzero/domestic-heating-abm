@@ -5,6 +5,8 @@ import pytest
 
 from simulation.agents import Household
 from simulation.constants import (
+    BOILERS,
+    HEAT_PUMPS,
     BuiltForm,
     ConstructionYearBand,
     Epc,
@@ -52,14 +54,6 @@ def model_factory(**model_attributes):
     return CnzAgentBasedModel(**{**default_values, **model_attributes})
 
 
-HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
-BOILERS = {
-    HeatingSystem.BOILER_GAS,
-    HeatingSystem.BOILER_OIL,
-    HeatingSystem.BOILER_ELECTRIC,
-}
-
-
 class TestCosts:
     @pytest.mark.parametrize("heating_system", set(HeatingSystem))
     def test_cost_of_any_heating_system_is_cheaper_if_already_installed(
@@ -69,9 +63,7 @@ class TestCosts:
             heating_system=heating_system
         )
 
-        alternative_system = random.choice(
-            [system for system in set(HeatingSystem) if system != heating_system]
-        )
+        alternative_system = random.choice(list(set(HeatingSystem) - {heating_system}))
         household_switching_system = household_factory(
             heating_system=alternative_system
         )

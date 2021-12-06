@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Dict
 import pandas as pd
 
 from simulation.constants import (
-    COEFFICIENT_OF_PERFORMANCE,
+    FUEL_KWH_TO_HEAT_KWH,
     HEATING_SYSTEM_FUEL,
     HeatingFuel,
     HeatingSystem,
@@ -148,7 +148,9 @@ HEATING_FUEL_PRICE_GBP_PER_KWH: Dict[HeatingFuel, float] = {
 }
 
 
-def get_unit_and_install_costs(household, heating_system):
+def get_unit_and_install_costs(
+    household: "Household", heating_system: HeatingSystem
+) -> int:
 
     costs = 0
 
@@ -190,8 +192,8 @@ def get_heating_fuel_costs_net_present_value(
 ):
 
     SCALE_FACTOR_COP = (
-        COEFFICIENT_OF_PERFORMANCE[household.heating_system]
-        / COEFFICIENT_OF_PERFORMANCE[heating_system]
+        FUEL_KWH_TO_HEAT_KWH[household.heating_system]
+        / FUEL_KWH_TO_HEAT_KWH[heating_system]
     )
     annual_heating_demand_kwh = household.annual_kwh_heating_demand * SCALE_FACTOR_COP
     annual_heating_bill = (

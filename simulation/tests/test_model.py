@@ -12,17 +12,8 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
-from simulation.model import CnzAgentBasedModel, create_households
-
-
-def model_factory(**model_attributes):
-    default_values = {
-        "start_datetime": datetime.datetime.now(),
-        "step_interval": datetime.timedelta(minutes=1440),
-        "annual_renovation_rate": 0.05,
-        "household_num_lookahead_years": 3,
-    }
-    return CnzAgentBasedModel(**{**default_values, **model_attributes})
+from simulation.model import create_households
+from simulation.tests.common import model_factory
 
 
 class TestCnzAgentBasedModel:

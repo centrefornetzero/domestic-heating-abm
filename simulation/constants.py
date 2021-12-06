@@ -141,7 +141,7 @@ class PropertySize(enum.Enum):
 # 133 * 0.92 = 122kWh/m2a
 HEATING_KWH_PER_SQM_ANNUAL = 122
 
-COEFFICIENT_OF_PERFORMANCE: Dict[HeatingSystem, float] = {
+FUEL_KWH_TO_HEAT_KWH: Dict[HeatingSystem, float] = {
     # The conversion factor between 1kWh of fuel and useful heat. For example:
     # Gas Boilers ~ 0.9, since 1kWh of gas produces ~0.9kWh of heat (due to inefficiencies in the boiler)
     HeatingSystem.BOILER_GAS: 0.92,
@@ -149,4 +149,12 @@ COEFFICIENT_OF_PERFORMANCE: Dict[HeatingSystem, float] = {
     HeatingSystem.BOILER_ELECTRIC: 0.995,
     HeatingSystem.HEAT_PUMP_AIR_SOURCE: 3,
     HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 4,
+}
+
+HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
+
+BOILERS = {
+    HeatingSystem.BOILER_GAS,
+    HeatingSystem.BOILER_OIL,
+    HeatingSystem.BOILER_ELECTRIC,
 }

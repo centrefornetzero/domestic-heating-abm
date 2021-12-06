@@ -11,9 +11,9 @@ if TYPE_CHECKING:
     from simulation.model import CnzAgentBasedModel
 
 from simulation.constants import (
-    COEFFICIENT_OF_PERFORMANCE,
     DISCOUNT_RATE_WEIBULL_ALPHA,
     DISCOUNT_RATE_WEIBULL_BETA,
+    FUEL_KWH_TO_HEAT_KWH,
     GB_PROPERTY_VALUE_WEIBULL_ALPHA,
     GB_PROPERTY_VALUE_WEIBULL_BETA,
     GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
@@ -246,7 +246,7 @@ class Household(Agent):
 
         return (
             self.floor_area_sqm * HEATING_KWH_PER_SQM_ANNUAL
-        ) / COEFFICIENT_OF_PERFORMANCE[self.heating_system]
+        ) / FUEL_KWH_TO_HEAT_KWH[self.heating_system]
 
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
