@@ -4,8 +4,8 @@ import random
 import numpy as np
 import pytest
 
-from simulation.agents import Household
 from simulation.constants import (
+    HEAT_PUMPS,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
     BuiltForm,
@@ -18,43 +18,7 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
-from simulation.model import CnzAgentBasedModel
-
-
-def household_factory(**agent_attributes):
-    default_values = {
-        "location": "Test Location",
-        "property_value": 264_000,
-        "floor_area_sqm": 82,
-        "off_gas_grid": False,
-        "construction_year_band": ConstructionYearBand.BUILT_1919_1944,
-        "property_type": PropertyType.HOUSE,
-        "built_form": BuiltForm.MID_TERRACE,
-        "heating_system": HeatingSystem.BOILER_GAS,
-        "heating_system_install_date": datetime.date(2021, 1, 1),
-        "epc": Epc.D,
-        "potential_epc": Epc.C,
-        "occupant_type": OccupantType.OWNER_OCCUPIER,
-        "is_solid_wall": False,
-        "walls_energy_efficiency": 3,
-        "windows_energy_efficiency": 3,
-        "roof_energy_efficiency": 3,
-        "is_heat_pump_suitable_archetype": True,
-        "is_heat_pump_aware": True,
-    }
-    return Household(**{**default_values, **agent_attributes})
-
-
-def model_factory(**model_attributes):
-    default_values = {
-        "start_datetime": datetime.datetime.now(),
-        "step_interval": datetime.timedelta(minutes=1440),
-        "annual_renovation_rate": 0.05,
-    }
-    return CnzAgentBasedModel(**{**default_values, **model_attributes})
-
-
-HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
+from simulation.tests.common import household_factory, model_factory
 
 
 class TestHousehold:
@@ -123,7 +87,7 @@ class TestHousehold:
         self,
     ) -> None:
 
-        model = CnzAgentBasedModel(
+        model = model_factory(
             start_datetime=datetime.datetime.now(),
             step_interval=datetime.timedelta(days=365),
             annual_renovation_rate=1.0,
@@ -378,4 +342,43 @@ class TestHousehold:
             MIN_HEAT_PUMP_CAPACITY_KW[heat_pump]
             <= household.compute_heat_pump_capacity_kw(heat_pump)
             <= MAX_HEAT_PUMP_CAPACITY_KW[heat_pump]
+        )
+
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_annual_heating_demand_increases_with_floor_area(
+        self,
+        heating_system,
+    ) -> None:
+
+        household = household_factory(
+            floor_area_sqm=random.randint(20, 180), heating_system=heating_system
+        )
+        larger_household = household_factory(
+            floor_area_sqm=household.floor_area_sqm * 1.1,
+            heating_system=heating_system,
+        )
+
+        assert (
+            household.annual_kwh_heating_demand
+            < larger_household.annual_kwh_heating_demand
+        )
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_annual_heating_demand_is_lower_for_more_efficient_heating_systems(
+        self,
+        heat_pump,
+    ) -> None:
+
+        household_with_gas_boiler = household_factory(
+            floor_area_sqm=random.randint(20, 180),
+            heating_system=HeatingSystem.BOILER_GAS,
+        )
+        household_with_heat_pump = household_factory(
+            floor_area_sqm=household_with_gas_boiler.floor_area_sqm,
+            heating_system=heat_pump,
+        )
+
+        assert (
+            household_with_heat_pump.annual_kwh_heating_demand
+            < household_with_gas_boiler.annual_kwh_heating_demand
         )

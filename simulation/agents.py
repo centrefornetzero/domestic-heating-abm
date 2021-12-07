@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from simulation.constants import (
     DISCOUNT_RATE_WEIBULL_ALPHA,
     DISCOUNT_RATE_WEIBULL_BETA,
+    FUEL_KWH_TO_HEAT_KWH,
     GB_PROPERTY_VALUE_WEIBULL_ALPHA,
     GB_PROPERTY_VALUE_WEIBULL_BETA,
     GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
@@ -20,6 +21,7 @@ from simulation.constants import (
     HAZARD_RATE_HEATING_SYSTEM_ALPHA,
     HAZARD_RATE_HEATING_SYSTEM_BETA,
     HEAT_PUMP_CAPACITY_SCALE_FACTOR,
+    HEATING_KWH_PER_SQM_ANNUAL,
     HEATING_SYSTEM_FUEL,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
@@ -32,6 +34,7 @@ from simulation.constants import (
     HeatingSystem,
     InsulationSegment,
     OccupantType,
+    PropertySize,
     PropertyType,
 )
 from simulation.costs import (
@@ -39,6 +42,8 @@ from simulation.costs import (
     DOUBLE_GLAZING_UPVC_COST,
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
+    get_heating_fuel_costs_net_present_value,
+    get_unit_and_install_costs,
 )
 
 HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
@@ -222,6 +227,27 @@ class Household(Agent):
             else True
         )
 
+    @property
+    def property_size(self) -> PropertySize:
+
+        # Source: England/Wales EPC
+        FLOOR_AREA_SQM_33RD_PERCENTILE = 66
+        FLOOR_AREA_SQM_66TH_PERCENTILE = 89
+
+        if self.floor_area_sqm < FLOOR_AREA_SQM_33RD_PERCENTILE:
+            return PropertySize.SMALL
+        elif self.floor_area_sqm > FLOOR_AREA_SQM_66TH_PERCENTILE:
+            return PropertySize.LARGE
+        else:
+            return PropertySize.MEDIUM
+
+    @property
+    def annual_kwh_heating_demand(self) -> float:
+
+        return (
+            self.floor_area_sqm * HEATING_KWH_PER_SQM_ANNUAL
+        ) / FUEL_KWH_TO_HEAT_KWH[self.heating_system]
+
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
 
@@ -351,20 +377,29 @@ class Household(Agent):
         if random.random() < proba_failure:
             self.heating_functioning = False
 
-    def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> float:
+    def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> int:
 
         capacity_kw = (
             HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.floor_area_sqm
         )
-        return min(
-            max(capacity_kw, MIN_HEAT_PUMP_CAPACITY_KW[heat_pump_type]),
-            MAX_HEAT_PUMP_CAPACITY_KW[heat_pump_type],
+        return math.ceil(
+            min(
+                max(capacity_kw, MIN_HEAT_PUMP_CAPACITY_KW[heat_pump_type]),
+                MAX_HEAT_PUMP_CAPACITY_KW[heat_pump_type],
+            )
         )
 
     def step(self, model):
         self.update_heating_status(model)
         if not self.heating_functioning:
-            self.get_heating_system_options(model, event_trigger=EventTrigger.BREAKDOWN)
+            heating_system_options = self.get_heating_system_options(
+                model, event_trigger=EventTrigger.BREAKDOWN
+            )
+            for heating_system in heating_system_options:
+                get_unit_and_install_costs(self, heating_system)
+                get_heating_fuel_costs_net_present_value(
+                    self, heating_system, model.household_num_lookahead_years
+                )
 
         self.evaluate_renovation(model)
         if self.is_renovating:
