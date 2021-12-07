@@ -36,6 +36,8 @@ from simulation.constants import (
     OccupantType,
     PropertySize,
     PropertyType,
+    HEAT_PUMPS,
+    BOILERS,
 )
 from simulation.costs import (
     CAVITY_WALL_INSULATION_COST,
@@ -45,9 +47,6 @@ from simulation.costs import (
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
 )
-
-HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
-
 
 def sample_interval_uniformly(interval: pd.Interval) -> float:
     return random.randint(interval.left, interval.right)
@@ -251,6 +250,11 @@ class Household(Agent):
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
 
+    def is_heating_system_hassle(self, heating_system: HeatingSystem) -> bool:
+        if heating_system in BOILERS or self.heating_system == heating_system:
+            return False
+        return True
+
     def evaluate_renovation(self, model) -> None:
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
@@ -383,6 +387,31 @@ class Household(Agent):
 
         return heating_system_options
 
+    def get_total_heating_system_costs(
+        self, heating_system: HeatingSystem, model: "CnzAgentBasedModel"
+    ):
+
+        unit_and_install_costs = get_unit_and_install_costs(self, heating_system)
+        fuel_costs_net_present_value = get_heating_fuel_costs_net_present_value(
+            self, heating_system, model.household_num_lookahead_years
+        )
+
+        return unit_and_install_costs + fuel_costs_net_present_value
+
+    def choose_heating_system(
+        self, costs: Dict[HeatingSystem, float], heating_system_hassle_factor: float
+    ):
+
+        weights = []
+
+        for heating_system in costs.keys():
+            weight = 1 / (1 + math.exp(costs[heating_system] / self.property_value))
+            if self.is_heating_system_hassle(heating_system):
+                weight *= heating_system_hassle_factor
+            weights.append(weight)
+
+        return random.choices(list(costs.keys()), weights)[0]
+
     def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
@@ -416,11 +445,13 @@ class Household(Agent):
             insulation_costs = self.get_chosen_insulation_costs(
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )
+            costs = {}
             for heating_system in heating_system_options:
-                get_unit_and_install_costs(self, heating_system)
-                get_heating_fuel_costs_net_present_value(
-                    self, heating_system, model.household_num_lookahead_years
+                costs[heating_system] = self.get_total_heating_system_costs(
+                    heating_system, model
                 )
+                if heating_system in HEAT_PUMPS:
+                    costs[heating_system] += sum(insulation_costs.values())
 
         self.evaluate_renovation(model)
         if self.is_renovating:

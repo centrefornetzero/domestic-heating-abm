@@ -17,6 +17,7 @@ from simulation.constants import (
     HeatingSystem,
     OccupantType,
     PropertyType,
+    BOILERS,
 )
 from simulation.tests.common import household_factory, model_factory
 
@@ -434,3 +435,24 @@ class TestHousehold:
             )
 
             assert chosen_insulation_elements
+
+    @pytest.mark.parametrize("heating_system", list(HeatingSystem))
+    def test_heating_system_is_not_hassle_if_already_installed_or_a_boiler(
+        self,
+        heating_system,
+    ) -> None:
+
+        household = household_factory(heating_system=heating_system)
+        if heating_system == household.heating_system:
+            assert not household.is_heating_system_hassle(heating_system)
+        if heating_system in BOILERS:
+            assert not household.is_heating_system_hassle(heating_system)
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_heat_pumps_are_hassle_if_not_already_installed(
+        self,
+        heat_pump,
+    ) -> None:
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0])
+        assert household.is_heating_system_hassle(heat_pump)
