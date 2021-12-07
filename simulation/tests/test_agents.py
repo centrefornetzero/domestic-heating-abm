@@ -481,12 +481,10 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(
-            heating_system=random.choices(list(HeatingSystem))
+            heating_system=random.choices(list(HeatingSystem))[0]
         )
         household.heating_functioning = False
-
         model = model_factory()
-
         household.install_heating_system(heating_system, model)
 
         assert household.heating_system == heating_system
