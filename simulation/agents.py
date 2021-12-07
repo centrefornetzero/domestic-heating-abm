@@ -310,12 +310,19 @@ class Household(Agent):
 
         return insulation_quotes
 
-    def choose_n_elements_to_insulate(self) -> int:
+    def get_num_insulation_elements(self, event_trigger: EventTrigger) -> int:
 
-        # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
-        # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+        if event_trigger == EventTrigger.RENOVATION:
+            # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+            # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+            return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
 
-        return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
+        if event_trigger == EventTrigger.EPC_C_UPGRADE:
+            # The number of insulation elements a household would require to reach epc C
+            # We assume each insulation measure will contribute +1 EPC grade
+            return max(0, self.epc.value - Epc.C.value)
+
+        return 0
 
     def choose_insulation_elements(
         self, insulation_quotes: Dict[Element, float], num_elements: int

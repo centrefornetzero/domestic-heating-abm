@@ -108,6 +108,7 @@ DISCOUNT_RATE_WEIBULL_BETA = 0.165
 class EventTrigger(enum.Enum):
     BREAKDOWN = 0
     RENOVATION = 1
+    EPC_C_UPGRADE = 2
 
 
 # Scale factor is inferred from general relationship between estimated floor area and kW capacity

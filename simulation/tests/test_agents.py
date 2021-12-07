@@ -135,12 +135,23 @@ class TestHousehold:
         assert set(insulation_quotes.keys()) == upgradable_elements
         assert all(quote > 0 for quote in insulation_quotes.values())
 
-    def test_household_chooses_one_to_three_insulation_measures_to_install(
+    def test_household_chooses_one_to_three_insulation_measures_to_install_at_renovation(
         self,
     ) -> None:
 
         household = household_factory()
-        assert 0 < household.choose_n_elements_to_insulate() <= 3
+        assert 0 < household.get_num_insulation_elements(event_trigger=EventTrigger.RENOVATION) <= 3
+
+    @pytest.mark.parametrize("epc", list(Epc))
+    def test_num_insulation_measures_chosen_by_household_corresponding_to_current_epc_value(
+        self, epc,
+    ) -> None:
+
+        household = household_factory(epc=epc)
+        if household.epc.value > Epc.C.value:
+            assert household.get_num_insulation_elements(event_trigger=EventTrigger.EPC_C_UPGRADE) > 0
+        if household.epc.value <= Epc.C.value:
+            assert household.get_num_insulation_elements(event_trigger=EventTrigger.EPC_C_UPGRADE) == 0
 
     def test_household_chooses_cheapest_insulation_measures(
         self,
