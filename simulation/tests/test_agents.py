@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from simulation.constants import (
+    BOILERS,
     HEAT_PUMPS,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
@@ -135,12 +136,41 @@ class TestHousehold:
         assert set(insulation_quotes.keys()) == upgradable_elements
         assert all(quote > 0 for quote in insulation_quotes.values())
 
-    def test_household_chooses_one_to_three_insulation_measures_to_install(
+    def test_household_chooses_one_to_three_insulation_measures_to_install_at_renovation(
         self,
     ) -> None:
 
         household = household_factory()
-        assert 0 < household.choose_n_elements_to_insulate() <= 3
+        assert (
+            0
+            < household.get_num_insulation_elements(
+                event_trigger=EventTrigger.RENOVATION
+            )
+            <= 3
+        )
+
+    @pytest.mark.parametrize("epc", list(Epc))
+    def test_num_insulation_measures_chosen_by_household_corresponds_to_current_epc_value(
+        self,
+        epc,
+    ) -> None:
+
+        household = household_factory(epc=epc)
+        if household.epc.value > Epc.C.value:
+            expected_insulation_elements = epc.value - Epc.C.value
+            assert (
+                household.get_num_insulation_elements(
+                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                )
+                == expected_insulation_elements
+            )
+        if household.epc.value <= Epc.C.value:
+            assert (
+                household.get_num_insulation_elements(
+                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                )
+                == 0
+            )
 
     def test_household_chooses_cheapest_insulation_measures(
         self,
@@ -381,4 +411,65 @@ class TestHousehold:
         assert (
             household_with_heat_pump.annual_kwh_heating_demand
             < household_with_gas_boiler.annual_kwh_heating_demand
+        )
+
+    @pytest.mark.parametrize("epc", list(Epc))
+    def test_household_choses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
+        self,
+        epc,
+    ) -> None:
+
+        household = household_factory(epc=epc)
+
+        if epc.value <= Epc.C.value:
+            assert (
+                household.get_chosen_insulation_costs(
+                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                )
+                == {}
+            )
+
+        if epc.value > Epc.C.value:
+            chosen_insulation_elements = household.get_chosen_insulation_costs(
+                event_trigger=EventTrigger.EPC_C_UPGRADE
+            )
+
+            assert chosen_insulation_elements
+
+    @pytest.mark.parametrize("heating_system", list(HeatingSystem))
+    def test_heating_system_is_not_hassle_if_already_installed_or_a_boiler(
+        self,
+        heating_system,
+    ) -> None:
+
+        household = household_factory(heating_system=heating_system)
+        if heating_system == household.heating_system:
+            assert not household.is_heating_system_hassle(heating_system)
+        if heating_system in BOILERS:
+            assert not household.is_heating_system_hassle(heating_system)
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_heat_pumps_are_hassle_if_not_already_installed(
+        self,
+        heat_pump,
+    ) -> None:
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0])
+        assert household.is_heating_system_hassle(heat_pump)
+
+    @pytest.mark.parametrize("heating_system", list(HeatingSystem))
+    def test_heat_pumps_never_selected_if_hassle_factor_is_one_and_not_currently_installed(
+        self,
+        heating_system,
+    ) -> None:
+
+        household = household_factory(heating_system=HeatingSystem.BOILER_GAS)
+        costs = {
+            HeatingSystem.BOILER_GAS: 2_000,
+            HeatingSystem.HEAT_PUMP_AIR_SOURCE: 2_000,
+        }
+
+        assert (
+            household.choose_heating_system(costs, heating_system_hassle_factor=1)
+            == HeatingSystem.BOILER_GAS
         )

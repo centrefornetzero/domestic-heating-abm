@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from simulation.model import CnzAgentBasedModel
 
 from simulation.constants import (
+    BOILERS,
     DISCOUNT_RATE_WEIBULL_ALPHA,
     DISCOUNT_RATE_WEIBULL_BETA,
     FUEL_KWH_TO_HEAT_KWH,
@@ -21,6 +22,7 @@ from simulation.constants import (
     HAZARD_RATE_HEATING_SYSTEM_ALPHA,
     HAZARD_RATE_HEATING_SYSTEM_BETA,
     HEAT_PUMP_CAPACITY_SCALE_FACTOR,
+    HEAT_PUMPS,
     HEATING_KWH_PER_SQM_ANNUAL,
     HEATING_SYSTEM_FUEL,
     MAX_HEAT_PUMP_CAPACITY_KW,
@@ -45,8 +47,6 @@ from simulation.costs import (
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
 )
-
-HEAT_PUMPS = {HeatingSystem.HEAT_PUMP_AIR_SOURCE, HeatingSystem.HEAT_PUMP_GROUND_SOURCE}
 
 
 def sample_interval_uniformly(interval: pd.Interval) -> float:
@@ -251,6 +251,11 @@ class Household(Agent):
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
 
+    def is_heating_system_hassle(self, heating_system: HeatingSystem) -> bool:
+        if heating_system in BOILERS or self.heating_system == heating_system:
+            return False
+        return True
+
     def evaluate_renovation(self, model) -> None:
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
@@ -288,6 +293,20 @@ class Household(Agent):
             if grade < MAX_ENERGY_EFFICIENCY_SCORE
         }
 
+    def get_num_insulation_elements(self, event_trigger: EventTrigger) -> int:
+
+        if event_trigger == EventTrigger.RENOVATION:
+            # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+            # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+            return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
+
+        if event_trigger == EventTrigger.EPC_C_UPGRADE:
+            # The number of insulation elements a household would require to reach epc C
+            # We assume each insulation measure will contribute +1 EPC grade
+            return max(0, self.epc.value - Epc.C.value)
+
+        return 0
+
     def get_quote_insulation_elements(
         self, elements: Set[Element]
     ) -> Dict[Element, float]:
@@ -309,13 +328,6 @@ class Household(Agent):
                 insulation_quotes[element] = sample_interval_uniformly(cost_range)
 
         return insulation_quotes
-
-    def choose_n_elements_to_insulate(self) -> int:
-
-        # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
-        # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
-
-        return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
 
     def choose_insulation_elements(
         self, insulation_quotes: Dict[Element, float], num_elements: int
@@ -344,6 +356,17 @@ class Household(Agent):
         improved_epc_level = max(0, self.epc.value - n_measures)
         self.epc = Epc(improved_epc_level)
 
+    def get_chosen_insulation_costs(self, event_trigger: EventTrigger):
+
+        upgradable_elements = self.get_upgradable_insulation_elements()
+        insulation_quotes = self.get_quote_insulation_elements(upgradable_elements)
+
+        num_elements = min(
+            len(upgradable_elements), self.get_num_insulation_elements(event_trigger)
+        )
+
+        return self.choose_insulation_elements(insulation_quotes, num_elements)
+
     def get_heating_system_options(
         self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
@@ -364,6 +387,31 @@ class Household(Agent):
             heating_system_options -= unfeasible_heating_systems
 
         return heating_system_options
+
+    def get_total_heating_system_costs(
+        self, heating_system: HeatingSystem, model: "CnzAgentBasedModel"
+    ):
+
+        unit_and_install_costs = get_unit_and_install_costs(self, heating_system)
+        fuel_costs_net_present_value = get_heating_fuel_costs_net_present_value(
+            self, heating_system, model.household_num_lookahead_years
+        )
+
+        return unit_and_install_costs + fuel_costs_net_present_value
+
+    def choose_heating_system(
+        self, costs: Dict[HeatingSystem, float], heating_system_hassle_factor: float
+    ):
+
+        weights = []
+
+        for heating_system in costs.keys():
+            weight = 1 / (1 + math.exp(costs[heating_system] / self.renovation_budget))
+            if self.is_heating_system_hassle(heating_system):
+                weight *= 1 - heating_system_hassle_factor
+            weights.append(weight)
+
+        return random.choices(list(costs.keys()), weights)[0]
 
     def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
 
@@ -390,30 +438,45 @@ class Household(Agent):
         )
 
     def step(self, model):
-        self.update_heating_status(model)
-        if not self.heating_functioning:
-            heating_system_options = self.get_heating_system_options(
-                model, event_trigger=EventTrigger.BREAKDOWN
-            )
-            for heating_system in heating_system_options:
-                get_unit_and_install_costs(self, heating_system)
-                get_heating_fuel_costs_net_present_value(
-                    self, heating_system, model.household_num_lookahead_years
-                )
 
+        self.update_heating_status(model)
         self.evaluate_renovation(model)
+
         if self.is_renovating:
             self.decide_renovation_scope()
             if self.renovate_insulation:
-                upgradable_elements = self.get_upgradable_insulation_elements()
-                insulation_quotes = self.get_quote_insulation_elements(
-                    upgradable_elements
-                )
-                chosen_elements = self.choose_insulation_elements(
-                    insulation_quotes, self.choose_n_elements_to_insulate()
+                chosen_elements = self.get_chosen_insulation_costs(
+                    event_trigger=EventTrigger.RENOVATION
                 )
                 self.install_insulation_elements(chosen_elements)
-            if self.renovate_heating_system:
-                self.get_heating_system_options(
+
+        if not self.heating_functioning or (
+            self.is_renovating and self.renovate_heating_system
+        ):
+
+            if not self.heating_functioning:
+                heating_system_options = self.get_heating_system_options(
+                    model, event_trigger=EventTrigger.BREAKDOWN
+                )
+            else:
+                heating_system_options = self.get_heating_system_options(
                     model, event_trigger=EventTrigger.RENOVATION
                 )
+            chosen_insulation_costs = self.get_chosen_insulation_costs(
+                event_trigger=EventTrigger.EPC_C_UPGRADE
+            )
+            costs = {}
+            for heating_system in heating_system_options:
+                costs[heating_system] = self.get_total_heating_system_costs(
+                    heating_system, model
+                )
+                if heating_system in HEAT_PUMPS:
+                    costs[heating_system] += sum(chosen_insulation_costs.values())
+
+            chosen_heating_system = self.choose_heating_system(
+                costs, model.heating_system_hassle_factor
+            )
+            self.heating_system = chosen_heating_system
+            if chosen_heating_system in HEAT_PUMPS:
+                upgraded_insulation_elements = chosen_insulation_costs.keys()
+                self.install_insulation_elements(upgraded_insulation_elements)

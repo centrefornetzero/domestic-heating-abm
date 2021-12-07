@@ -42,6 +42,16 @@ def parse_args(args=None):
         help="The number of years households look ahead when making purchasing decisions; any cash flows to be exchanged further than this number of years in the future are valued at £0 by households",
     )
 
+    def restrict_between_0_and_1(input_value: float):
+        return max(min(input_value, 0), 1)
+
+    parser.add_argument(
+        "--heating-system-hassle-factor",
+        type=restrict_between_0_and_1,
+        default=0.3,
+        help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
+    )
+
     return parser.parse_args(args)
 
 
@@ -57,6 +67,7 @@ if __name__ == "__main__":
         args.heat_pump_awareness,
         args.annual_renovation_rate,
         args.household_num_lookahead_years,
+        args.heating_system_hassle_factor,
     )
 
     write_jsonlines(history, args.history_filename)

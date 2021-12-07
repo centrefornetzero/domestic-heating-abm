@@ -25,6 +25,7 @@ class CnzAgentBasedModel(AgentBasedModel):
         step_interval,
         annual_renovation_rate,
         household_num_lookahead_years,
+        heating_system_hassle_factor,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -32,6 +33,7 @@ class CnzAgentBasedModel(AgentBasedModel):
         self.annual_renovation_rate = annual_renovation_rate
         self.heating_systems = set(HeatingSystem)
         self.household_num_lookahead_years = household_num_lookahead_years
+        self.heating_system_hassle_factor = heating_system_hassle_factor
 
         super().__init__(UnorderedSpace())
 
@@ -84,12 +86,14 @@ def create_and_run_simulation(
     heat_pump_awareness: float,
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
+    heating_system_hassle_factor: float,
 ):
     model = CnzAgentBasedModel(
         start_datetime=start_datetime,
         step_interval=step_interval,
         annual_renovation_rate=annual_renovation_rate,
         household_num_lookahead_years=household_num_lookahead_years,
+        heating_system_hassle_factor=heating_system_hassle_factor,
     )
 
     households = create_households(
