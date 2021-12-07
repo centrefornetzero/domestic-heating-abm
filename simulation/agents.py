@@ -413,6 +413,14 @@ class Household(Agent):
 
         return random.choices(list(costs.keys()), weights)[0]
 
+    def install_heating_system(
+        self, heating_system: HeatingSystem, model: "CnzAgentBasedModel"
+    ) -> None:
+
+        self.heating_system = heating_system
+        self.heating_system_install_date = model.current_datetime.date()
+        self.heating_functioning = True
+
     def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
@@ -476,7 +484,8 @@ class Household(Agent):
             chosen_heating_system = self.choose_heating_system(
                 costs, model.heating_system_hassle_factor
             )
-            self.heating_system = chosen_heating_system
+
+            self.install_heating_system(chosen_heating_system, model)
             if chosen_heating_system in HEAT_PUMPS:
                 upgraded_insulation_elements = chosen_insulation_costs.keys()
                 self.install_insulation_elements(upgraded_insulation_elements)

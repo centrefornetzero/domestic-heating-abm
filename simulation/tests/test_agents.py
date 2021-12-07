@@ -473,3 +473,22 @@ class TestHousehold:
             household.choose_heating_system(costs, heating_system_hassle_factor=1)
             == HeatingSystem.BOILER_GAS
         )
+
+    @pytest.mark.parametrize("heating_system", list(HeatingSystem))
+    def test_households_install_working_heating_systems_at_model_current_datetime(
+        self,
+        heating_system,
+    ) -> None:
+
+        household = household_factory(
+            heating_system=random.choices(list(HeatingSystem))
+        )
+        household.heating_functioning = False
+
+        model = model_factory()
+
+        household.install_heating_system(heating_system, model)
+
+        assert household.heating_system == heating_system
+        assert household.heating_functioning
+        assert household.heating_system_install_date == model.current_datetime.date()
