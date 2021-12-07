@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from simulation.model import CnzAgentBasedModel
 
 from simulation.constants import (
+    BOILERS,
     DISCOUNT_RATE_WEIBULL_ALPHA,
     DISCOUNT_RATE_WEIBULL_BETA,
     FUEL_KWH_TO_HEAT_KWH,
@@ -21,6 +22,7 @@ from simulation.constants import (
     HAZARD_RATE_HEATING_SYSTEM_ALPHA,
     HAZARD_RATE_HEATING_SYSTEM_BETA,
     HEAT_PUMP_CAPACITY_SCALE_FACTOR,
+    HEAT_PUMPS,
     HEATING_KWH_PER_SQM_ANNUAL,
     HEATING_SYSTEM_FUEL,
     MAX_HEAT_PUMP_CAPACITY_KW,
@@ -36,8 +38,6 @@ from simulation.constants import (
     OccupantType,
     PropertySize,
     PropertyType,
-    HEAT_PUMPS,
-    BOILERS,
 )
 from simulation.costs import (
     CAVITY_WALL_INSULATION_COST,
@@ -47,6 +47,7 @@ from simulation.costs import (
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
 )
+
 
 def sample_interval_uniformly(interval: pd.Interval) -> float:
     return random.randint(interval.left, interval.right)
@@ -405,9 +406,9 @@ class Household(Agent):
         weights = []
 
         for heating_system in costs.keys():
-            weight = 1 / (1 + math.exp(costs[heating_system] / self.property_value))
+            weight = 1 / (1 + math.exp(costs[heating_system] / self.renovation_budget))
             if self.is_heating_system_hassle(heating_system):
-                weight *= heating_system_hassle_factor
+                weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
 
         return random.choices(list(costs.keys()), weights)[0]
@@ -437,12 +438,31 @@ class Household(Agent):
         )
 
     def step(self, model):
+
         self.update_heating_status(model)
-        if not self.heating_functioning:
-            heating_system_options = self.get_heating_system_options(
-                model, event_trigger=EventTrigger.BREAKDOWN
-            )
-            insulation_costs = self.get_chosen_insulation_costs(
+        self.evaluate_renovation(model)
+
+        if self.is_renovating:
+            self.decide_renovation_scope()
+            if self.renovate_insulation:
+                chosen_elements = self.get_chosen_insulation_costs(
+                    event_trigger=EventTrigger.RENOVATION
+                )
+                self.install_insulation_elements(chosen_elements)
+
+        if not self.heating_functioning or (
+            self.is_renovating and self.renovate_heating_system
+        ):
+
+            if not self.heating_functioning:
+                heating_system_options = self.get_heating_system_options(
+                    model, event_trigger=EventTrigger.BREAKDOWN
+                )
+            else:
+                heating_system_options = self.get_heating_system_options(
+                    model, event_trigger=EventTrigger.RENOVATION
+                )
+            chosen_insulation_costs = self.get_chosen_insulation_costs(
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )
             costs = {}
@@ -451,17 +471,12 @@ class Household(Agent):
                     heating_system, model
                 )
                 if heating_system in HEAT_PUMPS:
-                    costs[heating_system] += sum(insulation_costs.values())
+                    costs[heating_system] += sum(chosen_insulation_costs.values())
 
-        self.evaluate_renovation(model)
-        if self.is_renovating:
-            self.decide_renovation_scope()
-            if self.renovate_insulation:
-                chosen_elements = self.get_chosen_insulation_costs(
-                    event_trigger=EventTrigger.RENOVATION
-                )
-                self.install_insulation_elements(chosen_elements)
-            if self.renovate_heating_system:
-                self.get_heating_system_options(
-                    model, event_trigger=EventTrigger.RENOVATION
-                )
+            chosen_heating_system = self.choose_heating_system(
+                costs, model.heating_system_hassle_factor
+            )
+            self.heating_system = chosen_heating_system
+            if chosen_heating_system in HEAT_PUMPS:
+                upgraded_insulation_elements = chosen_insulation_costs.keys()
+                self.install_insulation_elements(upgraded_insulation_elements)

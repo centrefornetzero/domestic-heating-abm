@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from simulation.constants import (
+    BOILERS,
     HEAT_PUMPS,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
@@ -17,7 +18,6 @@ from simulation.constants import (
     HeatingSystem,
     OccupantType,
     PropertyType,
-    BOILERS,
 )
 from simulation.tests.common import household_factory, model_factory
 
@@ -456,3 +456,20 @@ class TestHousehold:
 
         household = household_factory(heating_system=random.choices(list(BOILERS))[0])
         assert household.is_heating_system_hassle(heat_pump)
+
+    @pytest.mark.parametrize("heating_system", list(HeatingSystem))
+    def test_heat_pumps_never_selected_if_hassle_factor_is_one_and_not_currently_installed(
+        self,
+        heating_system,
+    ) -> None:
+
+        household = household_factory(heating_system=HeatingSystem.BOILER_GAS)
+        costs = {
+            HeatingSystem.BOILER_GAS: 2_000,
+            HeatingSystem.HEAT_PUMP_AIR_SOURCE: 2_000,
+        }
+
+        assert (
+            household.choose_heating_system(costs, heating_system_hassle_factor=1)
+            == HeatingSystem.BOILER_GAS
+        )
