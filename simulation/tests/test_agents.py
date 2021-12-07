@@ -140,18 +140,36 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory()
-        assert 0 < household.get_num_insulation_elements(event_trigger=EventTrigger.RENOVATION) <= 3
+        assert (
+            0
+            < household.get_num_insulation_elements(
+                event_trigger=EventTrigger.RENOVATION
+            )
+            <= 3
+        )
 
     @pytest.mark.parametrize("epc", list(Epc))
-    def test_num_insulation_measures_chosen_by_household_corresponding_to_current_epc_value(
-        self, epc,
+    def test_num_insulation_measures_chosen_by_household_corresponds_to_current_epc_value(
+        self,
+        epc,
     ) -> None:
 
         household = household_factory(epc=epc)
         if household.epc.value > Epc.C.value:
-            assert household.get_num_insulation_elements(event_trigger=EventTrigger.EPC_C_UPGRADE) > 0
+            expected_insulation_elements = epc.value - Epc.C.value
+            assert (
+                household.get_num_insulation_elements(
+                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                )
+                == expected_insulation_elements
+            )
         if household.epc.value <= Epc.C.value:
-            assert household.get_num_insulation_elements(event_trigger=EventTrigger.EPC_C_UPGRADE) == 0
+            assert (
+                household.get_num_insulation_elements(
+                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                )
+                == 0
+            )
 
     def test_household_chooses_cheapest_insulation_measures(
         self,
@@ -393,3 +411,26 @@ class TestHousehold:
             household_with_heat_pump.annual_kwh_heating_demand
             < household_with_gas_boiler.annual_kwh_heating_demand
         )
+
+    @pytest.mark.parametrize("epc", list(Epc))
+    def test_household_choses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
+        self,
+        epc,
+    ) -> None:
+
+        household = household_factory(epc=epc)
+
+        if epc.value <= Epc.C.value:
+            assert (
+                household.get_chosen_insulation_costs(
+                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                )
+                == {}
+            )
+
+        if epc.value > Epc.C.value:
+            chosen_insulation_elements = household.get_chosen_insulation_costs(
+                event_trigger=EventTrigger.EPC_C_UPGRADE
+            )
+
+            assert chosen_insulation_elements

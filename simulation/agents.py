@@ -288,6 +288,20 @@ class Household(Agent):
             if grade < MAX_ENERGY_EFFICIENCY_SCORE
         }
 
+    def get_num_insulation_elements(self, event_trigger: EventTrigger) -> int:
+
+        if event_trigger == EventTrigger.RENOVATION:
+            # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+            # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+            return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
+
+        if event_trigger == EventTrigger.EPC_C_UPGRADE:
+            # The number of insulation elements a household would require to reach epc C
+            # We assume each insulation measure will contribute +1 EPC grade
+            return max(0, self.epc.value - Epc.C.value)
+
+        return 0
+
     def get_quote_insulation_elements(
         self, elements: Set[Element]
     ) -> Dict[Element, float]:
@@ -309,20 +323,6 @@ class Household(Agent):
                 insulation_quotes[element] = sample_interval_uniformly(cost_range)
 
         return insulation_quotes
-
-    def get_num_insulation_elements(self, event_trigger: EventTrigger) -> int:
-
-        if event_trigger == EventTrigger.RENOVATION:
-            # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
-            # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
-            return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
-
-        if event_trigger == EventTrigger.EPC_C_UPGRADE:
-            # The number of insulation elements a household would require to reach epc C
-            # We assume each insulation measure will contribute +1 EPC grade
-            return max(0, self.epc.value - Epc.C.value)
-
-        return 0
 
     def choose_insulation_elements(
         self, insulation_quotes: Dict[Element, float], num_elements: int
@@ -350,6 +350,17 @@ class Household(Agent):
         n_measures = len(insulation_elements)
         improved_epc_level = max(0, self.epc.value - n_measures)
         self.epc = Epc(improved_epc_level)
+
+    def get_chosen_insulation_costs(self, event_trigger: EventTrigger):
+
+        upgradable_elements = self.get_upgradable_insulation_elements()
+        insulation_quotes = self.get_quote_insulation_elements(upgradable_elements)
+
+        num_elements = min(
+            len(upgradable_elements), self.get_num_insulation_elements(event_trigger)
+        )
+
+        return self.choose_insulation_elements(insulation_quotes, num_elements)
 
     def get_heating_system_options(
         self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
@@ -402,6 +413,9 @@ class Household(Agent):
             heating_system_options = self.get_heating_system_options(
                 model, event_trigger=EventTrigger.BREAKDOWN
             )
+            insulation_costs = self.get_chosen_insulation_costs(
+                event_trigger=EventTrigger.EPC_C_UPGRADE
+            )
             for heating_system in heating_system_options:
                 get_unit_and_install_costs(self, heating_system)
                 get_heating_fuel_costs_net_present_value(
@@ -412,12 +426,8 @@ class Household(Agent):
         if self.is_renovating:
             self.decide_renovation_scope()
             if self.renovate_insulation:
-                upgradable_elements = self.get_upgradable_insulation_elements()
-                insulation_quotes = self.get_quote_insulation_elements(
-                    upgradable_elements
-                )
-                chosen_elements = self.choose_insulation_elements(
-                    insulation_quotes, self.choose_n_elements_to_insulate()
+                chosen_elements = self.get_chosen_insulation_costs(
+                    event_trigger=EventTrigger.RENOVATION
                 )
                 self.install_insulation_elements(chosen_elements)
             if self.renovate_heating_system:
