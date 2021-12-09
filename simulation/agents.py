@@ -46,6 +46,7 @@ from simulation.costs import (
     LOFT_INSULATION_JOISTS_COST,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
+    HEATING_FUEL_PRICE_GBP_PER_KWH,
 )
 
 
@@ -247,6 +248,11 @@ class Household(Agent):
         return (
             self.floor_area_sqm * HEATING_KWH_PER_SQM_ANNUAL
         ) / FUEL_KWH_TO_HEAT_KWH[self.heating_system]
+
+    @property
+    def annual_heating_fuel_bill(self) -> int:
+
+        return int(self.annual_kwh_heating_demand * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[self.heating_system]])
 
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
