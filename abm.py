@@ -84,7 +84,7 @@ class AgentBasedModel:
                 agent_datum = {
                     agent_callable.__name__: agent_callable(agent)
                     for agent_callable in agent_callables
-                    if agent_callable(agent)
+                    if agent_callable(agent) is not None
                 }
                 agent_data.append(agent_datum)
 

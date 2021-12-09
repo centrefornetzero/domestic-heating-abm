@@ -42,6 +42,7 @@ from simulation.constants import (
 from simulation.costs import (
     CAVITY_WALL_INSULATION_COST,
     DOUBLE_GLAZING_UPVC_COST,
+    HEATING_FUEL_PRICE_GBP_PER_KWH,
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
     get_heating_fuel_costs_net_present_value,
@@ -98,8 +99,12 @@ class Household(Agent):
         self.windows_energy_efficiency = windows_energy_efficiency
         self.is_heat_pump_aware = is_heat_pump_aware
 
-        # Renovation attributes
+        # Household investment decision attributes
         self.is_renovating = False
+        self.renovate_insulation = False
+        self.renovate_heating_system = False
+        self.epc_c_upgrade_costs = {}
+        self.heating_system_total_costs = {}
 
     @property
     def heating_fuel(self) -> HeatingFuel:
@@ -248,6 +253,14 @@ class Household(Agent):
             self.floor_area_sqm * HEATING_KWH_PER_SQM_ANNUAL
         ) / FUEL_KWH_TO_HEAT_KWH[self.heating_system]
 
+    @property
+    def annual_heating_fuel_bill(self) -> int:
+
+        return int(
+            self.annual_kwh_heating_demand
+            * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[self.heating_system]]
+        )
+
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
 
@@ -263,17 +276,21 @@ class Household(Agent):
 
         self.is_renovating = self.true_with_probability(proba_renovate)
 
-    def decide_renovation_scope(self) -> None:
-
         # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
         # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
         PROBA_HEATING_SYSTEM_UPDATE = 0.18
         PROBA_INSULATION_UPDATE = 0.33
 
-        self.renovate_heating_system = self.true_with_probability(
-            PROBA_HEATING_SYSTEM_UPDATE
+        self.renovate_heating_system = (
+            self.true_with_probability(PROBA_HEATING_SYSTEM_UPDATE)
+            if self.is_renovating
+            else False
         )
-        self.renovate_insulation = self.true_with_probability(PROBA_INSULATION_UPDATE)
+        self.renovate_insulation = (
+            self.true_with_probability(PROBA_INSULATION_UPDATE)
+            if self.is_renovating
+            else False
+        )
 
     def get_upgradable_insulation_elements(self) -> Set[Element]:
 
@@ -371,7 +388,7 @@ class Household(Agent):
         self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
 
-        heating_system_options = model.heating_systems
+        heating_system_options = model.heating_systems.copy()
         if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
             heating_system_options -= HEAT_PUMPS
 
@@ -426,6 +443,9 @@ class Household(Agent):
 
     def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
 
+        self.epc_c_upgrade_costs = {}
+        self.heating_system_total_costs = {}
+
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         probability_density = self.weibull_hazard_rate(
             HAZARD_RATE_HEATING_SYSTEM_ALPHA,
@@ -454,7 +474,6 @@ class Household(Agent):
         self.evaluate_renovation(model)
 
         if self.is_renovating:
-            self.decide_renovation_scope()
             if self.renovate_insulation:
                 chosen_elements = self.get_chosen_insulation_costs(
                     event_trigger=EventTrigger.RENOVATION
@@ -476,6 +495,7 @@ class Household(Agent):
             chosen_insulation_costs = self.get_chosen_insulation_costs(
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )
+
             costs = {}
             for heating_system in heating_system_options:
                 costs[heating_system] = self.get_total_heating_system_costs(
@@ -483,6 +503,9 @@ class Household(Agent):
                 )
                 if heating_system in HEAT_PUMPS:
                     costs[heating_system] += sum(chosen_insulation_costs.values())
+
+            self.heating_system_total_costs = costs
+            self.epc_c_upgrade_costs = chosen_insulation_costs
 
             chosen_heating_system = self.choose_heating_system(
                 costs, model.heating_system_hassle_factor
