@@ -17,6 +17,7 @@ from simulation.constants import (
     HeatingFuel,
     HeatingSystem,
     OccupantType,
+    PropertySize,
     PropertyType,
 )
 from simulation.tests.common import household_factory, model_factory
@@ -291,6 +292,26 @@ class TestHousehold:
             model, event_trigger
         )
         assert heating_system_options.intersection({HeatingSystem.BOILER_OIL}) == set()
+
+    @pytest.mark.parametrize("event_trigger", list(EventTrigger))
+    def test_electric_boilers_not_in_heating_system_options_if_household_is_not_small(
+        self,
+        event_trigger,
+    ) -> None:
+
+        larger_household = household_factory(floor_area_sqm=random.randint(67, 200))
+        model = model_factory()
+
+        assert larger_household.property_size != PropertySize.SMALL
+
+        heating_system_options = larger_household.get_heating_system_options(
+            model, event_trigger
+        )
+
+        assert (
+            heating_system_options.intersection({HeatingSystem.BOILER_ELECTRIC})
+            == set()
+        )
 
     def test_heat_pump_not_in_heating_system_options_at_breakdown_event(
         self,
