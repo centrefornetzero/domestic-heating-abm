@@ -73,6 +73,42 @@ class TestAgentBasedModel:
 
             assert model["model_counter"] == step_num + 1
 
+    def test_run_yields_data_if_it_is_not_none(self) -> None:
+        class HouseholdAgent(Agent):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.attribute1 = None
+                self.attribute2 = "string"
+
+            def step(self, model=None):
+                pass
+
+        def agent_callable_returning_none(agent):
+            return agent.attribute1
+
+        def agent_callable_returning_string(agent):
+            return agent.attribute2
+
+        model = AgentBasedModel()
+        model.add_agents([HouseholdAgent(), HouseholdAgent(), HouseholdAgent()])
+        num_steps = 10
+
+        history = model.run(
+            num_steps=num_steps, agent_callables=[agent_callable_returning_none]
+        )
+
+        for step_num, step in enumerate(history):
+            agents, _ = step
+            assert all([value == {} for value in agents])
+
+        history = model.run(
+            num_steps=num_steps, agent_callables=[agent_callable_returning_string]
+        )
+
+        for step_num, step in enumerate(history):
+            agents, _ = step
+            assert all([value != {} for value in agents])
+
 
 def test_collect_when() -> None:
     class DateABM(AgentBasedModel):
