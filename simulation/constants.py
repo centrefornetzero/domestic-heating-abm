@@ -126,8 +126,8 @@ MAX_HEAT_PUMP_CAPACITY_KW = {
 }
 
 MIN_HEAT_PUMP_CAPACITY_KW = {
-    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 2.0,
-    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 2.0,
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 4.0,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 4.0,
 }
 
 
