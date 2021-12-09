@@ -42,11 +42,11 @@ from simulation.constants import (
 from simulation.costs import (
     CAVITY_WALL_INSULATION_COST,
     DOUBLE_GLAZING_UPVC_COST,
+    HEATING_FUEL_PRICE_GBP_PER_KWH,
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
-    HEATING_FUEL_PRICE_GBP_PER_KWH,
 )
 
 
@@ -256,7 +256,10 @@ class Household(Agent):
     @property
     def annual_heating_fuel_bill(self) -> int:
 
-        return int(self.annual_kwh_heating_demand * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[self.heating_system]])
+        return int(
+            self.annual_kwh_heating_demand
+            * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[self.heating_system]]
+        )
 
     def heating_system_age_years(self, current_date: datetime.date) -> float:
         return (current_date - self.heating_system_install_date).days / 365
@@ -272,8 +275,6 @@ class Household(Agent):
         proba_renovate = model.annual_renovation_rate * step_interval_years
 
         self.is_renovating = self.true_with_probability(proba_renovate)
-
-    def decide_renovation_scope(self) -> None:
 
         # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
         # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
@@ -387,7 +388,7 @@ class Household(Agent):
         self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
 
-        heating_system_options = model.heating_systems
+        heating_system_options = model.heating_systems.copy()
         if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
             heating_system_options -= HEAT_PUMPS
 
@@ -470,7 +471,6 @@ class Household(Agent):
         self.evaluate_renovation(model)
 
         if self.is_renovating:
-            self.decide_renovation_scope()
             if self.renovate_insulation:
                 chosen_elements = self.get_chosen_insulation_costs(
                     event_trigger=EventTrigger.RENOVATION
@@ -492,6 +492,7 @@ class Household(Agent):
             chosen_insulation_costs = self.get_chosen_insulation_costs(
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )
+
             costs = {}
             for heating_system in heating_system_options:
                 costs[heating_system] = self.get_total_heating_system_costs(
