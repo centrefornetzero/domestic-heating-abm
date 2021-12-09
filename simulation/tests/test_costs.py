@@ -84,3 +84,17 @@ class TestCosts:
         ) < get_heating_fuel_costs_net_present_value(
             wealthier_household, heating_system, num_look_ahead_years
         )
+
+    @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
+    def test_heat_pumps_are_cheaper_to_reinstall_than_install_first_time(
+        self,
+        heat_pump,
+    ) -> None:
+
+        household = household_factory(heating_system=HeatingSystem.BOILER_GAS)
+        new_heat_pump_quote = get_unit_and_install_costs(household, heat_pump)
+
+        household.heating_system = heat_pump
+        reinstall_heat_pump_quote = get_unit_and_install_costs(household, heat_pump)
+
+        assert reinstall_heat_pump_quote < new_heat_pump_quote
