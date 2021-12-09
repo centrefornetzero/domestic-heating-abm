@@ -68,6 +68,7 @@ DOUBLE_GLAZING_UPVC_COST = {
 MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE: Dict[int, int] = {
     # Source: RHI December 2020 Data
     # Adjusted for monotonicity: cost at each capacity >= highest trailing value
+    # These values incorporate installation costs
     1: 1500,
     2: 3000,
     3: 4500,
@@ -92,6 +93,7 @@ MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE: Dict[int, int] = {
 
 MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE: Dict[int, int] = {
     # Adjusted for monotonicity: cost at each capacity >= highest trailing value
+    # These values incorporate installation costs
     1: 1800,
     2: 3600,
     3: 5400,
@@ -119,26 +121,28 @@ MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE: Dict[int, int] = {
     25: 33250,
 }
 
+BOILER_INSTALLATION_COST_GBP = 1_000
+
 MEAN_COST_GBP_BOILER_GAS: Dict[PropertySize, int] = {
     # Source: https://www.boilerguide.co.uk/articles/what-size-boiler-needed
-    PropertySize.SMALL: 2277,
-    PropertySize.MEDIUM: 2347,
-    PropertySize.LARGE: 2476,
+    PropertySize.SMALL: 2277 + BOILER_INSTALLATION_COST_GBP,
+    PropertySize.MEDIUM: 2347 + BOILER_INSTALLATION_COST_GBP,
+    PropertySize.LARGE: 2476 + BOILER_INSTALLATION_COST_GBP,
 }
 
 MEAN_COST_GBP_BOILER_OIL: Dict[PropertySize, int] = {
     # Source: https://www.theecoexperts.co.uk/boilers/oil-boiler
     # Adjusted for monotonicity - cost at each property size >= highest trailing value
-    PropertySize.SMALL: 2350,
-    PropertySize.MEDIUM: 2350,
-    PropertySize.LARGE: 3025,
+    PropertySize.SMALL: 2350 + BOILER_INSTALLATION_COST_GBP,
+    PropertySize.MEDIUM: 2350 + BOILER_INSTALLATION_COST_GBP,
+    PropertySize.LARGE: 3025 + BOILER_INSTALLATION_COST_GBP,
 }
 
 MEAN_COST_GBP_BOILER_ELECTRIC: Dict[PropertySize, int] = {
     # Source: https://www.boilerguide.co.uk/articles/best-electric-boilers
-    PropertySize.SMALL: 1250,
-    PropertySize.MEDIUM: 1750,
-    PropertySize.LARGE: 2250,
+    PropertySize.SMALL: 1250 + BOILER_INSTALLATION_COST_GBP,
+    PropertySize.MEDIUM: 1750 + BOILER_INSTALLATION_COST_GBP,
+    PropertySize.LARGE: 2250 + BOILER_INSTALLATION_COST_GBP,
 }
 
 HEATING_FUEL_PRICE_GBP_PER_KWH: Dict[HeatingFuel, float] = {
@@ -146,6 +150,11 @@ HEATING_FUEL_PRICE_GBP_PER_KWH: Dict[HeatingFuel, float] = {
     HeatingFuel.ELECTRICITY: 0.144,
     HeatingFuel.OIL: 0.032,
 }
+
+# SOURCE: https://webarchive.nationalarchives.gov.uk/ukgwa/20121205193015/http:/www.decc.gov.uk/assets/decc/what%20we%20do/uk%20energy%20supply/energy%20mix/distributed%20energy%20heat/1467-potential-costs-district-heating-network.pdf
+# "First-time" installation costs (e.g. pipework, radiator upgrades, boreholes) are approximately 10% of total costs for ASHP, and 50% of total costs of a GSHP
+HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT = 0.1
+HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT = 0.5
 
 
 def get_unit_and_install_costs(
@@ -160,11 +169,23 @@ def get_unit_and_install_costs(
 
     if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
         kw_capacity = household.compute_heat_pump_capacity_kw(heating_system)
-        costs += MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity]
+        if household.heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
+            # Some installation work required to install a heat pump first time does not apply to 2nd+ installations
+            costs += MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity] * (
+                1 - HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT
+            )
+        else:
+            costs += MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity]
 
     if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
         kw_capacity = household.compute_heat_pump_capacity_kw(heating_system)
-        costs += MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE[kw_capacity]
+        if household.heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
+            # Some installation work required to install a heat pump first time does not apply to 2nd+ installations
+            costs += MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE[kw_capacity] * (
+                1 - HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT
+            )
+        else:
+            costs += MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE[kw_capacity]
 
     if heating_system == HeatingSystem.BOILER_GAS:
         costs += MEAN_COST_GBP_BOILER_GAS[household.property_size]
