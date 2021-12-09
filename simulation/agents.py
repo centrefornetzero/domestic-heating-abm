@@ -280,10 +280,16 @@ class Household(Agent):
         PROBA_HEATING_SYSTEM_UPDATE = 0.18
         PROBA_INSULATION_UPDATE = 0.33
 
-        self.renovate_heating_system = self.true_with_probability(
-            PROBA_HEATING_SYSTEM_UPDATE
+        self.renovate_heating_system = (
+            self.true_with_probability(PROBA_HEATING_SYSTEM_UPDATE)
+            if self.is_renovating
+            else False
         )
-        self.renovate_insulation = self.true_with_probability(PROBA_INSULATION_UPDATE)
+        self.renovate_insulation = (
+            self.true_with_probability(PROBA_INSULATION_UPDATE)
+            if self.is_renovating
+            else False
+        )
 
     def get_upgradable_insulation_elements(self) -> Set[Element]:
 
