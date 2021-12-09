@@ -397,6 +397,9 @@ class Household(Agent):
         else:
             heating_system_options -= {HeatingSystem.BOILER_OIL}
 
+        if self.property_size != PropertySize.SMALL:
+            heating_system_options -= {HeatingSystem.BOILER_ELECTRIC}
+
         if event_trigger == EventTrigger.BREAKDOWN:
             # if household already has a heat pump, they can reinstall that type of heat pump in a breakdown
             # heat pumps are otherwise unfeasible in a breakdown due to installation lead times
