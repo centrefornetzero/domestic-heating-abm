@@ -99,8 +99,12 @@ class Household(Agent):
         self.windows_energy_efficiency = windows_energy_efficiency
         self.is_heat_pump_aware = is_heat_pump_aware
 
-        # Renovation attributes
+        # Household investment decision attributes
         self.is_renovating = False
+        self.renovate_insulation = False
+        self.renovate_heating_system = False
+        self.epc_c_upgrade_costs = {}
+        self.heating_system_total_costs = {}
 
     @property
     def heating_fuel(self) -> HeatingFuel:
@@ -429,6 +433,9 @@ class Household(Agent):
 
     def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
 
+        self.epc_c_upgrade_costs = {}
+        self.heating_system_total_costs = {}
+
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         probability_density = self.weibull_hazard_rate(
             HAZARD_RATE_HEATING_SYSTEM_ALPHA,
@@ -486,6 +493,9 @@ class Household(Agent):
                 )
                 if heating_system in HEAT_PUMPS:
                     costs[heating_system] += sum(chosen_insulation_costs.values())
+
+            self.heating_system_total_costs = costs
+            self.epc_c_upgrade_costs = chosen_insulation_costs
 
             chosen_heating_system = self.choose_heating_system(
                 costs, model.heating_system_hassle_factor
