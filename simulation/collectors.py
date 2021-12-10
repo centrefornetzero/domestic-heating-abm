@@ -165,7 +165,7 @@ def model_current_datetime(model) -> datetime.datetime:
     return model.current_datetime
 
 
-def is_first_step(model: "DomesticHeatingABM") -> bool:
+def is_first_timestep(model: "DomesticHeatingABM") -> bool:
     return model.current_datetime == model.start_datetime + model.step_interval
 
 
@@ -174,22 +174,22 @@ def get_agent_collectors(
 ) -> List[Callable[[Household], Any]]:
     return [
         household_id,
-        collect_when(model, is_first_step)(household_location),
-        collect_when(model, is_first_step)(household_property_value_gbp),
-        collect_when(model, is_first_step)(household_floor_area_sqm),
-        collect_when(model, is_first_step)(household_off_gas_grid),
-        collect_when(model, is_first_step)(household_construction_year_band),
-        collect_when(model, is_first_step)(household_property_type),
-        collect_when(model, is_first_step)(household_built_form),
-        collect_when(model, is_first_step)(household_potential_epc),
-        collect_when(model, is_first_step)(household_occupant_type),
-        collect_when(model, is_first_step)(household_is_solid_wall),
-        collect_when(model, is_first_step)(household_is_heat_pump_suitable_archetype),
-        collect_when(model, is_first_step)(household_wealth_percentile),
-        collect_when(model, is_first_step)(household_discount_rate),
-        collect_when(model, is_first_step)(household_renovation_budget),
-        collect_when(model, is_first_step)(household_is_heat_pump_suitable),
-        collect_when(model, is_first_step)(household_is_heat_pump_aware),
+        collect_when(model, is_first_timestep)(household_location),
+        collect_when(model, is_first_timestep)(household_property_value_gbp),
+        collect_when(model, is_first_timestep)(household_floor_area_sqm),
+        collect_when(model, is_first_timestep)(household_off_gas_grid),
+        collect_when(model, is_first_timestep)(household_construction_year_band),
+        collect_when(model, is_first_timestep)(household_property_type),
+        collect_when(model, is_first_timestep)(household_built_form),
+        collect_when(model, is_first_timestep)(household_potential_epc),
+        collect_when(model, is_first_timestep)(household_occupant_type),
+        collect_when(model, is_first_timestep)(household_is_solid_wall),
+        collect_when(model, is_first_timestep)(household_is_heat_pump_suitable_archetype),
+        collect_when(model, is_first_timestep)(household_wealth_percentile),
+        collect_when(model, is_first_timestep)(household_discount_rate),
+        collect_when(model, is_first_timestep)(household_renovation_budget),
+        collect_when(model, is_first_timestep)(household_is_heat_pump_suitable),
+        collect_when(model, is_first_timestep)(household_is_heat_pump_aware),
         household_heating_system,
         household_heating_install_date,
         household_epc,
