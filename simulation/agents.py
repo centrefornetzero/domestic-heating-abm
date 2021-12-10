@@ -8,7 +8,7 @@ import pandas as pd
 from abm import Agent
 
 if TYPE_CHECKING:
-    from simulation.model import CnzAgentBasedModel
+    from simulation.model import DomesticHeatingABM
 
 from simulation.constants import (
     BOILERS,
@@ -58,7 +58,7 @@ class Household(Agent):
     def __init__(
         self,
         location: str,
-        property_value: int,
+        property_value_gbp: int,
         floor_area_sqm: int,
         off_gas_grid: bool,
         construction_year_band: ConstructionYearBand,
@@ -82,7 +82,7 @@ class Household(Agent):
         self.occupant_type = occupant_type
         self.built_form = built_form
         self.floor_area_sqm = floor_area_sqm
-        self.property_value = property_value
+        self.property_value_gbp = property_value_gbp
         self.is_solid_wall = is_solid_wall
         self.construction_year_band = construction_year_band
         self.is_heat_pump_suitable_archetype = is_heat_pump_suitable_archetype
@@ -147,7 +147,7 @@ class Household(Agent):
         return self.get_weibull_percentile_from_value(
             GB_PROPERTY_VALUE_WEIBULL_ALPHA,
             GB_PROPERTY_VALUE_WEIBULL_BETA,
-            self.property_value,
+            self.property_value_gbp,
         )
 
     @property
@@ -385,7 +385,7 @@ class Household(Agent):
         return self.choose_insulation_elements(insulation_quotes, num_elements)
 
     def get_heating_system_options(
-        self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
+        self, model: "DomesticHeatingABM", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
 
         heating_system_options = model.heating_systems.copy()
@@ -409,7 +409,7 @@ class Household(Agent):
         return heating_system_options
 
     def get_total_heating_system_costs(
-        self, heating_system: HeatingSystem, model: "CnzAgentBasedModel"
+        self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
     ):
 
         unit_and_install_costs = get_unit_and_install_costs(self, heating_system)
@@ -434,14 +434,14 @@ class Household(Agent):
         return random.choices(list(costs.keys()), weights)[0]
 
     def install_heating_system(
-        self, heating_system: HeatingSystem, model: "CnzAgentBasedModel"
+        self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
     ) -> None:
 
         self.heating_system = heating_system
         self.heating_system_install_date = model.current_datetime.date()
         self.heating_functioning = True
 
-    def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
+    def update_heating_status(self, model: "DomesticHeatingABM") -> None:
 
         self.epc_c_upgrade_costs = {}
         self.heating_system_total_costs = {}
@@ -468,7 +468,7 @@ class Household(Agent):
             )
         )
 
-    def step(self, model):
+    def make_decisions(self, model):
 
         self.update_heating_status(model)
         self.evaluate_renovation(model)

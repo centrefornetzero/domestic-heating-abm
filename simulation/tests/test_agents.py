@@ -27,7 +27,7 @@ class TestHousehold:
     def test_create_household(self) -> None:
         household = household_factory(
             location="London",
-            property_value=400_000,
+            property_value_gbp=400_000,
             floor_area_sqm=100,
             off_gas_grid=False,
             construction_year_band=ConstructionYearBand.BUILT_1919_1944,
@@ -46,7 +46,7 @@ class TestHousehold:
             is_heat_pump_aware=True,
         )
         assert household.location == "London"
-        assert household.property_value == 400_000
+        assert household.property_value_gbp == 400_000
         assert household.floor_area_sqm == 100
         assert not household.off_gas_grid
         assert household.construction_year_band == ConstructionYearBand.BUILT_1919_1944
@@ -67,9 +67,9 @@ class TestHousehold:
         assert household.is_renovating is not None
 
     def test_household_renovation_budget_increases_with_property_value(self) -> None:
-        low_property_value_household = household_factory(property_value=100_000)
-        medium_property_value_household = household_factory(property_value=300_000)
-        high_property_value_household = household_factory(property_value=500_000)
+        low_property_value_household = household_factory(property_value_gbp=100_000)
+        medium_property_value_household = household_factory(property_value_gbp=300_000)
+        high_property_value_household = household_factory(property_value_gbp=500_000)
 
         assert (
             low_property_value_household.renovation_budget
@@ -80,10 +80,10 @@ class TestHousehold:
     def test_renovation_budget_greater_than_or_equal_to_zero_and_less_than_total_property_value(
         self,
     ) -> None:
-        household = household_factory(property_value=random.randint(0, 5_000_000))
+        household = household_factory(property_value_gbp=random.randint(0, 5_000_000))
 
         assert household.renovation_budget >= 0
-        assert household.renovation_budget < household.property_value
+        assert household.renovation_budget < household.property_value_gbp
 
     def test_household_is_renovating_state_updates(
         self,
@@ -361,9 +361,11 @@ class TestHousehold:
 
     def test_household_with_lower_wealth_has_higher_discount_rate(self) -> None:
 
-        household = household_factory(property_value=random.randint(50_000, 400_000))
+        household = household_factory(
+            property_value_gbp=random.randint(50_000, 400_000)
+        )
         higher_wealth_household = household_factory(
-            property_value=household.property_value * 1.1
+            property_value_gbp=household.property_value_gbp * 1.1
         )
 
         assert household.discount_rate > higher_wealth_household.discount_rate
@@ -435,7 +437,7 @@ class TestHousehold:
         )
 
     @pytest.mark.parametrize("epc", list(Epc))
-    def test_household_choses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
+    def test_household_chooses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
         self,
         epc,
     ) -> None:

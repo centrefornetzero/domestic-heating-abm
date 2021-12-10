@@ -18,7 +18,7 @@ from simulation.constants import (
 )
 
 
-class CnzAgentBasedModel(AgentBasedModel):
+class DomesticHeatingABM(AgentBasedModel):
     def __init__(
         self,
         start_datetime,
@@ -37,7 +37,7 @@ class CnzAgentBasedModel(AgentBasedModel):
 
         super().__init__(UnorderedSpace())
 
-    def step(self):
+    def increment_timestep(self):
         self.current_datetime += self.step_interval
 
 
@@ -52,7 +52,7 @@ def create_households(
     for household in households.itertuples():
         yield Household(
             location=household.location,
-            property_value=household.property_value,
+            property_value_gbp=household.property_value_gbp,
             floor_area_sqm=household.floor_area_sqm,
             off_gas_grid=household.off_gas_grid,
             construction_year_band=ConstructionYearBand[
@@ -80,7 +80,7 @@ def create_households(
 def create_and_run_simulation(
     start_datetime: datetime.datetime,
     step_interval: datetime.timedelta,
-    num_steps: int,
+    time_steps: int,
     num_households: int,
     household_distribution: pd.DataFrame,
     heat_pump_awareness: float,
@@ -88,7 +88,7 @@ def create_and_run_simulation(
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
 ):
-    model = CnzAgentBasedModel(
+    model = DomesticHeatingABM(
         start_datetime=start_datetime,
         step_interval=step_interval,
         annual_renovation_rate=annual_renovation_rate,
@@ -106,4 +106,4 @@ def create_and_run_simulation(
 
     agent_collectors = get_agent_collectors(model)
 
-    return model.run(num_steps, agent_collectors, model_collectors)
+    return model.run(time_steps, agent_collectors, model_collectors)

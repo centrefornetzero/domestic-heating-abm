@@ -16,8 +16,8 @@ from simulation.model import create_households
 from simulation.tests.common import model_factory
 
 
-class TestCnzAgentBasedModel:
-    def test_step_increments_current_datetime(self) -> None:
+class TestDomesticHeatingABM:
+    def test_increment_timestep_increments_current_datetime(self) -> None:
         start_datetime = datetime.datetime.now()
         step_interval = datetime.timedelta(minutes=1440)
         model = model_factory(
@@ -25,7 +25,7 @@ class TestCnzAgentBasedModel:
         )
         assert model.current_datetime == start_datetime
 
-        model.step()
+        model.increment_timestep()
         assert model.current_datetime == start_datetime + step_interval
 
 
@@ -33,7 +33,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     household_distribution = pd.DataFrame(
         {
             "location": ["Birmingham"],
-            "property_value": [264_000],
+            "property_value_gbp": [264_000],
             "floor_area_sqm": [82],
             "off_gas_grid": [False],
             "construction_year_band": ["BUILT_POST_1999"],
@@ -62,7 +62,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     household = next(households)
 
     assert household.location == "Birmingham"
-    assert household.property_value == 264_000
+    assert household.property_value_gbp == 264_000
     assert household.floor_area_sqm == 82
     assert not household.off_gas_grid
     assert household.construction_year_band == ConstructionYearBand.BUILT_POST_1999
@@ -93,7 +93,7 @@ def test_create_many_households() -> None:
     household_distribution = pd.DataFrame(
         {
             "location": ["Birmingham"],
-            "property_value": [264_000],
+            "property_value_gbp": [264_000],
             "floor_area_sqm": [82],
             "off_gas_grid": [False],
             "construction_year_band": ["BUILT_POST_1999"],

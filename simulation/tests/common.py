@@ -9,13 +9,13 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
-from simulation.model import CnzAgentBasedModel
+from simulation.model import DomesticHeatingABM
 
 
 def household_factory(**agent_attributes):
     default_values = {
         "location": "Test Location",
-        "property_value": 264_000,
+        "property_value_gbp": 264_000,
         "floor_area_sqm": 82,
         "off_gas_grid": False,
         "construction_year_band": ConstructionYearBand.BUILT_1919_1944,
@@ -44,4 +44,4 @@ def model_factory(**model_attributes):
         "household_num_lookahead_years": 3,
         "heating_system_hassle_factor": 0.7,
     }
-    return CnzAgentBasedModel(**{**default_values, **model_attributes})
+    return DomesticHeatingABM(**{**default_values, **model_attributes})

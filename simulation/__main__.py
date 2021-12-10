@@ -29,7 +29,7 @@ def parse_args(args=None):
         default=datetime.timedelta(minutes=1440),
     )
 
-    parser.add_argument("--steps", dest="num_steps", type=int, default=100)
+    parser.add_argument("--steps", dest="time_steps", type=int, default=100)
     parser.add_argument("--num-households", type=int, default=10)
     parser.add_argument("--history-filename", default="history.jsonl")
     parser.add_argument("--household-distribution", type=pd.read_csv)
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     history = create_and_run_simulation(
         args.start_datetime,
         args.step_interval,
-        args.num_steps,
+        args.time_steps,
         args.num_households,
         args.household_distribution,
         args.heat_pump_awareness,

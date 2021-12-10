@@ -37,7 +37,7 @@ class UnorderedSpace:
 
 
 class Agent:
-    def step(self, model: Optional["AgentBasedModel"] = None) -> None:
+    def make_decisions(self, model: Optional["AgentBasedModel"] = None) -> None:
         raise NotImplementedError
 
 
@@ -56,12 +56,12 @@ class AgentBasedModel:
         for agent in agents:
             self.add_agent(agent)
 
-    def step(self) -> None:
+    def increment_timestep(self) -> None:
         raise NotImplementedError
 
     def run(
         self,
-        num_steps: int,
+        time_steps: int,
         agent_callables: Optional[List[AgentCallable]] = None,
         model_callables: Optional[List[ModelCallable]] = None,
     ) -> History:
@@ -71,16 +71,16 @@ class AgentBasedModel:
         if model_callables is None:
             model_callables = []
 
-        for _ in trange(num_steps, desc="Running simulation"):
+        for _ in trange(time_steps, desc="Running simulation"):
             try:
-                self.step()
+                self.increment_timestep()
             except NotImplementedError:
                 pass
 
             agent_data = []
 
             for agent in self.space:
-                agent.step(self)
+                agent.make_decisions(self)
                 agent_datum = {
                     agent_callable.__name__: agent_callable(agent)
                     for agent_callable in agent_callables

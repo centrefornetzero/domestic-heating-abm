@@ -40,7 +40,7 @@ class TestAgentBasedModel:
                 super().__init__(*args, **kwargs)
                 self.counter = 0
 
-            def step(self):
+            def increment_timestep(self):
                 self.counter += 1
 
         model = CountingABM()
@@ -50,7 +50,7 @@ class TestAgentBasedModel:
                 super().__init__(*args, **kwargs)
                 self.counter = 0
 
-            def step(self, model=None):
+            def make_decisions(self, model=None):
                 self.counter += 1
 
         num_agents = 3
@@ -62,8 +62,8 @@ class TestAgentBasedModel:
         def model_counter(model):
             return model.counter
 
-        num_steps = 3
-        history = model.run(num_steps, [agent_counter], [model_counter])
+        time_steps = 3
+        history = model.run(time_steps, [agent_counter], [model_counter])
 
         for step_num, step in enumerate(history):
             agents, model = step
@@ -80,7 +80,7 @@ class TestAgentBasedModel:
                 self.empty_value = None
                 self.bool_value = False
 
-            def step(self, model=None):
+            def make_decisions(self, model=None):
                 pass
 
         def agent_callable_returning_none(agent):
@@ -91,10 +91,10 @@ class TestAgentBasedModel:
 
         model = AgentBasedModel()
         model.add_agents([HouseholdAgent(), HouseholdAgent(), HouseholdAgent()])
-        num_steps = 10
+        time_steps = 10
 
         history = model.run(
-            num_steps=num_steps, agent_callables=[agent_callable_returning_none]
+            time_steps=time_steps, agent_callables=[agent_callable_returning_none]
         )
 
         for step_num, step in enumerate(history):
@@ -103,7 +103,7 @@ class TestAgentBasedModel:
                 assert agent == {}
 
         history = model.run(
-            num_steps=num_steps, agent_callables=[agent_callable_returning_false]
+            time_steps=time_steps, agent_callables=[agent_callable_returning_false]
         )
 
         for step_num, step in enumerate(history):
@@ -118,7 +118,7 @@ def test_collect_when() -> None:
             super().__init__(*args, **kwargs)
             self.date = start_date
 
-        def step(self):
+        def increment_timestep(self):
             self.date += datetime.timedelta(days=1)
 
     start_date = datetime.date(2021, 9, 20)
@@ -130,7 +130,7 @@ def test_collect_when() -> None:
             super().__init__(*args, **kwargs)
             self.counter = 0
 
-        def step(self, model=None):
+        def make_decisions(self, model=None):
             self.counter += 1
 
     model.add_agent(CountingAgent())
@@ -142,11 +142,11 @@ def test_collect_when() -> None:
     def agent_counter(agent: Agent) -> bool:
         return agent.counter
 
-    steps = 30
-    history = model.run(steps, agent_callables=[agent_counter])
+    time_steps = 30
+    history = model.run(time_steps, agent_callables=[agent_counter])
     agent_history, _ = zip(*history)
 
-    assert len(agent_history) == steps
+    assert len(agent_history) == time_steps
     assert [agent for step in agent_history for agent in step if agent] == [
         {"agent_counter": 6},
         {"agent_counter": 13},
@@ -156,9 +156,9 @@ def test_collect_when() -> None:
 
 
 class TestAgent:
-    def test_step_is_not_implemented(self) -> None:
+    def test_make_decisions_is_not_implemented(self) -> None:
         with pytest.raises(NotImplementedError):
-            Agent().step()
+            Agent().make_decisions()
 
 
 class TestUnorderedSpace:
