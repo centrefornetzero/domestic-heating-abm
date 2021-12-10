@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import random
 
 import pandas as pd
 
@@ -52,12 +53,16 @@ def parse_args(args=None):
         help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
     )
 
+    parser.add_argument("-random-seed", type=int)
+
     return parser.parse_args(args)
 
 
 if __name__ == "__main__":
+
     args = parse_args()
 
+    random.seed(args.random_seed)
     history = create_and_run_simulation(
         args.start_datetime,
         args.step_interval,
