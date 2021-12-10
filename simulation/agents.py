@@ -226,7 +226,7 @@ class Household(Agent):
             if not all(
                 [
                     self.is_heat_pump_suitable_archetype,
-                    self.potential_epc.value <= Epc.C.value,
+                    self.potential_epc.value >= Epc.C.value,
                 ]
             )
             else True
@@ -320,7 +320,7 @@ class Household(Agent):
         if event_trigger == EventTrigger.EPC_C_UPGRADE:
             # The number of insulation elements a household would require to reach epc C
             # We assume each insulation measure will contribute +1 EPC grade
-            return max(0, self.epc.value - Epc.C.value)
+            return max(0, Epc.C.value - self.epc.value)
 
         return 0
 
@@ -370,7 +370,7 @@ class Household(Agent):
                 self.windows_energy_efficiency = 5
 
         n_measures = len(insulation_elements)
-        improved_epc_level = max(0, self.epc.value - n_measures)
+        improved_epc_level = min(6, self.epc.value + n_measures)
         self.epc = Epc(improved_epc_level)
 
     def get_chosen_insulation_costs(self, event_trigger: EventTrigger):

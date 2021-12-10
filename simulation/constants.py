@@ -22,13 +22,13 @@ class OccupantType(enum.Enum):
 
 
 class Epc(enum.Enum):
-    A = 0
-    B = 1
-    C = 2
+    G = 0
+    F = 1
+    E = 2
     D = 3
-    E = 4
-    F = 5
-    G = 6
+    C = 4
+    B = 5
+    A = 6
 
 
 class HeatingSystem(enum.Enum):
