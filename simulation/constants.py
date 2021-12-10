@@ -159,3 +159,32 @@ BOILERS = {
     HeatingSystem.BOILER_OIL,
     HeatingSystem.BOILER_ELECTRIC,
 }
+
+# The likelihoods of houses under renovation choosing to address heating system and/or insulation as part of project
+# Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+# Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+RENO_PROBA_HEATING_SYSTEM_UPDATE = 0.18
+RENO_PROBA_INSULATION_UPDATE = 0.33
+
+# Likelihood of upgrading 1,2 or 3 insulation elements during a renovation
+# Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
+# Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
+RENO_NUM_INSULATION_ELEMENTS_UPGRADED = {1: 0.76, 2: 0.17, 3: 0.07}
+
+# An amount a house may set aside for work related to home heating and energy efficiency
+# Expressed as a proportion of their total renovation budget (10%)
+HEATING_PROPORTION_OF_RENO_BUDGET = 0.1
+
+# Upper bound on floor area sqm for to be classed as 'Small', by property type / built form
+# As per the segmentation used in Source: BEIS - WHAT DOES IT COST TO RETROFIT HOMES?
+RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT = {
+    "FLAT": 54,
+    "MID_TERRACE_HOUSE": 76,
+    "SEMI_OR_END_TERRACE_HOUSE": 80,
+    "SMALL_DETACHED_HOUSE": 117,
+}
+
+# Floor area of homes in England and Wales
+# Source: England/Wales Energy Performance Certificates
+FLOOR_AREA_SQM_33RD_PERCENTILE = 66
+FLOOR_AREA_SQM_66TH_PERCENTILE = 89
