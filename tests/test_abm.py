@@ -7,7 +7,7 @@ from abm import (
     Agent,
     AgentBasedModel,
     History,
-    UnorderedSpace,
+    OrderedSpace,
     collect_when,
     read_jsonlines,
     write_jsonlines,
@@ -161,15 +161,15 @@ class TestAgent:
             Agent().make_decisions()
 
 
-class TestUnorderedSpace:
+class TestOrderedSpace:
     def test_add_agent(self) -> None:
-        space = UnorderedSpace()
+        space = OrderedSpace()
         agent = Agent()
         space.add_agent(agent)
         assert agent in space
 
     def test_iterating_over_space_returns_agents(self) -> None:
-        space = UnorderedSpace()
+        space = OrderedSpace()
         agents = {Agent(), Agent(), Agent()}
         for agent in agents:
             space.add_agent(agent)

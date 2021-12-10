@@ -22,12 +22,12 @@ ModelCallable = Callable[["AgentBasedModel"], Any]
 History = Iterator[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
 
 
-class UnorderedSpace:
+class OrderedSpace:
     def __init__(self) -> None:
-        self.agents: Set["Agent"] = set()
+        self.agents: List["Agent"] = list()
 
     def add_agent(self, agent: "Agent") -> None:
-        self.agents.add(agent)
+        self.agents.append(agent)
 
     def __contains__(self, agent: "Agent") -> bool:
         return agent in self.agents
@@ -42,10 +42,8 @@ class Agent:
 
 
 class AgentBasedModel:
-    def __init__(
-        self, space: Optional[UnorderedSpace] = None, **properties: Any
-    ) -> None:
-        self.space = space if space else UnorderedSpace()
+    def __init__(self, space: Optional[OrderedSpace] = None, **properties: Any) -> None:
+        self.space = space if space else OrderedSpace()
         for attribute, value in properties.items():
             setattr(self, attribute, value)
 
