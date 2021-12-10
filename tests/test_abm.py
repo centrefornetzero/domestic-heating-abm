@@ -50,7 +50,7 @@ class TestAgentBasedModel:
                 super().__init__(*args, **kwargs)
                 self.counter = 0
 
-            def step(self, model=None):
+            def make_decisions(self, model=None):
                 self.counter += 1
 
         num_agents = 3
@@ -80,7 +80,7 @@ class TestAgentBasedModel:
                 self.empty_value = None
                 self.bool_value = False
 
-            def step(self, model=None):
+            def make_decisions(self, model=None):
                 pass
 
         def agent_callable_returning_none(agent):
@@ -130,7 +130,7 @@ def test_collect_when() -> None:
             super().__init__(*args, **kwargs)
             self.counter = 0
 
-        def step(self, model=None):
+        def make_decisions(self, model=None):
             self.counter += 1
 
     model.add_agent(CountingAgent())
@@ -142,8 +142,8 @@ def test_collect_when() -> None:
     def agent_counter(agent: Agent) -> bool:
         return agent.counter
 
-    steps = 30
-    history = model.run(steps, agent_callables=[agent_counter])
+    time_steps = 30
+    history = model.run(time_steps, agent_callables=[agent_counter])
     agent_history, _ = zip(*history)
 
     assert len(agent_history) == steps
