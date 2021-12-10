@@ -184,7 +184,9 @@ def get_agent_collectors(
         collect_when(model, is_first_timestep)(household_potential_epc),
         collect_when(model, is_first_timestep)(household_occupant_type),
         collect_when(model, is_first_timestep)(household_is_solid_wall),
-        collect_when(model, is_first_timestep)(household_is_heat_pump_suitable_archetype),
+        collect_when(model, is_first_timestep)(
+            household_is_heat_pump_suitable_archetype
+        ),
         collect_when(model, is_first_timestep)(household_wealth_percentile),
         collect_when(model, is_first_timestep)(household_discount_rate),
         collect_when(model, is_first_timestep)(household_renovation_budget),
