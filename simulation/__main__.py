@@ -53,7 +53,7 @@ def parse_args(args=None):
         help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
     )
 
-    parser.add_argument("-random-seed", type=int)
+    parser.add_argument("--random-seed", type=int)
 
     return parser.parse_args(args)
 
@@ -73,6 +73,7 @@ if __name__ == "__main__":
         args.annual_renovation_rate,
         args.household_num_lookahead_years,
         args.heating_system_hassle_factor,
+        args.random_seed,
     )
 
     write_jsonlines(history, args.history_filename)

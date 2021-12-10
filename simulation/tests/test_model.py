@@ -52,12 +52,14 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     )
     num_households = 1
     heat_pump_awareness = 0.4
+    random_seed = 42
     simulation_start_datetime = datetime.datetime.now()
     households = create_households(
         num_households,
         household_distribution,
         heat_pump_awareness,
         simulation_start_datetime,
+        random_seed,
     )
     household = next(households)
 
@@ -112,11 +114,13 @@ def test_create_many_households() -> None:
     )
     num_households = 100
     heat_pump_awareness = 0.4
+    random_seed = 42
     simulation_start_datetime = datetime.datetime.now()
     households = create_households(
         num_households,
         household_distribution,
         heat_pump_awareness,
         simulation_start_datetime,
+        random_seed,
     )
     assert len(list(households)) == num_households

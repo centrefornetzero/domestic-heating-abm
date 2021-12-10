@@ -46,9 +46,12 @@ def create_households(
     household_distribution: pd.DataFrame,
     heat_pump_awareness: float,
     simulation_start_datetime: datetime.datetime,
+    random_seed: int,
 ) -> Iterator[Household]:
 
-    households = household_distribution.sample(num_households, replace=True)
+    households = household_distribution.sample(
+        num_households, replace=True, random_state=random_seed
+    )
     for household in households.itertuples():
         yield Household(
             location=household.location,
@@ -87,6 +90,7 @@ def create_and_run_simulation(
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
+    random_seed: int,
 ):
     model = DomesticHeatingABM(
         start_datetime=start_datetime,
@@ -101,6 +105,7 @@ def create_and_run_simulation(
         household_distribution,
         heat_pump_awareness,
         model.start_datetime,
+        random_seed,
     )
     model.add_agents(households)
 
