@@ -14,6 +14,8 @@ from simulation.constants import (
     BOILERS,
     DISCOUNT_RATE_WEIBULL_ALPHA,
     DISCOUNT_RATE_WEIBULL_BETA,
+    FLOOR_AREA_SQM_33RD_PERCENTILE,
+    FLOOR_AREA_SQM_66TH_PERCENTILE,
     FUEL_KWH_TO_HEAT_KWH,
     GB_PROPERTY_VALUE_WEIBULL_ALPHA,
     GB_PROPERTY_VALUE_WEIBULL_BETA,
@@ -24,9 +26,14 @@ from simulation.constants import (
     HEAT_PUMP_CAPACITY_SCALE_FACTOR,
     HEAT_PUMPS,
     HEATING_KWH_PER_SQM_ANNUAL,
+    HEATING_PROPORTION_OF_RENO_BUDGET,
     HEATING_SYSTEM_FUEL,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
+    RENO_NUM_INSULATION_ELEMENTS_UPGRADED,
+    RENO_PROBA_HEATING_SYSTEM_UPDATE,
+    RENO_PROBA_INSULATION_UPDATE,
+    RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -165,23 +172,21 @@ class Household(Agent):
 
     @property
     def renovation_budget(self) -> float:
-        # An amount a house may set aside for work related to home heating and energy efficiency
-        # Expressed as a proportion of their total renovation budget (10%)
 
-        HEATING_PROPORTION_OF_BUDGET = 0.1
-
-        return HEATING_PROPORTION_OF_BUDGET * self.get_weibull_value_from_percentile(
-            GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
-            GB_RENOVATION_BUDGET_WEIBULL_BETA,
-            self.wealth_percentile,
+        return (
+            HEATING_PROPORTION_OF_RENO_BUDGET
+            * self.get_weibull_value_from_percentile(
+                GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
+                GB_RENOVATION_BUDGET_WEIBULL_BETA,
+                self.wealth_percentile,
+            )
         )
 
     @property
     def insulation_segment(self) -> InsulationSegment:
-        # As per the property segmentation used in BEIS - WHAT DOES IT COST TO RETROFIT HOMES?
 
         if self.property_type == PropertyType.FLAT:
-            if self.floor_area_sqm < 54:
+            if self.floor_area_sqm < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["FLAT"]:
                 return InsulationSegment.SMALL_FLAT
             return InsulationSegment.LARGE_FLAT
 
@@ -191,7 +196,8 @@ class Household(Agent):
         ):
             return (
                 InsulationSegment.SMALL_MID_TERRACE_HOUSE
-                if self.floor_area_sqm < 76
+                if self.floor_area_sqm
+                < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["MID_TERRACE_HOUSE"]
                 else InsulationSegment.LARGE_MID_TERRACE_HOUSE
             )
 
@@ -201,7 +207,8 @@ class Household(Agent):
         ]:
             return (
                 InsulationSegment.SMALL_SEMI_END_TERRACE_HOUSE
-                if self.floor_area_sqm < 80
+                if self.floor_area_sqm
+                < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["SEMI_OR_END_TERRACE_HOUSE"]
                 else InsulationSegment.LARGE_SEMI_END_TERRACE_HOUSE
             )
 
@@ -211,7 +218,8 @@ class Household(Agent):
         ):
             return (
                 InsulationSegment.SMALL_DETACHED_HOUSE
-                if self.floor_area_sqm < 117
+                if self.floor_area_sqm
+                < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["SMALL_DETACHED_HOUSE"]
                 else InsulationSegment.LARGE_DETACHED_HOUSE
             )
 
@@ -234,10 +242,6 @@ class Household(Agent):
 
     @property
     def property_size(self) -> PropertySize:
-
-        # Source: England/Wales EPC
-        FLOOR_AREA_SQM_33RD_PERCENTILE = 66
-        FLOOR_AREA_SQM_66TH_PERCENTILE = 89
 
         if self.floor_area_sqm < FLOOR_AREA_SQM_33RD_PERCENTILE:
             return PropertySize.SMALL
@@ -276,18 +280,13 @@ class Household(Agent):
 
         self.is_renovating = self.true_with_probability(proba_renovate)
 
-        # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
-        # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
-        PROBA_HEATING_SYSTEM_UPDATE = 0.18
-        PROBA_INSULATION_UPDATE = 0.33
-
         self.renovate_heating_system = (
-            self.true_with_probability(PROBA_HEATING_SYSTEM_UPDATE)
+            self.true_with_probability(RENO_PROBA_HEATING_SYSTEM_UPDATE)
             if self.is_renovating
             else False
         )
         self.renovate_insulation = (
-            self.true_with_probability(PROBA_INSULATION_UPDATE)
+            self.true_with_probability(RENO_PROBA_INSULATION_UPDATE)
             if self.is_renovating
             else False
         )
@@ -313,9 +312,10 @@ class Household(Agent):
     def get_num_insulation_elements(self, event_trigger: EventTrigger) -> int:
 
         if event_trigger == EventTrigger.RENOVATION:
-            # Derived from the VERD Project, 2012-2013. UK Data Service. SN: 7773, http://doi.org/10.5255/UKDA-SN-7773-1
-            # Based upon the choices of houses in 'Stage 3' - finalising or actively renovating
-            return random.choices([1, 2, 3], weights=[0.76, 0.17, 0.07])[0]
+            return random.choices(
+                list(RENO_NUM_INSULATION_ELEMENTS_UPGRADED.keys()),
+                weights=RENO_NUM_INSULATION_ELEMENTS_UPGRADED.values(),
+            )[0]
 
         if event_trigger == EventTrigger.EPC_C_UPGRADE:
             # The number of insulation elements a household would require to reach epc C
