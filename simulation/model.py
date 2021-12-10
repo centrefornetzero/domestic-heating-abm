@@ -4,7 +4,7 @@ from typing import Iterator
 
 import pandas as pd
 
-from abm import AgentBasedModel, GeographicalRegion
+from abm import AgentBasedModel, UnorderedSpace
 from simulation.agents import Household
 from simulation.collectors import get_agent_collectors, model_collectors
 from simulation.constants import (
@@ -35,7 +35,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
 
-        super().__init__(GeographicalRegion())
+        super().__init__(UnorderedSpace())
 
     def increment_timestep(self):
         self.current_datetime += self.step_interval

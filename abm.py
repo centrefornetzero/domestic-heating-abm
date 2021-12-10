@@ -22,7 +22,7 @@ ModelCallable = Callable[["AgentBasedModel"], Any]
 History = Iterator[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
 
 
-class GeographicalRegion:
+class UnorderedSpace:
     def __init__(self) -> None:
         self.agents: Set["Agent"] = set()
 
@@ -43,9 +43,9 @@ class Agent:
 
 class AgentBasedModel:
     def __init__(
-        self, space: Optional[GeographicalRegion] = None, **properties: Any
+        self, space: Optional[UnorderedSpace] = None, **properties: Any
     ) -> None:
-        self.space = space if space else GeographicalRegion()
+        self.space = space if space else UnorderedSpace()
         for attribute, value in properties.items():
             setattr(self, attribute, value)
 
