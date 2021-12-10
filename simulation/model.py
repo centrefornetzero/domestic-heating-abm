@@ -18,7 +18,7 @@ from simulation.constants import (
 )
 
 
-class CnzAgentBasedModel(AgentBasedModel):
+class DomesticHeatingABM(AgentBasedModel):
     def __init__(
         self,
         start_datetime,
@@ -88,7 +88,7 @@ def create_and_run_simulation(
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
 ):
-    model = CnzAgentBasedModel(
+    model = DomesticHeatingABM(
         start_datetime=start_datetime,
         step_interval=step_interval,
         annual_renovation_rate=annual_renovation_rate,

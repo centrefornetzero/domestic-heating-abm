@@ -6,7 +6,7 @@ from simulation.agents import Household
 from simulation.constants import Element, HeatingSystem
 
 if TYPE_CHECKING:
-    from simulation.model import CnzAgentBasedModel
+    from simulation.model import DomesticHeatingABM
 
 
 def household_id(household) -> int:
@@ -165,12 +165,12 @@ def model_current_datetime(model) -> datetime.datetime:
     return model.current_datetime
 
 
-def is_first_step(model: "CnzAgentBasedModel") -> bool:
+def is_first_step(model: "DomesticHeatingABM") -> bool:
     return model.current_datetime == model.start_datetime + model.step_interval
 
 
 def get_agent_collectors(
-    model: "CnzAgentBasedModel",
+    model: "DomesticHeatingABM",
 ) -> List[Callable[[Household], Any]]:
     return [
         household_id,

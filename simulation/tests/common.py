@@ -9,7 +9,7 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
-from simulation.model import CnzAgentBasedModel
+from simulation.model import DomesticHeatingABM
 
 
 def household_factory(**agent_attributes):
@@ -44,4 +44,4 @@ def model_factory(**model_attributes):
         "household_num_lookahead_years": 3,
         "heating_system_hassle_factor": 0.7,
     }
-    return CnzAgentBasedModel(**{**default_values, **model_attributes})
+    return DomesticHeatingABM(**{**default_values, **model_attributes})

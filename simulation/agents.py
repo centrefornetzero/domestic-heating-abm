@@ -8,7 +8,7 @@ import pandas as pd
 from abm import Agent
 
 if TYPE_CHECKING:
-    from simulation.model import CnzAgentBasedModel
+    from simulation.model import DomesticHeatingABM
 
 from simulation.constants import (
     BOILERS,
@@ -385,7 +385,7 @@ class Household(Agent):
         return self.choose_insulation_elements(insulation_quotes, num_elements)
 
     def get_heating_system_options(
-        self, model: "CnzAgentBasedModel", event_trigger: EventTrigger
+        self, model: "DomesticHeatingABM", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
 
         heating_system_options = model.heating_systems.copy()
@@ -409,7 +409,7 @@ class Household(Agent):
         return heating_system_options
 
     def get_total_heating_system_costs(
-        self, heating_system: HeatingSystem, model: "CnzAgentBasedModel"
+        self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
     ):
 
         unit_and_install_costs = get_unit_and_install_costs(self, heating_system)
@@ -434,14 +434,14 @@ class Household(Agent):
         return random.choices(list(costs.keys()), weights)[0]
 
     def install_heating_system(
-        self, heating_system: HeatingSystem, model: "CnzAgentBasedModel"
+        self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
     ) -> None:
 
         self.heating_system = heating_system
         self.heating_system_install_date = model.current_datetime.date()
         self.heating_functioning = True
 
-    def update_heating_status(self, model: "CnzAgentBasedModel") -> None:
+    def update_heating_status(self, model: "DomesticHeatingABM") -> None:
 
         self.epc_c_upgrade_costs = {}
         self.heating_system_total_costs = {}
