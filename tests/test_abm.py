@@ -156,9 +156,9 @@ def test_collect_when() -> None:
 
 
 class TestAgent:
-    def test_step_is_not_implemented(self) -> None:
+    def test_make_decisions_is_not_implemented(self) -> None:
         with pytest.raises(NotImplementedError):
-            Agent().step()
+            Agent().make_decisions()
 
 
 class TestGeographicalRegion:

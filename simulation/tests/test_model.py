@@ -17,7 +17,7 @@ from simulation.tests.common import model_factory
 
 
 class TestDomesticHeatingABM:
-    def test_step_increments_current_datetime(self) -> None:
+    def test_increment_timestep_increments_current_datetime(self) -> None:
         start_datetime = datetime.datetime.now()
         step_interval = datetime.timedelta(minutes=1440)
         model = model_factory(
