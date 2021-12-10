@@ -11,8 +11,8 @@ def test_is_first_step() -> None:
     )
     assert not is_first_step(model)
 
-    model.step()
+    model.increment_timestep()
     assert is_first_step(model)
 
-    model.step()
+    model.increment_timestep()
     assert not is_first_step(model)

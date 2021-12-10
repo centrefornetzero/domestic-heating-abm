@@ -37,7 +37,7 @@ class CnzAgentBasedModel(AgentBasedModel):
 
         super().__init__(UnorderedSpace())
 
-    def step(self):
+    def increment_timestep(self):
         self.current_datetime += self.step_interval
 
 

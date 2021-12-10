@@ -56,7 +56,7 @@ class AgentBasedModel:
         for agent in agents:
             self.add_agent(agent)
 
-    def step(self) -> None:
+    def increment_timestep(self) -> None:
         raise NotImplementedError
 
     def run(
@@ -73,7 +73,7 @@ class AgentBasedModel:
 
         for _ in trange(time_steps, desc="Running simulation"):
             try:
-                self.step()
+                self.increment_timestep()
             except NotImplementedError:
                 pass
 

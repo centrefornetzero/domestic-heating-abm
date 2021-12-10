@@ -25,7 +25,7 @@ class TestCnzAgentBasedModel:
         )
         assert model.current_datetime == start_datetime
 
-        model.step()
+        model.increment_timestep()
         assert model.current_datetime == start_datetime + step_interval
 
 

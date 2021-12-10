@@ -40,7 +40,7 @@ class TestAgentBasedModel:
                 super().__init__(*args, **kwargs)
                 self.counter = 0
 
-            def step(self):
+            def increment_timestep(self):
                 self.counter += 1
 
         model = CountingABM()
@@ -118,7 +118,7 @@ def test_collect_when() -> None:
             super().__init__(*args, **kwargs)
             self.date = start_date
 
-        def step(self):
+        def increment_timestep(self):
             self.date += datetime.timedelta(days=1)
 
     start_date = datetime.date(2021, 9, 20)
@@ -146,7 +146,7 @@ def test_collect_when() -> None:
     history = model.run(time_steps, agent_callables=[agent_counter])
     agent_history, _ = zip(*history)
 
-    assert len(agent_history) == steps
+    assert len(agent_history) == time_steps
     assert [agent for step in agent_history for agent in step if agent] == [
         {"agent_counter": 6},
         {"agent_counter": 13},
