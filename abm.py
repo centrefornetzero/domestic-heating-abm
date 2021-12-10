@@ -61,7 +61,7 @@ class AgentBasedModel:
 
     def run(
         self,
-        num_steps: int,
+        time_steps: int,
         agent_callables: Optional[List[AgentCallable]] = None,
         model_callables: Optional[List[ModelCallable]] = None,
     ) -> History:
@@ -71,7 +71,7 @@ class AgentBasedModel:
         if model_callables is None:
             model_callables = []
 
-        for _ in trange(num_steps, desc="Running simulation"):
+        for _ in trange(time_steps, desc="Running simulation"):
             try:
                 self.step()
             except NotImplementedError:

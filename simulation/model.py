@@ -80,7 +80,7 @@ def create_households(
 def create_and_run_simulation(
     start_datetime: datetime.datetime,
     step_interval: datetime.timedelta,
-    num_steps: int,
+    time_steps: int,
     num_households: int,
     household_distribution: pd.DataFrame,
     heat_pump_awareness: float,
@@ -106,4 +106,4 @@ def create_and_run_simulation(
 
     agent_collectors = get_agent_collectors(model)
 
-    return model.run(num_steps, agent_collectors, model_collectors)
+    return model.run(time_steps, agent_collectors, model_collectors)

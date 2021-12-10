@@ -62,8 +62,8 @@ class TestAgentBasedModel:
         def model_counter(model):
             return model.counter
 
-        num_steps = 3
-        history = model.run(num_steps, [agent_counter], [model_counter])
+        time_steps = 3
+        history = model.run(time_steps, [agent_counter], [model_counter])
 
         for step_num, step in enumerate(history):
             agents, model = step
@@ -91,10 +91,10 @@ class TestAgentBasedModel:
 
         model = AgentBasedModel()
         model.add_agents([HouseholdAgent(), HouseholdAgent(), HouseholdAgent()])
-        num_steps = 10
+        time_steps = 10
 
         history = model.run(
-            num_steps=num_steps, agent_callables=[agent_callable_returning_none]
+            time_steps=time_steps, agent_callables=[agent_callable_returning_none]
         )
 
         for step_num, step in enumerate(history):
@@ -103,7 +103,7 @@ class TestAgentBasedModel:
                 assert agent == {}
 
         history = model.run(
-            num_steps=num_steps, agent_callables=[agent_callable_returning_false]
+            time_steps=time_steps, agent_callables=[agent_callable_returning_false]
         )
 
         for step_num, step in enumerate(history):
