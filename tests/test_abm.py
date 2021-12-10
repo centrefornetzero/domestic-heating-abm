@@ -6,8 +6,8 @@ import pytest
 from abm import (
     Agent,
     AgentBasedModel,
+    GeographicalRegion,
     History,
-    UnorderedSpace,
     collect_when,
     read_jsonlines,
     write_jsonlines,
@@ -161,15 +161,15 @@ class TestAgent:
             Agent().step()
 
 
-class TestUnorderedSpace:
+class TestGeographicalRegion:
     def test_add_agent(self) -> None:
-        space = UnorderedSpace()
+        space = GeographicalRegion()
         agent = Agent()
         space.add_agent(agent)
         assert agent in space
 
     def test_iterating_over_space_returns_agents(self) -> None:
-        space = UnorderedSpace()
+        space = GeographicalRegion()
         agents = {Agent(), Agent(), Agent()}
         for agent in agents:
             space.add_agent(agent)
