@@ -37,7 +37,7 @@ class GeographicalRegion:
 
 
 class Agent:
-    def step(self, model: Optional["AgentBasedModel"] = None) -> None:
+    def make_decisions(self, model: Optional["AgentBasedModel"] = None) -> None:
         raise NotImplementedError
 
 
