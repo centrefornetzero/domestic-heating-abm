@@ -424,14 +424,14 @@ class Household(Agent):
     ):
 
         weights = []
-
-        for heating_system in costs.keys():
+        heating_systems = list(costs.keys())
+        for heating_system in heating_systems:
             weight = 1 / (1 + math.exp(costs[heating_system] / self.renovation_budget))
             if self.is_heating_system_hassle(heating_system):
                 weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
 
-        return random.choices(list(costs.keys()), weights)[0]
+        return random.choices(heating_systems, weights)[0]
 
     def install_heating_system(
         self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
