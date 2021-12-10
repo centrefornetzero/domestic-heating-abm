@@ -80,7 +80,7 @@ class AgentBasedModel:
             agent_data = []
 
             for agent in self.space:
-                agent.step(self)
+                agent.make_decisions(self)
                 agent_datum = {
                     agent_callable.__name__: agent_callable(agent)
                     for agent_callable in agent_callables

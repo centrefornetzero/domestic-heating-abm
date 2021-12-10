@@ -468,7 +468,7 @@ class Household(Agent):
             )
         )
 
-    def step(self, model):
+    def make_decisions(self, model):
 
         self.update_heating_status(model)
         self.evaluate_renovation(model)
