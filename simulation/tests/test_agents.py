@@ -157,15 +157,15 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(epc=epc)
-        if household.epc.value > Epc.C.value:
-            expected_insulation_elements = epc.value - Epc.C.value
+        if household.epc.value < Epc.C.value:
+            expected_insulation_elements = Epc.C.value - epc.value
             assert (
                 household.get_num_insulation_elements(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
                 )
                 == expected_insulation_elements
             )
-        if household.epc.value <= Epc.C.value:
+        if household.epc.value >= Epc.C.value:
             assert (
                 household.get_num_insulation_elements(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
@@ -442,7 +442,7 @@ class TestHousehold:
 
         household = household_factory(epc=epc)
 
-        if epc.value <= Epc.C.value:
+        if epc.value >= Epc.C.value:
             assert (
                 household.get_chosen_insulation_costs(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
@@ -450,7 +450,7 @@ class TestHousehold:
                 == {}
             )
 
-        if epc.value > Epc.C.value:
+        if epc.value < Epc.C.value:
             chosen_insulation_elements = household.get_chosen_insulation_costs(
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )
