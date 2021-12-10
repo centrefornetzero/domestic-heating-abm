@@ -58,7 +58,7 @@ class Household(Agent):
     def __init__(
         self,
         location: str,
-        property_value: int,
+        property_value_gbp: int,
         floor_area_sqm: int,
         off_gas_grid: bool,
         construction_year_band: ConstructionYearBand,
@@ -82,7 +82,7 @@ class Household(Agent):
         self.occupant_type = occupant_type
         self.built_form = built_form
         self.floor_area_sqm = floor_area_sqm
-        self.property_value = property_value
+        self.property_value_gbp = property_value_gbp
         self.is_solid_wall = is_solid_wall
         self.construction_year_band = construction_year_band
         self.is_heat_pump_suitable_archetype = is_heat_pump_suitable_archetype
@@ -147,7 +147,7 @@ class Household(Agent):
         return self.get_weibull_percentile_from_value(
             GB_PROPERTY_VALUE_WEIBULL_ALPHA,
             GB_PROPERTY_VALUE_WEIBULL_BETA,
-            self.property_value,
+            self.property_value_gbp,
         )
 
     @property

@@ -33,7 +33,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     household_distribution = pd.DataFrame(
         {
             "location": ["Birmingham"],
-            "property_value": [264_000],
+            "property_value_gbp": [264_000],
             "floor_area_sqm": [82],
             "off_gas_grid": [False],
             "construction_year_band": ["BUILT_POST_1999"],
@@ -62,7 +62,7 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     household = next(households)
 
     assert household.location == "Birmingham"
-    assert household.property_value == 264_000
+    assert household.property_value_gbp == 264_000
     assert household.floor_area_sqm == 82
     assert not household.off_gas_grid
     assert household.construction_year_band == ConstructionYearBand.BUILT_POST_1999
@@ -93,7 +93,7 @@ def test_create_many_households() -> None:
     household_distribution = pd.DataFrame(
         {
             "location": ["Birmingham"],
-            "property_value": [264_000],
+            "property_value_gbp": [264_000],
             "floor_area_sqm": [82],
             "off_gas_grid": [False],
             "construction_year_band": ["BUILT_POST_1999"],

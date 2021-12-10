@@ -15,7 +15,7 @@ from simulation.model import CnzAgentBasedModel
 def household_factory(**agent_attributes):
     default_values = {
         "location": "Test Location",
-        "property_value": 264_000,
+        "property_value_gbp": 264_000,
         "floor_area_sqm": 82,
         "off_gas_grid": False,
         "construction_year_band": ConstructionYearBand.BUILT_1919_1944,

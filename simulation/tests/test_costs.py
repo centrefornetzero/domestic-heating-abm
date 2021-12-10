@@ -72,9 +72,11 @@ class TestCosts:
     ) -> None:
 
         num_look_ahead_years = random.randint(2, 10)
-        household = household_factory(property_value=random.randint(50_000, 300_000))
+        household = household_factory(
+            property_value_gbp=random.randint(50_000, 300_000)
+        )
         wealthier_household = household_factory(
-            property_value=household.property_value * 1.1
+            property_value_gbp=household.property_value_gbp * 1.1
         )
 
         assert household.discount_rate > wealthier_household.discount_rate

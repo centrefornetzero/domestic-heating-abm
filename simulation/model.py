@@ -52,7 +52,7 @@ def create_households(
     for household in households.itertuples():
         yield Household(
             location=household.location,
-            property_value=household.property_value,
+            property_value_gbp=household.property_value_gbp,
             floor_area_sqm=household.floor_area_sqm,
             off_gas_grid=household.off_gas_grid,
             construction_year_band=ConstructionYearBand[
