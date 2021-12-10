@@ -437,7 +437,7 @@ class TestHousehold:
         )
 
     @pytest.mark.parametrize("epc", list(Epc))
-    def test_household_choses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
+    def test_household_chooses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
         self,
         epc,
     ) -> None:
