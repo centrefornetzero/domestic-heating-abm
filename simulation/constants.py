@@ -188,3 +188,7 @@ RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT = {
 # Source: England/Wales Energy Performance Certificates
 FLOOR_AREA_SQM_33RD_PERCENTILE = 66
 FLOOR_AREA_SQM_66TH_PERCENTILE = 89
+
+
+class InterventionType(enum.Enum):
+    RHI = 0

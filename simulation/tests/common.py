@@ -43,5 +43,6 @@ def model_factory(**model_attributes):
         "annual_renovation_rate": 0.05,
         "household_num_lookahead_years": 3,
         "heating_system_hassle_factor": 0.7,
+        "intervention": None,
     }
     return DomesticHeatingABM(**{**default_values, **model_attributes})
