@@ -42,6 +42,7 @@ from simulation.constants import (
     HeatingFuel,
     HeatingSystem,
     InsulationSegment,
+    InterventionType,
     OccupantType,
     PropertySize,
     PropertyType,
@@ -52,6 +53,8 @@ from simulation.costs import (
     HEATING_FUEL_PRICE_GBP_PER_KWH,
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
+    discount_annual_cash_flow,
+    estimate_rhi_annual_payment,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
 )
@@ -409,7 +412,9 @@ class Household(Agent):
         return heating_system_options
 
     def get_total_heating_system_costs(
-        self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
+        self,
+        heating_system: HeatingSystem,
+        model: "DomesticHeatingABM",
     ):
 
         unit_and_install_costs = get_unit_and_install_costs(self, heating_system)
@@ -417,7 +422,17 @@ class Household(Agent):
             self, heating_system, model.household_num_lookahead_years
         )
 
-        return unit_and_install_costs + fuel_costs_net_present_value
+        if model.intervention == InterventionType.RHI:
+            rhi_annual_payment = estimate_rhi_annual_payment(self, heating_system)
+            subsidies = discount_annual_cash_flow(
+                discount_rate=self.discount_rate,
+                cashflow_gbp=rhi_annual_payment,
+                duration_years=7,
+            )
+        else:
+            subsidies = 0
+
+        return unit_and_install_costs + fuel_costs_net_present_value - subsidies
 
     def choose_heating_system(
         self, costs: Dict[HeatingSystem, float], heating_system_hassle_factor: float
