@@ -513,3 +513,17 @@ class TestHousehold:
         assert household.heating_system == heating_system
         assert household.heating_functioning
         assert household.heating_system_install_date == model.current_datetime.date()
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_total_heating_system_costs_are_lower_for_heat_pumps_if_model_intervention_rhi(
+        self, heat_pump
+    ):
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0])
+
+        model_without_rhi = model_factory()
+        model_with_rhi = model_factory(intervention="rhi")
+
+        assert household.get_total_heating_system_costs(
+            heat_pump, model_with_rhi
+        ) < household.get_total_heating_system_costs(heat_pump, model_without_rhi)

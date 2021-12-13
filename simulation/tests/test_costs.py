@@ -4,6 +4,7 @@ import pytest
 
 from simulation.constants import BOILERS, HEAT_PUMPS, HeatingSystem
 from simulation.costs import (
+    estimate_rhi_annual_payment,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
 )
@@ -100,3 +101,40 @@ class TestCosts:
         reinstall_heat_pump_quote = get_unit_and_install_costs(household, heat_pump)
 
         assert reinstall_heat_pump_quote < new_heat_pump_quote
+
+    @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
+    def test_rhi_annual_payments_are_non_zero_for_households_switching_to_heat_pumps(
+        self, heat_pump
+    ):
+
+        household_with_boiler = household_factory(
+            heating_system=random.choices(list(BOILERS))[0]
+        )
+
+        assert estimate_rhi_annual_payment(household_with_boiler, heat_pump) > 0
+
+    @pytest.mark.parametrize("boiler", set(BOILERS))
+    def test_rhi_annual_payments_zero_for_households_switching_to_boilers(self, boiler):
+
+        household = household_factory(
+            heating_system=random.choices(list(HeatingSystem))[0]
+        )
+
+        assert estimate_rhi_annual_payment(household, boiler) == 0
+
+    @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
+    def test_rhi_annual_payments_reach_cap_for_large_households(self, heat_pump):
+
+        mansion = household_factory(
+            heating_system=random.choices(list(BOILERS))[0],
+            floor_area_sqm=random.randint(500, 1_000),
+        )
+
+        larger_mansion = household_factory(
+            heating_system=mansion.heating_system,
+            floor_area_sqm=mansion.floor_area_sqm * 1.1,
+        )
+
+        assert estimate_rhi_annual_payment(
+            mansion, heat_pump
+        ) == estimate_rhi_annual_payment(larger_mansion, heat_pump)

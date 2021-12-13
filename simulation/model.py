@@ -13,6 +13,7 @@ from simulation.constants import (
     ConstructionYearBand,
     Epc,
     HeatingSystem,
+    InterventionType,
     OccupantType,
     PropertyType,
 )
@@ -26,6 +27,7 @@ class DomesticHeatingABM(AgentBasedModel):
         annual_renovation_rate,
         household_num_lookahead_years,
         heating_system_hassle_factor,
+        intervention,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -34,6 +36,9 @@ class DomesticHeatingABM(AgentBasedModel):
         self.heating_systems = set(HeatingSystem)
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
+        self.intervention = (
+            InterventionType[intervention.upper()] if intervention else None
+        )
 
         super().__init__(UnorderedSpace())
 
@@ -87,6 +92,7 @@ def create_and_run_simulation(
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
+    intervention: str,
 ):
     model = DomesticHeatingABM(
         start_datetime=start_datetime,
@@ -94,6 +100,7 @@ def create_and_run_simulation(
         annual_renovation_rate=annual_renovation_rate,
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
+        intervention=intervention,
     )
 
     households = create_households(

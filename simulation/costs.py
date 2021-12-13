@@ -225,3 +225,66 @@ def get_heating_fuel_costs_net_present_value(
     return discount_annual_cash_flow(
         household.discount_rate, annual_heating_bill, num_lookahead_years
     )
+
+
+RHI_TARIFF_GBP_PER_KWH = {
+    # Source: Ofgem
+    # https://www.ofgem.gov.uk/publications/domestic-rhi-tariff-table-2021-2022
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 0.1092,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 0.2129,
+}
+
+RHI_HEAT_DEMAND_LIMIT_KWH = {
+    # Source: Ofgem
+    # https://www.ofgem.gov.uk/publications/factsheet-tariffs-and-payments-domestic-rhi
+    HeatingSystem.HEAT_PUMP_AIR_SOURCE: 20_000,
+    HeatingSystem.HEAT_PUMP_GROUND_SOURCE: 30_000,
+}
+
+
+def estimate_rhi_annual_payment(
+    household: "Household",
+    heating_system: HeatingSystem,
+    rhi_tariff_gbp_per_kwh: Dict[HeatingSystem, float] = RHI_TARIFF_GBP_PER_KWH,
+    rhi_heat_demand_limit_kwh: Dict[HeatingSystem, int] = RHI_HEAT_DEMAND_LIMIT_KWH,
+) -> int:
+    """
+    Example:
+    The eligible heat will be worked out using the following method:
+    Establish total annual heating + hot water demand, e.g. 25,000kWh/yr.
+    Calculate the electrical energy the system will consume: e.g. 25,000 / COP = 7353kWh/yr.
+    Deduct from total annual demand for the ‘renewable’ content: e.g. 25,000 – 7353 = 17,647kWh/yr.
+    Multiply by RHI tariff (e.g. 20.46p/kWh) to get annual RHI payment: 17,647 x £0.193 = £3,599 per year
+    """
+
+    if heating_system not in [
+        HeatingSystem.HEAT_PUMP_AIR_SOURCE,
+        HeatingSystem.HEAT_PUMP_GROUND_SOURCE,
+    ]:
+        return 0
+
+    SCALE_FACTOR_COP = (
+        FUEL_KWH_TO_HEAT_KWH[household.heating_system]
+        / FUEL_KWH_TO_HEAT_KWH[heating_system]
+    )
+
+    annual_heat_kwh_proposed = household.annual_kwh_heating_demand * SCALE_FACTOR_COP
+    annual_heat_kwh_delta = (
+        household.annual_kwh_heating_demand - annual_heat_kwh_proposed
+    )
+
+    rhi_kwh_cap = rhi_heat_demand_limit_kwh[heating_system]
+
+    annual_heat_kwh_delta_capped = (
+        rhi_kwh_cap
+        if annual_heat_kwh_delta > rhi_kwh_cap
+        else 0
+        if annual_heat_kwh_delta < 0
+        else annual_heat_kwh_delta
+    )
+
+    rhi_annual_payment_gbp = int(
+        annual_heat_kwh_delta_capped * rhi_tariff_gbp_per_kwh[heating_system]
+    )
+
+    return rhi_annual_payment_gbp
