@@ -156,7 +156,6 @@ class TestCosts:
         household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
         model = model_factory(
             start_datetime=datetime.datetime(2022, 1, 1, 0, 0),
-            step_interval=datetime.timedelta(days=30),
             air_source_heat_pump_discount_factor_2022=0.3,
         )
         quote = get_unit_and_install_costs(
@@ -168,9 +167,9 @@ class TestCosts:
             future_quote = get_unit_and_install_costs(
                 household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
             )
-            if n <= 12:
+            if n < 12:
                 assert quote > future_quote
-            if n > 12:
+            if n >= 12:
                 assert quote == future_quote
 
             quote = future_quote

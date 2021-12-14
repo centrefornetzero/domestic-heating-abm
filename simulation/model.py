@@ -52,7 +52,7 @@ class DomesticHeatingABM(AgentBasedModel):
         if self.current_datetime.year < 2022:
             return 1
         if self.current_datetime.year > 2022:
-            return self.air_source_heat_pump_discount_factor_2022
+            return 1 - self.air_source_heat_pump_discount_factor_2022
         else:
             month = self.current_datetime.month
             return 1 - (month / 12 * self.air_source_heat_pump_discount_factor_2022)
