@@ -2,6 +2,7 @@ import datetime
 import random
 
 import pytest
+from dateutil.relativedelta import relativedelta
 
 from simulation.constants import BOILERS, HEAT_PUMPS, HeatingSystem
 from simulation.costs import (
@@ -156,14 +157,20 @@ class TestCosts:
         model = model_factory(
             start_datetime=datetime.datetime(2022, 1, 1, 0, 0),
             step_interval=datetime.timedelta(days=30),
+            air_source_heat_pump_discount_factor_2022=0.3,
         )
-        initial_cost = get_unit_and_install_costs(
+        quote = get_unit_and_install_costs(
             household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
         )
 
-        for _ in range(0, 12):
-            model.increment_timestep()
-            future_cost = get_unit_and_install_costs(
+        for n in range(1, 24):
+            model.current_datetime += relativedelta(months=1)
+            future_quote = get_unit_and_install_costs(
                 household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
             )
-            assert initial_cost >= future_cost
+            if n <= 12:
+                assert quote > future_quote
+            if n > 12:
+                assert quote == future_quote
+
+            quote = future_quote
