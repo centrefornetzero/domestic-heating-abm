@@ -62,7 +62,7 @@ def parse_args(args=None):
         "--air-source-heat-pump-discount-factor-2022",
         type=float,
         default=0.1,
-        help="A factor by which air source heat pump unit+install costs will decline, in a linear fashion, by the end of 2022",
+        help="A factor by which current (2021) air source heat pump unit+install costs will have declined by, as of the end of 2022",
     )
 
     return parser.parse_args(args)
