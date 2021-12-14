@@ -14,6 +14,7 @@ from simulation.constants import (
 
 if TYPE_CHECKING:
     from simulation.agents import Household
+    from simulation.model import DomesticHeatingABM
 
 # Source: BEIS - WHAT DOES IT COST TO RETROFIT HOMES?
 
@@ -158,7 +159,9 @@ HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT = 0.5
 
 
 def get_unit_and_install_costs(
-    household: "Household", heating_system: HeatingSystem
+    household: "Household",
+    heating_system: HeatingSystem,
+    model: "DomesticHeatingABM",
 ) -> int:
 
     costs = 0
@@ -169,13 +172,18 @@ def get_unit_and_install_costs(
 
     if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
         kw_capacity = household.compute_heat_pump_capacity_kw(heating_system)
+        unit_and_install_costs = (
+            MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity]
+            * model.air_source_heat_pump_discount_factor
+        )
+
         if household.heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
             # Some installation work required to install a heat pump first time does not apply to 2nd+ installations
-            costs += MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity] * (
+            costs += unit_and_install_costs * (
                 1 - HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT
             )
         else:
-            costs += MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity]
+            costs += unit_and_install_costs
 
     if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
         kw_capacity = household.compute_heat_pump_capacity_kw(heating_system)
