@@ -28,6 +28,7 @@ class DomesticHeatingABM(AgentBasedModel):
         household_num_lookahead_years,
         heating_system_hassle_factor,
         intervention,
+        air_source_heat_pump_discount_factor_2022,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -39,8 +40,22 @@ class DomesticHeatingABM(AgentBasedModel):
         self.intervention = (
             InterventionType[intervention.upper()] if intervention else None
         )
+        self.air_source_heat_pump_discount_factor_2022 = (
+            air_source_heat_pump_discount_factor_2022
+        )
 
         super().__init__(UnorderedSpace())
+
+    @property
+    def air_source_heat_pump_discount_factor(self) -> float:
+
+        if self.current_datetime.year < 2022:
+            return 1
+        if self.current_datetime.year > 2022:
+            return self.air_source_heat_pump_discount_factor_2022
+        else:
+            month = self.current_datetime.month
+            return 1 - (month / 12 * self.air_source_heat_pump_discount_factor_2022)
 
     def increment_timestep(self):
         self.current_datetime += self.step_interval
@@ -93,7 +108,9 @@ def create_and_run_simulation(
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
     intervention: str,
+    air_source_heat_pump_discount_factor_2022: float,
 ):
+
     model = DomesticHeatingABM(
         start_datetime=start_datetime,
         step_interval=step_interval,
@@ -101,6 +118,7 @@ def create_and_run_simulation(
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
         intervention=intervention,
+        air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
     )
 
     households = create_households(
