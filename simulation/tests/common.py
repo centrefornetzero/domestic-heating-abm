@@ -44,5 +44,6 @@ def model_factory(**model_attributes):
         "household_num_lookahead_years": 3,
         "heating_system_hassle_factor": 0.7,
         "intervention": None,
+        "air_source_heat_pump_discount_factor_2022": 0,
     }
     return DomesticHeatingABM(**{**default_values, **model_attributes})

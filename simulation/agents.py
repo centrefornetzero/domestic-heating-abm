@@ -417,7 +417,7 @@ class Household(Agent):
         model: "DomesticHeatingABM",
     ):
 
-        unit_and_install_costs = get_unit_and_install_costs(self, heating_system)
+        unit_and_install_costs = get_unit_and_install_costs(self, heating_system, model)
         fuel_costs_net_present_value = get_heating_fuel_costs_net_present_value(
             self, heating_system, model.household_num_lookahead_years
         )

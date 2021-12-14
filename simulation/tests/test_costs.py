@@ -1,6 +1,8 @@
+import datetime
 import random
 
 import pytest
+from dateutil.relativedelta import relativedelta
 
 from simulation.constants import BOILERS, HEAT_PUMPS, HeatingSystem
 from simulation.costs import (
@@ -8,7 +10,7 @@ from simulation.costs import (
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
 )
-from simulation.tests.common import household_factory
+from simulation.tests.common import household_factory, model_factory
 
 
 class TestCosts:
@@ -25,9 +27,13 @@ class TestCosts:
             heating_system=alternative_system
         )
 
+        model = model_factory()
+
         assert get_unit_and_install_costs(
-            household_sticking_same_system, heating_system
-        ) < get_unit_and_install_costs(household_switching_system, heating_system)
+            household_sticking_same_system, heating_system, model
+        ) < get_unit_and_install_costs(
+            household_switching_system, heating_system, model
+        )
 
     @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
     def test_cost_of_heat_pump_increases_with_kw_capacity_required(
@@ -43,12 +49,14 @@ class TestCosts:
             heating_system=heat_pump,
         )
 
+        model = model_factory()
+
         assert household.compute_heat_pump_capacity_kw(
             heat_pump
         ) <= larger_household.compute_heat_pump_capacity_kw(heat_pump)
         assert get_unit_and_install_costs(
-            household, heat_pump
-        ) <= get_unit_and_install_costs(larger_household, heat_pump)
+            household, heat_pump, model
+        ) <= get_unit_and_install_costs(larger_household, heat_pump, model)
 
     @pytest.mark.parametrize("boiler", BOILERS)
     def test_cost_of_boiler_increases_with_property_size(
@@ -61,10 +69,10 @@ class TestCosts:
         larger_household = household_factory(
             floor_area_sqm=household.floor_area_sqm * 1.5, heating_system=boiler
         )
-
+        model = model_factory()
         assert get_unit_and_install_costs(
-            household, boiler
-        ) <= get_unit_and_install_costs(larger_household, boiler)
+            household, boiler, model
+        ) <= get_unit_and_install_costs(larger_household, boiler, model)
 
     @pytest.mark.parametrize("heating_system", set(HeatingSystem))
     def test_fuel_bills_net_present_value_decreases_as_discount_rate_increases(
@@ -95,10 +103,14 @@ class TestCosts:
     ) -> None:
 
         household = household_factory(heating_system=HeatingSystem.BOILER_GAS)
-        new_heat_pump_quote = get_unit_and_install_costs(household, heat_pump)
+        model = model_factory()
+
+        new_heat_pump_quote = get_unit_and_install_costs(household, heat_pump, model)
 
         household.heating_system = heat_pump
-        reinstall_heat_pump_quote = get_unit_and_install_costs(household, heat_pump)
+        reinstall_heat_pump_quote = get_unit_and_install_costs(
+            household, heat_pump, model
+        )
 
         assert reinstall_heat_pump_quote < new_heat_pump_quote
 
@@ -138,3 +150,26 @@ class TestCosts:
         assert estimate_rhi_annual_payment(
             mansion, heat_pump
         ) == estimate_rhi_annual_payment(larger_mansion, heat_pump)
+
+    def test_air_source_heat_pumps_get_cheaper_across_2022(self):
+
+        household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
+        model = model_factory(
+            start_datetime=datetime.datetime(2022, 1, 1, 0, 0),
+            air_source_heat_pump_discount_factor_2022=0.3,
+        )
+        quote = get_unit_and_install_costs(
+            household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
+        )
+
+        for n in range(1, 24):
+            model.current_datetime += relativedelta(months=1)
+            future_quote = get_unit_and_install_costs(
+                household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
+            )
+            if n < 12:
+                assert quote > future_quote
+            if n >= 12:
+                assert quote == future_quote
+
+            quote = future_quote

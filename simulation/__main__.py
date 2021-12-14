@@ -58,6 +58,13 @@ def parse_args(args=None):
         type=str,
     )
 
+    parser.add_argument(
+        "--air-source-heat-pump-discount-factor-2022",
+        type=float,
+        default=0.1,
+        help="A factor by which current (2021) air source heat pump unit+install costs will have declined by, as of the end of 2022",
+    )
+
     return parser.parse_args(args)
 
 
@@ -75,6 +82,7 @@ if __name__ == "__main__":
         args.household_num_lookahead_years,
         args.heating_system_hassle_factor,
         args.intervention,
+        args.air_source_heat_pump_discount_factor_2022,
     )
 
     write_jsonlines(history, args.history_filename)
