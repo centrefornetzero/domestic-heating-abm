@@ -17,7 +17,7 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser()
 
     parser.add_argument("household_distribution_file", type=pd.read_csv)
-    parser.add_argument("history_file", default="history.jsonl")
+    parser.add_argument("history_file")
 
     parser.add_argument(
         "--start-date",
