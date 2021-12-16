@@ -13,6 +13,7 @@ COPY Pipfile* .
 RUN pipenv sync --keep-outdated
 ENV PATH="/home/user/src/.venv/bin:$PATH"
 ENV PYTHONPATH=.
+ENV PYTHONHASHSEED=0
 
 
 FROM dependencies AS runtime
