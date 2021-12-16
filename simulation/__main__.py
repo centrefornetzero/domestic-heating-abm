@@ -23,7 +23,9 @@ def parse_args(args=None):
         "--start-date",
         dest="start_datetime",
         type=convert_to_datetime,
-        default=datetime.datetime.now(),
+        default=datetime.datetime.today().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ),
     )
 
     parser.add_argument(

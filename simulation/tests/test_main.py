@@ -26,10 +26,11 @@ class TestParseArgs:
         args = parse_args([*mandatory_args, "--start-date", "2021-01-01"])
         assert args.start_datetime == datetime.datetime(2021, 1, 1)
 
-    def test_start_date_default_is_now(self, mandatory_args):
+    def test_start_date_default_is_today_at_midnight(self, mandatory_args):
         args = parse_args(mandatory_args)
-        assert args.start_datetime.date() == datetime.date.today()
-        assert args.start_datetime < datetime.datetime.now()
+        assert args.start_datetime == datetime.datetime.today().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
 
 
 def test_running_simulation_twice_gives_non_identical_results(mandatory_args):
