@@ -65,20 +65,6 @@ def parse_args(args=None):
         help="A factor by which current (2021) air source heat pump unit+install costs will have declined by, as of the end of 2022",
     )
 
-    def is_isoformat_datetime_string(string):
-        datetime.datetime.fromisoformat(string)
-        return string
-
-    parser.add_argument(
-        "--seed",
-        default=datetime.datetime.now().isoformat(),
-        type=is_isoformat_datetime_string,
-        help="""
-        Seed for random number generator. Default is now.
-    """,
-        metavar="YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]]",
-    )
-
     return parser.parse_args(args)
 
 
