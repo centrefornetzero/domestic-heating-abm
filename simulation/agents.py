@@ -67,6 +67,7 @@ def sample_interval_uniformly(interval: pd.Interval) -> float:
 class Household(Agent):
     def __init__(
         self,
+        id: int,
         location: str,
         property_value_gbp: int,
         floor_area_sqm: int,
@@ -86,6 +87,7 @@ class Household(Agent):
         is_heat_pump_suitable_archetype: bool,
         is_heat_pump_aware: bool,
     ):
+        self.id = id
         # Property / tenure attributes
         self.location = location
         self.property_type = property_type
