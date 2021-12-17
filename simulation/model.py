@@ -74,7 +74,9 @@ def create_household_agents(
             off_gas_grid=household.off_gas_grid,
             construction_year_band=ConstructionYearBand[
                 household.construction_year_band.upper()
-            ],
+            ]
+            if household.construction_year_band
+            else None,
             property_type=PropertyType[household.property_type.upper()],
             built_form=BuiltForm[household.built_form.upper()],
             heating_system=HeatingSystem[household.heating_system.upper()],

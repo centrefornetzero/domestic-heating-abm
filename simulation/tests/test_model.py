@@ -36,7 +36,7 @@ def test_create_household_agents() -> None:
             "property_value_gbp": [264_000],
             "floor_area_sqm": [82],
             "off_gas_grid": [False],
-            "construction_year_band": ["BUILT_POST_1999"],
+            "construction_year_band": ["BUILT_2007_ONWARDS"],
             "property_type": ["house"],
             "built_form": ["mid_terrace"],
             "heating_system": ["boiler_gas"],
@@ -63,7 +63,7 @@ def test_create_household_agents() -> None:
     assert household.property_value_gbp == 264_000
     assert household.floor_area_sqm == 82
     assert not household.off_gas_grid
-    assert household.construction_year_band == ConstructionYearBand.BUILT_POST_1999
+    assert household.construction_year_band == ConstructionYearBand.BUILT_2007_ONWARDS
     assert household.property_type == PropertyType.HOUSE
     assert household.built_form == BuiltForm.MID_TERRACE
     assert household.heating_system == HeatingSystem.BOILER_GAS

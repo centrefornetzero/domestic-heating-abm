@@ -30,7 +30,7 @@ class TestHousehold:
             property_value_gbp=400_000,
             floor_area_sqm=100,
             off_gas_grid=False,
-            construction_year_band=ConstructionYearBand.BUILT_1919_1944,
+            construction_year_band=ConstructionYearBand.BUILT_1900_1929,
             property_type=PropertyType.HOUSE,
             built_form=BuiltForm.MID_TERRACE,
             heating_system=HeatingSystem.BOILER_ELECTRIC,
@@ -49,7 +49,7 @@ class TestHousehold:
         assert household.property_value_gbp == 400_000
         assert household.floor_area_sqm == 100
         assert not household.off_gas_grid
-        assert household.construction_year_band == ConstructionYearBand.BUILT_1919_1944
+        assert household.construction_year_band == ConstructionYearBand.BUILT_1900_1929
         assert household.property_type == PropertyType.HOUSE
         assert household.built_form == BuiltForm.MID_TERRACE
         assert household.heating_system == HeatingSystem.BOILER_ELECTRIC
