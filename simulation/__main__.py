@@ -16,6 +16,9 @@ def parse_args(args=None):
 
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("household_distribution_file", type=pd.read_csv)
+    parser.add_argument("history_file")
+
     parser.add_argument(
         "--start-date",
         dest="start_datetime",
@@ -31,8 +34,6 @@ def parse_args(args=None):
 
     parser.add_argument("--steps", dest="time_steps", type=int, default=100)
     parser.add_argument("--num-households", type=int, default=10)
-    parser.add_argument("--history-filename", default="history.jsonl")
-    parser.add_argument("--household-distribution", type=pd.read_csv)
     parser.add_argument("--heat-pump-awareness", type=float, default=0.4)
     parser.add_argument("--annual-renovation-rate", type=float, default=0.05)
     parser.add_argument(
@@ -76,7 +77,7 @@ if __name__ == "__main__":
         args.step_interval,
         args.time_steps,
         args.num_households,
-        args.household_distribution,
+        args.household_distribution_file,
         args.heat_pump_awareness,
         args.annual_renovation_rate,
         args.household_num_lookahead_years,
@@ -85,4 +86,4 @@ if __name__ == "__main__":
         args.air_source_heat_pump_discount_factor_2022,
     )
 
-    write_jsonlines(history, args.history_filename)
+    write_jsonlines(history, args.history_file)
