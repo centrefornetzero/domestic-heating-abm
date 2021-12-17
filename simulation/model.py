@@ -61,15 +61,12 @@ class DomesticHeatingABM(AgentBasedModel):
         self.current_datetime += self.step_interval
 
 
-def create_households(
-    num_households: int,
-    household_distribution: pd.DataFrame,
+def create_household_agents(
+    household_population: pd.DataFrame,
     heat_pump_awareness: float,
     simulation_start_datetime: datetime.datetime,
 ) -> Iterator[Household]:
-
-    households = household_distribution.sample(num_households, replace=True)
-    for household in households.itertuples():
+    for household in household_population.itertuples():
         yield Household(
             location=household.location,
             property_value_gbp=household.property_value_gbp,
@@ -101,8 +98,7 @@ def create_and_run_simulation(
     start_datetime: datetime.datetime,
     step_interval: datetime.timedelta,
     time_steps: int,
-    num_households: int,
-    household_distribution: pd.DataFrame,
+    household_population: pd.DataFrame,
     heat_pump_awareness: float,
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
@@ -121,9 +117,8 @@ def create_and_run_simulation(
         air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
     )
 
-    households = create_households(
-        num_households,
-        household_distribution,
+    households = create_household_agents(
+        household_population,
         heat_pump_awareness,
         model.start_datetime,
     )

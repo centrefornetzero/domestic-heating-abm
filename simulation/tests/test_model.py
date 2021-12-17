@@ -12,7 +12,7 @@ from simulation.constants import (
     OccupantType,
     PropertyType,
 )
-from simulation.model import create_households
+from simulation.model import create_household_agents
 from simulation.tests.common import model_factory
 
 
@@ -29,8 +29,8 @@ class TestDomesticHeatingABM:
         assert model.current_datetime == start_datetime + step_interval
 
 
-def test_create_households_yields_correctly_initialised_household() -> None:
-    household_distribution = pd.DataFrame(
+def test_create_household_agents() -> None:
+    household_population = pd.DataFrame(
         {
             "location": ["Birmingham"],
             "property_value_gbp": [264_000],
@@ -50,16 +50,14 @@ def test_create_households_yields_correctly_initialised_household() -> None:
             "is_heat_pump_suitable_archetype": [True],
         }
     )
-    num_households = 1
     heat_pump_awareness = 0.4
     simulation_start_datetime = datetime.datetime.now()
-    households = create_households(
-        num_households,
-        household_distribution,
+    household_agents = create_household_agents(
+        household_population,
         heat_pump_awareness,
         simulation_start_datetime,
     )
-    household = next(households)
+    household = next(household_agents)
 
     assert household.location == "Birmingham"
     assert household.property_value_gbp == 264_000
@@ -86,37 +84,4 @@ def test_create_households_yields_correctly_initialised_household() -> None:
     assert household.is_heat_pump_aware is not None
 
     with pytest.raises(StopIteration):
-        next(households)
-
-
-def test_create_many_households() -> None:
-    household_distribution = pd.DataFrame(
-        {
-            "location": ["Birmingham"],
-            "property_value_gbp": [264_000],
-            "floor_area_sqm": [82],
-            "off_gas_grid": [False],
-            "construction_year_band": ["BUILT_POST_1999"],
-            "property_type": ["house"],
-            "built_form": ["mid_terrace"],
-            "heating_system": ["boiler_gas"],
-            "epc": ["C"],
-            "potential_epc": ["B"],
-            "occupant_type": ["owner_occupier"],
-            "is_solid_wall": [False],
-            "walls_energy_efficiency": [3],
-            "windows_energy_efficiency": [3],
-            "roof_energy_efficiency": [3],
-            "is_heat_pump_suitable_archetype": [True],
-        }
-    )
-    num_households = 100
-    heat_pump_awareness = 0.4
-    simulation_start_datetime = datetime.datetime.now()
-    households = create_households(
-        num_households,
-        household_distribution,
-        heat_pump_awareness,
-        simulation_start_datetime,
-    )
-    assert len(list(households)) == num_households
+        next(household_agents)
