@@ -59,13 +59,18 @@ HAZARD_RATE_HEATING_SYSTEM_BETA = 15
 
 
 class ConstructionYearBand(enum.Enum):
-    BUILT_PRE_1919 = 0
-    BUILT_1919_1944 = 1
-    BUILT_1945_1964 = 2
-    BUILT_1965_1982 = 3
-    BUILT_1983_1992 = 4
-    BUILT_1993_1999 = 5
-    BUILT_POST_1999 = 6
+    # These categories match the England & Wales EPC categories
+    BUILT_PRE_1900 = 0
+    BUILT_1900_1929 = 1
+    BUILT_1930_1949 = 2
+    BUILT_1950_1966 = 3
+    BUILT_1967_1975 = 4
+    BUILT_1976_1982 = 5
+    BUILT_1983_1990 = 6
+    BUILT_1991_1995 = 7
+    BUILT_1996_2002 = 8
+    BUILT_2003_2006 = 9
+    BUILT_2007_ONWARDS = 10
 
 
 # Parameters describing distributions

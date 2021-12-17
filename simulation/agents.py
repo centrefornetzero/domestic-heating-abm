@@ -1,7 +1,7 @@
 import datetime
 import math
 import random
-from typing import TYPE_CHECKING, Dict, Set
+from typing import TYPE_CHECKING, Dict, Optional, Set
 
 import pandas as pd
 
@@ -71,7 +71,7 @@ class Household(Agent):
         property_value_gbp: int,
         floor_area_sqm: int,
         off_gas_grid: bool,
-        construction_year_band: ConstructionYearBand,
+        construction_year_band: Optional[ConstructionYearBand],
         property_type: PropertyType,
         built_form: BuiltForm,
         heating_system: HeatingSystem,
