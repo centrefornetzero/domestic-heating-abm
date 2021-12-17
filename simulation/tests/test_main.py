@@ -11,7 +11,7 @@ from simulation.__main__ import parse_args
 @pytest.fixture
 def mandatory_args(tmp_path):
     return [
-        str(Path(__file__).parent / "household_attributes.csv"),
+        str(Path(__file__).parent / "household_population.csv"),
         str(tmp_path / "output.jsonl"),
     ]
 
@@ -19,7 +19,7 @@ def mandatory_args(tmp_path):
 class TestParseArgs:
     def test_mandatory_args(self, mandatory_args):
         args = parse_args(mandatory_args)
-        assert isinstance(args.household_distribution_file, pd.DataFrame)
+        assert isinstance(args.household_population_file, pd.DataFrame)
         assert args.history_file == mandatory_args[1]
 
     def test_start_date_returns_datetime(self, mandatory_args):
