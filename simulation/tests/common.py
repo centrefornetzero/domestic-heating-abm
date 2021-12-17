@@ -14,6 +14,7 @@ from simulation.model import DomesticHeatingABM
 
 def household_factory(**agent_attributes):
     default_values = {
+        "id": 1,
         "location": "Test Location",
         "property_value_gbp": 264_000,
         "floor_area_sqm": 82,

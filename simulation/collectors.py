@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 def household_id(household) -> int:
-    return id(household)
+    return household.id
 
 
 def household_location(household) -> str:

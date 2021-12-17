@@ -24,8 +24,9 @@ from simulation.tests.common import household_factory, model_factory
 
 
 class TestHousehold:
-    def test_create_household(self) -> None:
+    def test_create_household_factory(self) -> None:
         household = household_factory(
+            id=1,
             location="London",
             property_value_gbp=400_000,
             floor_area_sqm=100,
@@ -45,6 +46,7 @@ class TestHousehold:
             is_heat_pump_suitable_archetype=True,
             is_heat_pump_aware=True,
         )
+        assert household.id == 1
         assert household.location == "London"
         assert household.property_value_gbp == 400_000
         assert household.floor_area_sqm == 100

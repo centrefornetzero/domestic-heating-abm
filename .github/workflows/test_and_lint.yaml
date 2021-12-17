@@ -2,6 +2,7 @@ name: Test and lint
 on: [push]
 env:
   PYTHONPATH: .
+  PYTHONHASHSEED: 0
 jobs:
   test_and_lint:
     runs-on: ubuntu-latest

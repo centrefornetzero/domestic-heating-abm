@@ -68,6 +68,7 @@ def create_household_agents(
 ) -> Iterator[Household]:
     for household in household_population.itertuples():
         yield Household(
+            id=household.id,
             location=household.location,
             property_value_gbp=household.property_value_gbp,
             floor_area_sqm=household.floor_area_sqm,

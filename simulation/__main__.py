@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import random
 
 import pandas as pd
 
@@ -23,7 +24,9 @@ def parse_args(args=None):
         "--start-date",
         dest="start_datetime",
         type=convert_to_datetime,
-        default=datetime.datetime.now(),
+        default=datetime.datetime.today().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ),
     )
 
     parser.add_argument(
@@ -65,11 +68,27 @@ def parse_args(args=None):
         help="A factor by which current (2021) air source heat pump unit+install costs will have declined by, as of the end of 2022",
     )
 
+    def check_string_is_isoformat_datetime(string) -> str:
+        datetime.datetime.fromisoformat(string)
+        return string
+
+    parser.add_argument(
+        "--seed",
+        default=datetime.datetime.now().isoformat(),
+        type=check_string_is_isoformat_datetime,
+        help="""
+        Seed for random number generator. Default is now.
+    """,
+        metavar="YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]]",
+    )
+
     return parser.parse_args(args)
 
 
 if __name__ == "__main__":
     args = parse_args()
+
+    random.seed(args.seed)
 
     history = create_and_run_simulation(
         args.start_datetime,

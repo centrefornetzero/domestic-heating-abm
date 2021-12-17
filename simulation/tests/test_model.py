@@ -32,6 +32,7 @@ class TestDomesticHeatingABM:
 def test_create_household_agents() -> None:
     household_population = pd.DataFrame(
         {
+            "id": [1],
             "location": ["Birmingham"],
             "property_value_gbp": [264_000],
             "floor_area_sqm": [82],
@@ -59,6 +60,7 @@ def test_create_household_agents() -> None:
     )
     household = next(household_agents)
 
+    assert household.id == 1
     assert household.location == "Birmingham"
     assert household.property_value_gbp == 264_000
     assert household.floor_area_sqm == 82
