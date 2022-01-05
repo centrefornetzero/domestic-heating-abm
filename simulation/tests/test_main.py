@@ -12,8 +12,13 @@ from simulation.__main__ import parse_args
 
 @pytest.fixture
 def mandatory_args(tmp_path):
+    households_csv_file = Path(__file__).parent / "household_population.csv"
+    households = pd.read_csv(households_csv_file)
+    households_parquet_file = tmp_path / "household_population.parquet"
+    households.to_parquet(households_parquet_file)
+
     return [
-        str(Path(__file__).parent / "household_population.csv"),
+        str(households_parquet_file),
         str(tmp_path / "output.jsonl"),
     ]
 
