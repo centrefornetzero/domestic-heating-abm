@@ -71,7 +71,7 @@ class Household(Agent):
         location: str,
         property_value_gbp: int,
         floor_area_sqm: int,
-        off_gas_grid: bool,
+        is_off_gas_grid: bool,
         construction_year_band: Optional[ConstructionYearBand],
         property_type: PropertyType,
         built_form: BuiltForm,
@@ -100,7 +100,7 @@ class Household(Agent):
         self.is_heat_pump_suitable_archetype = is_heat_pump_suitable_archetype
 
         # Heating / energy performance attributes
-        self.off_gas_grid = off_gas_grid
+        self.is_off_gas_grid = is_off_gas_grid
         self.heating_functioning = True
         self.heating_system = heating_system
         self.heating_system_install_date = heating_system_install_date
@@ -397,7 +397,7 @@ class Household(Agent):
         if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
             heating_system_options -= HEAT_PUMPS
 
-        if self.off_gas_grid:
+        if self.is_off_gas_grid:
             heating_system_options -= {HeatingSystem.BOILER_GAS}
         else:
             heating_system_options -= {HeatingSystem.BOILER_OIL}

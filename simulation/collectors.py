@@ -25,8 +25,8 @@ def household_floor_area_sqm(household) -> int:
     return household.floor_area_sqm
 
 
-def household_off_gas_grid(household) -> bool:
-    return household.off_gas_grid
+def household_is_off_gas_grid(household) -> bool:
+    return household.is_off_gas_grid
 
 
 def household_construction_year_band(household) -> str:
@@ -177,7 +177,7 @@ def get_agent_collectors(
         collect_when(model, is_first_timestep)(household_location),
         collect_when(model, is_first_timestep)(household_property_value_gbp),
         collect_when(model, is_first_timestep)(household_floor_area_sqm),
-        collect_when(model, is_first_timestep)(household_off_gas_grid),
+        collect_when(model, is_first_timestep)(household_is_off_gas_grid),
         collect_when(model, is_first_timestep)(household_construction_year_band),
         collect_when(model, is_first_timestep)(household_property_type),
         collect_when(model, is_first_timestep)(household_built_form),

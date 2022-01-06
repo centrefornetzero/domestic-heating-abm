@@ -30,7 +30,7 @@ class TestHousehold:
             location="London",
             property_value_gbp=400_000,
             floor_area_sqm=100,
-            off_gas_grid=False,
+            is_off_gas_grid=False,
             construction_year_band=ConstructionYearBand.BUILT_1900_1929,
             property_type=PropertyType.HOUSE,
             built_form=BuiltForm.MID_TERRACE,
@@ -50,7 +50,7 @@ class TestHousehold:
         assert household.location == "London"
         assert household.property_value_gbp == 400_000
         assert household.floor_area_sqm == 100
-        assert not household.off_gas_grid
+        assert not household.is_off_gas_grid
         assert household.construction_year_band == ConstructionYearBand.BUILT_1900_1929
         assert household.property_type == PropertyType.HOUSE
         assert household.built_form == BuiltForm.MID_TERRACE
@@ -271,24 +271,24 @@ class TestHousehold:
         assert heating_system_options.intersection(HEAT_PUMPS) == set()
 
     @pytest.mark.parametrize("event_trigger", list(EventTrigger))
-    def test_gas_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+    def test_gas_boiler_not_in_heating_system_options_if_household_is_off_gas_grid(
         self, event_trigger
     ) -> None:
 
-        off_gas_grid_household = household_factory(off_gas_grid=True)
+        is_off_gas_grid_household = household_factory(is_off_gas_grid=True)
         model = model_factory()
-        heating_system_options = off_gas_grid_household.get_heating_system_options(
+        heating_system_options = is_off_gas_grid_household.get_heating_system_options(
             model, event_trigger
         )
         assert heating_system_options.intersection({HeatingSystem.BOILER_GAS}) == set()
 
     @pytest.mark.parametrize("event_trigger", list(EventTrigger))
-    def test_oil_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+    def test_oil_boiler_not_in_heating_system_options_if_household_is_off_gas_grid(
         self,
         event_trigger,
     ) -> None:
 
-        on_gas_grid_household = household_factory(off_gas_grid=False)
+        on_gas_grid_household = household_factory(is_off_gas_grid=False)
         model = model_factory()
         heating_system_options = on_gas_grid_household.get_heating_system_options(
             model, event_trigger

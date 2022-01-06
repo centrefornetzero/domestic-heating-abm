@@ -1,4 +1,4 @@
-id,location,property_value_gbp,floor_area_sqm,off_gas_grid,construction_year_band,property_type,built_form,heating_system,epc,potential_epc,occupant_type,is_solid_wall,walls_energy_efficiency,roof_energy_efficiency,windows_energy_efficiency,is_heat_pump_suitable_archetype
+id,location,property_value_gbp,floor_area_sqm,is_off_gas_grid,construction_year_band,property_type,built_form,heating_system,epc,potential_epc,occupant_type,is_solid_wall,walls_energy_efficiency,roof_energy_efficiency,windows_energy_efficiency,is_heat_pump_suitable_archetype
 0,MANCHESTER,400000,150,True,BUILT_2007_ONWARDS,HOUSE,SEMI_DETACHED,BOILER_OIL,D,D,RENTER_SOCIAL,False,2,1,2,True
 1,MANCHESTER,400000,120,True,BUILT_PRE_1900,BUNGALOW,DETACHED,BOILER_OIL,C,B,RENTER_SOCIAL,False,3,3,4,False
 2,LONDON,700000,180,False,BUILT_2007_ONWARDS,FLAT,END_TERRACE,HEAT_PUMP_GROUND_SOURCE,E,A,RENTER_PRIVATE,True,4,2,4,False

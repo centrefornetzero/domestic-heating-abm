@@ -72,7 +72,7 @@ def create_household_agents(
             location=household.location,
             property_value_gbp=household.property_value_gbp,
             floor_area_sqm=household.floor_area_sqm,
-            off_gas_grid=household.off_gas_grid,
+            is_off_gas_grid=household.is_off_gas_grid,
             construction_year_band=ConstructionYearBand[
                 household.construction_year_band.upper()
             ]
