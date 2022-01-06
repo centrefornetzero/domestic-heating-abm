@@ -21,7 +21,7 @@ class OccupantType(enum.Enum):
     RENTER_SOCIAL = 2
 
 
-class Epc(enum.Enum):
+class EPCRating(enum.Enum):
     G = 0
     F = 1
     E = 2

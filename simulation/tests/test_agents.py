@@ -12,7 +12,7 @@ from simulation.constants import (
     BuiltForm,
     ConstructionYearBand,
     Element,
-    Epc,
+    EPCRating,
     EventTrigger,
     HeatingFuel,
     HeatingSystem,
@@ -36,8 +36,8 @@ class TestHousehold:
             built_form=BuiltForm.MID_TERRACE,
             heating_system=HeatingSystem.BOILER_ELECTRIC,
             heating_system_install_date=datetime.date(1995, 1, 1),
-            epc=Epc.C,
-            potential_epc=Epc.B,
+            epc_rating=EPCRating.C,
+            potential_epc_rating=EPCRating.B,
             occupant_type=OccupantType.RENTER_PRIVATE,
             is_solid_wall=False,
             walls_energy_efficiency=4,
@@ -56,8 +56,8 @@ class TestHousehold:
         assert household.built_form == BuiltForm.MID_TERRACE
         assert household.heating_system == HeatingSystem.BOILER_ELECTRIC
         assert household.heating_system_install_date == datetime.date(1995, 1, 1)
-        assert household.epc == Epc.C
-        assert household.potential_epc == Epc.B
+        assert household.epc_rating == EPCRating.C
+        assert household.potential_epc_rating == EPCRating.B
         assert household.occupant_type == OccupantType.RENTER_PRIVATE
         assert not household.is_solid_wall
         assert household.walls_energy_efficiency == 4
@@ -152,22 +152,22 @@ class TestHousehold:
             <= 3
         )
 
-    @pytest.mark.parametrize("epc", list(Epc))
+    @pytest.mark.parametrize("epc_rating", list(EPCRating))
     def test_num_insulation_measures_chosen_by_household_corresponds_to_current_epc_value(
         self,
-        epc,
+        epc_rating,
     ) -> None:
 
-        household = household_factory(epc=epc)
-        if household.epc.value < Epc.C.value:
-            expected_insulation_elements = Epc.C.value - epc.value
+        household = household_factory(epc_rating=epc_rating)
+        if household.epc_rating.value < EPCRating.C.value:
+            expected_insulation_elements = EPCRating.C.value - epc_rating.value
             assert (
                 household.get_num_insulation_elements(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
                 )
                 == expected_insulation_elements
             )
-        if household.epc.value >= Epc.C.value:
+        if household.epc_rating.value >= EPCRating.C.value:
             assert (
                 household.get_num_insulation_elements(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
@@ -198,17 +198,17 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(
-            roof_energy_efficiency=3, walls_energy_efficiency=2, epc=Epc.D
+            roof_energy_efficiency=3, walls_energy_efficiency=2, epc_rating=EPCRating.D
         )
         household.install_insulation_elements({Element.ROOF: 1_000})
 
         assert household.roof_energy_efficiency == 5
-        assert household.epc == Epc.C
+        assert household.epc_rating == EPCRating.C
 
         household.install_insulation_elements({Element.WALLS: 3_000})
 
         assert household.walls_energy_efficiency == 5
-        assert household.epc == Epc.B
+        assert household.epc_rating == EPCRating.B
 
     def test_impact_of_installing_insulation_measures_is_capped_at_epc_A(
         self,
@@ -218,18 +218,20 @@ class TestHousehold:
             roof_energy_efficiency=4,
             walls_energy_efficiency=5,
             windows_energy_efficiency=5,
-            epc=Epc.A,
+            epc_rating=EPCRating.A,
         )
         epc_A_household.install_insulation_elements({Element.ROOF: 1_000})
 
         assert epc_A_household.roof_energy_efficiency == 5
-        assert epc_A_household.epc == Epc.A
+        assert epc_A_household.epc_rating == EPCRating.A
 
     def test_households_with_potential_epc_below_C_are_not_heat_pump_suitable(
         self,
     ) -> None:
 
-        low_potential_epc_household = household_factory(potential_epc=Epc.D)
+        low_potential_epc_household = household_factory(
+            potential_epc_rating=EPCRating.D
+        )
 
         assert not low_potential_epc_household.is_heat_pump_suitable
 
@@ -249,7 +251,7 @@ class TestHousehold:
         event_trigger,
     ) -> None:
 
-        unsuitable_household = household_factory(potential_epc=Epc.D)
+        unsuitable_household = household_factory(potential_epc_rating=EPCRating.D)
         model = model_factory()
         assert not HEAT_PUMPS.intersection(
             unsuitable_household.get_heating_system_options(
@@ -320,7 +322,7 @@ class TestHousehold:
     ) -> None:
 
         heat_pump_suitable_household = household_factory(
-            epc=Epc.B,
+            epc_rating=EPCRating.B,
             is_heat_pump_suitable_archetype=True,
             heating_system=HeatingSystem.BOILER_GAS,
         )
@@ -339,7 +341,9 @@ class TestHousehold:
     ) -> None:
 
         household_with_heat_pump = household_factory(
-            epc=Epc.B, is_heat_pump_suitable_archetype=True, heating_system=heat_pump
+            epc_rating=EPCRating.B,
+            is_heat_pump_suitable_archetype=True,
+            heating_system=heat_pump,
         )
         model = model_factory()
         assert household_with_heat_pump.is_heat_pump_suitable
@@ -438,15 +442,15 @@ class TestHousehold:
             < household_with_gas_boiler.annual_kwh_heating_demand
         )
 
-    @pytest.mark.parametrize("epc", list(Epc))
+    @pytest.mark.parametrize("epc_rating", list(EPCRating))
     def test_household_chooses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
         self,
-        epc,
+        epc_rating,
     ) -> None:
 
-        household = household_factory(epc=epc)
+        household = household_factory(epc_rating=epc_rating)
 
-        if epc.value >= Epc.C.value:
+        if epc_rating.value >= EPCRating.C.value:
             assert (
                 household.get_chosen_insulation_costs(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
@@ -454,7 +458,7 @@ class TestHousehold:
                 == {}
             )
 
-        if epc.value < Epc.C.value:
+        if epc_rating.value < EPCRating.C.value:
             chosen_insulation_elements = household.get_chosen_insulation_costs(
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )

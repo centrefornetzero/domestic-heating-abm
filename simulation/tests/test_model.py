@@ -7,7 +7,7 @@ from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
-    Epc,
+    EPCRating,
     HeatingSystem,
     OccupantType,
     PropertyType,
@@ -41,8 +41,8 @@ def test_create_household_agents() -> None:
             "property_type": ["house"],
             "built_form": ["mid_terrace"],
             "heating_system": ["boiler_gas"],
-            "epc": ["C"],
-            "potential_epc": ["B"],
+            "epc_rating": ["C"],
+            "potential_epc_rating": ["B"],
             "occupant_type": ["owner_occupier"],
             "is_solid_wall": [False],
             "walls_energy_efficiency": [3],
@@ -75,8 +75,8 @@ def test_create_household_agents() -> None:
         <= household.heating_system_install_date
         <= simulation_start_datetime.date()
     )
-    assert household.epc == Epc.C
-    assert household.potential_epc == Epc.B
+    assert household.epc_rating == EPCRating.C
+    assert household.potential_epc_rating == EPCRating.B
     assert household.occupant_type == OccupantType.OWNER_OCCUPIER
     assert not household.is_solid_wall
     assert household.walls_energy_efficiency == 3

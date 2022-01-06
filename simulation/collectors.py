@@ -50,11 +50,11 @@ def household_heating_install_date(household) -> datetime.date:
 
 
 def household_epc(household) -> str:
-    return household.epc.name
+    return household.epc_rating.name
 
 
 def household_potential_epc(household) -> str:
-    return household.potential_epc.name
+    return household.potential_epc_rating.name
 
 
 def household_occupant_type(household) -> str:
