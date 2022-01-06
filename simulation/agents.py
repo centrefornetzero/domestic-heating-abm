@@ -443,7 +443,12 @@ class Household(Agent):
         weights = []
 
         for heating_system in costs.keys():
-            weight = 1 / (1 + math.exp(costs[heating_system] / self.renovation_budget))
+            try:
+                weight = 1 / (
+                    1 + math.exp(costs[heating_system] / self.renovation_budget)
+                )
+            except OverflowError:
+                weight = 0
             if self.is_heating_system_hassle(heating_system):
                 weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
