@@ -43,7 +43,7 @@ def test_create_household_agents() -> None:
             "heating_system": ["boiler_gas"],
             "epc_rating": ["C"],
             "potential_epc_rating": ["B"],
-            "occupant_type": ["owner_occupier"],
+            "occupant_type": ["owner_occupied"],
             "is_solid_wall": [False],
             "walls_energy_efficiency": [3],
             "windows_energy_efficiency": [3],
@@ -77,7 +77,7 @@ def test_create_household_agents() -> None:
     )
     assert household.epc_rating == EPCRating.C
     assert household.potential_epc_rating == EPCRating.B
-    assert household.occupant_type == OccupantType.OWNER_OCCUPIER
+    assert household.occupant_type == OccupantType.OWNER_OCCUPIED
     assert not household.is_solid_wall
     assert household.walls_energy_efficiency == 3
     assert household.windows_energy_efficiency == 3
