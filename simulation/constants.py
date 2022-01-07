@@ -16,9 +16,9 @@ class BuiltForm(enum.Enum):
 
 
 class OccupantType(enum.Enum):
-    OWNER_OCCUPIER = 0
-    RENTER_PRIVATE = 1
-    RENTER_SOCIAL = 2
+    OWNER_OCCUPIED = 0
+    RENTED_PRIVATE = 1
+    RENTED_SOCIAL = 2
 
 
 class EPCRating(enum.Enum):

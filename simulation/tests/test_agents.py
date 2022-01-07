@@ -38,7 +38,7 @@ class TestHousehold:
             heating_system_install_date=datetime.date(1995, 1, 1),
             epc_rating=EPCRating.C,
             potential_epc_rating=EPCRating.B,
-            occupant_type=OccupantType.RENTER_PRIVATE,
+            occupant_type=OccupantType.RENTED_PRIVATE,
             is_solid_wall=False,
             walls_energy_efficiency=4,
             windows_energy_efficiency=4,
@@ -58,7 +58,7 @@ class TestHousehold:
         assert household.heating_system_install_date == datetime.date(1995, 1, 1)
         assert household.epc_rating == EPCRating.C
         assert household.potential_epc_rating == EPCRating.B
-        assert household.occupant_type == OccupantType.RENTER_PRIVATE
+        assert household.occupant_type == OccupantType.RENTED_PRIVATE
         assert not household.is_solid_wall
         assert household.walls_energy_efficiency == 4
         assert household.windows_energy_efficiency == 4

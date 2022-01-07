@@ -26,7 +26,7 @@ def household_factory(**agent_attributes):
         "heating_system_install_date": datetime.date(2021, 1, 1),
         "epc_rating": EPCRating.D,
         "potential_epc_rating": EPCRating.C,
-        "occupant_type": OccupantType.OWNER_OCCUPIER,
+        "occupant_type": OccupantType.OWNER_OCCUPIED,
         "is_solid_wall": False,
         "walls_energy_efficiency": 3,
         "windows_energy_efficiency": 3,
