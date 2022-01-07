@@ -37,7 +37,7 @@ from simulation.constants import (
     BuiltForm,
     ConstructionYearBand,
     Element,
-    Epc,
+    EPCRating,
     EventTrigger,
     HeatingFuel,
     HeatingSystem,
@@ -71,14 +71,14 @@ class Household(Agent):
         location: str,
         property_value_gbp: int,
         floor_area_sqm: int,
-        off_gas_grid: bool,
+        is_off_gas_grid: bool,
         construction_year_band: Optional[ConstructionYearBand],
         property_type: PropertyType,
         built_form: BuiltForm,
         heating_system: HeatingSystem,
         heating_system_install_date: datetime.date,
-        epc: Epc,
-        potential_epc: Epc,
+        epc_rating: EPCRating,
+        potential_epc_rating: EPCRating,
         occupant_type: OccupantType,
         is_solid_wall: bool,
         walls_energy_efficiency: int,
@@ -100,12 +100,12 @@ class Household(Agent):
         self.is_heat_pump_suitable_archetype = is_heat_pump_suitable_archetype
 
         # Heating / energy performance attributes
-        self.off_gas_grid = off_gas_grid
+        self.is_off_gas_grid = is_off_gas_grid
         self.heating_functioning = True
         self.heating_system = heating_system
         self.heating_system_install_date = heating_system_install_date
-        self.epc = epc
-        self.potential_epc = potential_epc
+        self.epc_rating = epc_rating
+        self.potential_epc_rating = potential_epc_rating
         self.walls_energy_efficiency = walls_energy_efficiency
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
@@ -239,7 +239,7 @@ class Household(Agent):
             if not all(
                 [
                     self.is_heat_pump_suitable_archetype,
-                    self.potential_epc.value >= Epc.C.value,
+                    self.potential_epc_rating.value >= EPCRating.C.value,
                 ]
             )
             else True
@@ -323,9 +323,9 @@ class Household(Agent):
             )[0]
 
         if event_trigger == EventTrigger.EPC_C_UPGRADE:
-            # The number of insulation elements a household would require to reach epc C
+            # The number of insulation elements a household would require to reach epc_rating C
             # We assume each insulation measure will contribute +1 EPC grade
-            return max(0, Epc.C.value - self.epc.value)
+            return max(0, EPCRating.C.value - self.epc_rating.value)
 
         return 0
 
@@ -375,8 +375,8 @@ class Household(Agent):
                 self.windows_energy_efficiency = 5
 
         n_measures = len(insulation_elements)
-        improved_epc_level = min(6, self.epc.value + n_measures)
-        self.epc = Epc(improved_epc_level)
+        improved_epc_level = min(6, self.epc_rating.value + n_measures)
+        self.epc_rating = EPCRating(improved_epc_level)
 
     def get_chosen_insulation_costs(self, event_trigger: EventTrigger):
 
@@ -397,7 +397,7 @@ class Household(Agent):
         if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
             heating_system_options -= HEAT_PUMPS
 
-        if self.off_gas_grid:
+        if self.is_off_gas_grid:
             heating_system_options -= {HeatingSystem.BOILER_GAS}
         else:
             heating_system_options -= {HeatingSystem.BOILER_OIL}
