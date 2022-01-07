@@ -17,7 +17,7 @@ def household_factory(**agent_attributes):
         "id": 1,
         "location": "Test Location",
         "property_value_gbp": 264_000,
-        "floor_area_sqm": 82,
+        "total_floor_area_m2": 82,
         "is_off_gas_grid": False,
         "construction_year_band": ConstructionYearBand.BUILT_2007_ONWARDS,
         "property_type": PropertyType.HOUSE,
