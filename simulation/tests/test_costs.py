@@ -42,10 +42,10 @@ class TestCosts:
     ) -> None:
 
         household = household_factory(
-            floor_area_sqm=random.randint(20, 200), heating_system=heat_pump
+            total_floor_area_m2=random.randint(20, 200), heating_system=heat_pump
         )
         larger_household = household_factory(
-            floor_area_sqm=household.floor_area_sqm * 1.2,
+            total_floor_area_m2=household.total_floor_area_m2 * 1.2,
             heating_system=heat_pump,
         )
 
@@ -64,10 +64,11 @@ class TestCosts:
         boiler,
     ) -> None:
         household = household_factory(
-            floor_area_sqm=random.randint(20, 200), heating_system=boiler
+            total_floor_area_m2=random.randint(20, 200), heating_system=boiler
         )
         larger_household = household_factory(
-            floor_area_sqm=household.floor_area_sqm * 1.5, heating_system=boiler
+            total_floor_area_m2=household.total_floor_area_m2 * 1.5,
+            heating_system=boiler,
         )
         model = model_factory()
         assert get_unit_and_install_costs(
@@ -139,12 +140,12 @@ class TestCosts:
 
         mansion = household_factory(
             heating_system=random.choices(list(BOILERS))[0],
-            floor_area_sqm=random.randint(500, 1_000),
+            total_floor_area_m2=random.randint(500, 1_000),
         )
 
         larger_mansion = household_factory(
             heating_system=mansion.heating_system,
-            floor_area_sqm=mansion.floor_area_sqm * 1.1,
+            total_floor_area_m2=mansion.total_floor_area_m2 * 1.1,
         )
 
         assert estimate_rhi_annual_payment(

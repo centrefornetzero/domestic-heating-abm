@@ -22,7 +22,7 @@ def household_property_value_gbp(household) -> int:
 
 
 def household_floor_area_sqm(household) -> int:
-    return household.floor_area_sqm
+    return household.total_floor_area_m2
 
 
 def household_is_off_gas_grid(household) -> bool:

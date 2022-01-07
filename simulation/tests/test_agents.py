@@ -29,7 +29,7 @@ class TestHousehold:
             id=1,
             location="London",
             property_value_gbp=400_000,
-            floor_area_sqm=100,
+            total_floor_area_m2=100,
             is_off_gas_grid=False,
             construction_year_band=ConstructionYearBand.BUILT_1900_1929,
             property_type=PropertyType.HOUSE,
@@ -49,7 +49,7 @@ class TestHousehold:
         assert household.id == 1
         assert household.location == "London"
         assert household.property_value_gbp == 400_000
-        assert household.floor_area_sqm == 100
+        assert household.total_floor_area_m2 == 100
         assert not household.is_off_gas_grid
         assert household.construction_year_band == ConstructionYearBand.BUILT_1900_1929
         assert household.property_type == PropertyType.HOUSE
@@ -303,7 +303,9 @@ class TestHousehold:
         event_trigger,
     ) -> None:
 
-        larger_household = household_factory(floor_area_sqm=random.randint(67, 200))
+        larger_household = household_factory(
+            total_floor_area_m2=random.randint(67, 200)
+        )
         model = model_factory()
 
         assert larger_household.property_size != PropertySize.SMALL
@@ -381,9 +383,9 @@ class TestHousehold:
         self, heat_pump
     ) -> None:
 
-        household = household_factory(floor_area_sqm=random.randint(20, 180))
+        household = household_factory(total_floor_area_m2=random.randint(20, 180))
         larger_household = household_factory(
-            floor_area_sqm=household.floor_area_sqm * 1.1
+            total_floor_area_m2=household.total_floor_area_m2 * 1.1
         )
 
         assert household.compute_heat_pump_capacity_kw(
@@ -395,7 +397,7 @@ class TestHousehold:
         self, heat_pump
     ) -> None:
 
-        household = household_factory(floor_area_sqm=random.randint(20, 180))
+        household = household_factory(total_floor_area_m2=random.randint(20, 180))
 
         assert (
             MIN_HEAT_PUMP_CAPACITY_KW[heat_pump]
@@ -410,10 +412,10 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(
-            floor_area_sqm=random.randint(20, 180), heating_system=heating_system
+            total_floor_area_m2=random.randint(20, 180), heating_system=heating_system
         )
         larger_household = household_factory(
-            floor_area_sqm=household.floor_area_sqm * 1.1,
+            total_floor_area_m2=household.total_floor_area_m2 * 1.1,
             heating_system=heating_system,
         )
 
@@ -429,11 +431,11 @@ class TestHousehold:
     ) -> None:
 
         household_with_gas_boiler = household_factory(
-            floor_area_sqm=random.randint(20, 180),
+            total_floor_area_m2=random.randint(20, 180),
             heating_system=HeatingSystem.BOILER_GAS,
         )
         household_with_heat_pump = household_factory(
-            floor_area_sqm=household_with_gas_boiler.floor_area_sqm,
+            total_floor_area_m2=household_with_gas_boiler.total_floor_area_m2,
             heating_system=heat_pump,
         )
 

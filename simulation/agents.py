@@ -70,7 +70,7 @@ class Household(Agent):
         id: int,
         location: str,
         property_value_gbp: int,
-        floor_area_sqm: int,
+        total_floor_area_m2: int,
         is_off_gas_grid: bool,
         construction_year_band: Optional[ConstructionYearBand],
         property_type: PropertyType,
@@ -93,7 +93,7 @@ class Household(Agent):
         self.property_type = property_type
         self.occupant_type = occupant_type
         self.built_form = built_form
-        self.floor_area_sqm = floor_area_sqm
+        self.total_floor_area_m2 = total_floor_area_m2
         self.property_value_gbp = property_value_gbp
         self.is_solid_wall = is_solid_wall
         self.construction_year_band = construction_year_band
@@ -191,7 +191,10 @@ class Household(Agent):
     def insulation_segment(self) -> InsulationSegment:
 
         if self.property_type == PropertyType.FLAT:
-            if self.floor_area_sqm < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["FLAT"]:
+            if (
+                self.total_floor_area_m2
+                < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["FLAT"]
+            ):
                 return InsulationSegment.SMALL_FLAT
             return InsulationSegment.LARGE_FLAT
 
@@ -201,7 +204,7 @@ class Household(Agent):
         ):
             return (
                 InsulationSegment.SMALL_MID_TERRACE_HOUSE
-                if self.floor_area_sqm
+                if self.total_floor_area_m2
                 < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["MID_TERRACE_HOUSE"]
                 else InsulationSegment.LARGE_MID_TERRACE_HOUSE
             )
@@ -212,7 +215,7 @@ class Household(Agent):
         ]:
             return (
                 InsulationSegment.SMALL_SEMI_END_TERRACE_HOUSE
-                if self.floor_area_sqm
+                if self.total_floor_area_m2
                 < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["SEMI_OR_END_TERRACE_HOUSE"]
                 else InsulationSegment.LARGE_SEMI_END_TERRACE_HOUSE
             )
@@ -223,7 +226,7 @@ class Household(Agent):
         ):
             return (
                 InsulationSegment.SMALL_DETACHED_HOUSE
-                if self.floor_area_sqm
+                if self.total_floor_area_m2
                 < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["SMALL_DETACHED_HOUSE"]
                 else InsulationSegment.LARGE_DETACHED_HOUSE
             )
@@ -248,9 +251,9 @@ class Household(Agent):
     @property
     def property_size(self) -> PropertySize:
 
-        if self.floor_area_sqm < FLOOR_AREA_SQM_33RD_PERCENTILE:
+        if self.total_floor_area_m2 < FLOOR_AREA_SQM_33RD_PERCENTILE:
             return PropertySize.SMALL
-        elif self.floor_area_sqm > FLOOR_AREA_SQM_66TH_PERCENTILE:
+        elif self.total_floor_area_m2 > FLOOR_AREA_SQM_66TH_PERCENTILE:
             return PropertySize.LARGE
         else:
             return PropertySize.MEDIUM
@@ -259,7 +262,7 @@ class Household(Agent):
     def annual_kwh_heating_demand(self) -> float:
 
         return (
-            self.floor_area_sqm * HEATING_KWH_PER_SQM_ANNUAL
+            self.total_floor_area_m2 * HEATING_KWH_PER_SQM_ANNUAL
         ) / FUEL_KWH_TO_HEAT_KWH[self.heating_system]
 
     @property
@@ -476,7 +479,7 @@ class Household(Agent):
     def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> int:
 
         capacity_kw = (
-            HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.floor_area_sqm
+            HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.total_floor_area_m2
         )
         return math.ceil(
             min(

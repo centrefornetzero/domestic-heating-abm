@@ -35,7 +35,7 @@ def test_create_household_agents() -> None:
             "id": [1],
             "location": ["Birmingham"],
             "property_value_gbp": [264_000],
-            "floor_area_sqm": [82],
+            "total_floor_area_m2": [82],
             "is_off_gas_grid": [False],
             "construction_year_band": ["BUILT_2007_ONWARDS"],
             "property_type": ["house"],
@@ -63,7 +63,7 @@ def test_create_household_agents() -> None:
     assert household.id == 1
     assert household.location == "Birmingham"
     assert household.property_value_gbp == 264_000
-    assert household.floor_area_sqm == 82
+    assert household.total_floor_area_m2 == 82
     assert not household.is_off_gas_grid
     assert household.construction_year_band == ConstructionYearBand.BUILT_2007_ONWARDS
     assert household.property_type == PropertyType.HOUSE
