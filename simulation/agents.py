@@ -64,6 +64,35 @@ def sample_interval_uniformly(interval: pd.Interval) -> float:
     return random.randint(interval.left, interval.right)
 
 
+def true_with_probability(p: float) -> bool:
+    return random.random() < p
+
+
+def get_weibull_percentile_from_value(
+    alpha: float, beta: float, input_value: float
+) -> float:
+    return 1 - math.exp(-((input_value / beta) ** alpha))
+
+
+def get_weibull_value_from_percentile(
+    alpha: float, beta: float, percentile: float
+) -> float:
+    epsilon = 0.0000001
+    return beta * (-math.log(1 + epsilon - percentile)) ** (1 / alpha)
+
+
+def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
+    """
+    alpha: A value > 1 indicates that failure rates increases over time
+        (e.g. an ageing process).
+    beta: The larger this value, the more 'spread out' the distribution is.
+    age_years: The age of an item subject to failures over time (e.g. heating_type).
+
+    Source: https://en.wikipedia.org/wiki/Weibull_distribution
+    """
+    return (alpha / beta) * (age_years / beta) ** (alpha - 1)
+
+
 class Household(Agent):
     def __init__(
         self,
@@ -123,41 +152,10 @@ class Household(Agent):
     def heating_fuel(self) -> HeatingFuel:
         return HEATING_SYSTEM_FUEL[self.heating_system]
 
-    @staticmethod
-    def get_weibull_percentile_from_value(
-        alpha: float, beta: float, input_value: float
-    ) -> float:
-
-        return 1 - math.exp(-((input_value / beta) ** alpha))
-
-    @staticmethod
-    def get_weibull_value_from_percentile(
-        alpha: float, beta: float, percentile: float
-    ) -> float:
-
-        epsilon = 0.0000001
-        return beta * (-math.log(1 + epsilon - percentile)) ** (1 / alpha)
-
-    @staticmethod
-    def true_with_probability(p: float) -> bool:
-        return random.random() < p
-
-    @staticmethod
-    def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
-        # Source: # https://en.wikipedia.org/wiki/Weibull_distribution
-
-        """
-        alpha: A value > 1 indicates that failure rates increases over time (e.g. an ageing process)
-        beta: The larger this value, the more 'spread out' the distribution is
-        age_years: The age of an item subject to failures over time (e.g. heating_type, or vehicle)
-        """
-
-        return (alpha / beta) * (age_years / beta) ** (alpha - 1)
-
     @property
     def wealth_percentile(self) -> float:
 
-        return self.get_weibull_percentile_from_value(
+        return get_weibull_percentile_from_value(
             GB_PROPERTY_VALUE_WEIBULL_ALPHA,
             GB_PROPERTY_VALUE_WEIBULL_BETA,
             self.property_value_gbp,
@@ -168,7 +166,7 @@ class Household(Agent):
 
         return max(
             1
-            - self.get_weibull_value_from_percentile(
+            - get_weibull_value_from_percentile(
                 DISCOUNT_RATE_WEIBULL_ALPHA,
                 DISCOUNT_RATE_WEIBULL_BETA,
                 self.wealth_percentile,
@@ -179,13 +177,10 @@ class Household(Agent):
     @property
     def renovation_budget(self) -> float:
 
-        return (
-            HEATING_PROPORTION_OF_RENO_BUDGET
-            * self.get_weibull_value_from_percentile(
-                GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
-                GB_RENOVATION_BUDGET_WEIBULL_BETA,
-                self.wealth_percentile,
-            )
+        return HEATING_PROPORTION_OF_RENO_BUDGET * get_weibull_value_from_percentile(
+            GB_RENOVATION_BUDGET_WEIBULL_ALPHA,
+            GB_RENOVATION_BUDGET_WEIBULL_BETA,
+            self.wealth_percentile,
         )
 
     @property
@@ -287,15 +282,15 @@ class Household(Agent):
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         proba_renovate = model.annual_renovation_rate * step_interval_years
 
-        self.is_renovating = self.true_with_probability(proba_renovate)
+        self.is_renovating = true_with_probability(proba_renovate)
 
         self.renovate_heating_system = (
-            self.true_with_probability(RENO_PROBA_HEATING_SYSTEM_UPDATE)
+            true_with_probability(RENO_PROBA_HEATING_SYSTEM_UPDATE)
             if self.is_renovating
             else False
         )
         self.renovate_insulation = (
-            self.true_with_probability(RENO_PROBA_INSULATION_UPDATE)
+            true_with_probability(RENO_PROBA_INSULATION_UPDATE)
             if self.is_renovating
             else False
         )
@@ -486,7 +481,7 @@ class Household(Agent):
         self.heating_system_total_costs = {}
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
-        probability_density = self.weibull_hazard_rate(
+        probability_density = weibull_hazard_rate(
             HAZARD_RATE_HEATING_SYSTEM_ALPHA,
             HAZARD_RATE_HEATING_SYSTEM_BETA,
             self.heating_system_age_years(model.current_datetime.date()),

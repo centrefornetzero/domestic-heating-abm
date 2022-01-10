@@ -45,12 +45,14 @@ def parse_args(args=None):
         help="The number of years households look ahead when making purchasing decisions; any cash flows to be exchanged further than this number of years in the future are valued at £0 by households",
     )
 
-    def restrict_between_0_and_1(input_value: float):
-        return max(min(input_value, 0), 1)
+    def float_between_0_and_1(value: str):
+        if 0 <= float(value) <= 1:
+            return float(value)
+        raise ValueError(f"Value must be between 0 and 1, got {value}")
 
     parser.add_argument(
         "--heating-system-hassle-factor",
-        type=restrict_between_0_and_1,
+        type=float_between_0_and_1,
         default=0.3,
         help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
     )
@@ -59,6 +61,13 @@ def parse_args(args=None):
         "--intervention",
         choices=["rhi"],
         type=str,
+    )
+
+    parser.add_argument(
+        "--all-agents-heat-pump-suitable",
+        default=False,
+        type=bool,
+        help="When True, 100% of households are assumed suitable for heat pumps. When False, households are assigned a heat pump suitability as per the source data file.",
     )
 
     parser.add_argument(
@@ -101,6 +110,7 @@ if __name__ == "__main__":
         args.heating_system_hassle_factor,
         args.intervention,
         args.air_source_heat_pump_discount_factor_2022,
+        args.all_agents_heat_pump_suitable,
     )
 
     write_jsonlines(history, args.history_file)

@@ -65,6 +65,7 @@ def create_household_agents(
     household_population: pd.DataFrame,
     heat_pump_awareness: float,
     simulation_start_datetime: datetime.datetime,
+    all_agents_heat_pump_suitable: bool,
 ) -> Iterator[Household]:
     for household in household_population.itertuples():
         yield Household(
@@ -92,7 +93,9 @@ def create_household_agents(
             walls_energy_efficiency=household.walls_energy_efficiency,
             windows_energy_efficiency=household.windows_energy_efficiency,
             roof_energy_efficiency=household.roof_energy_efficiency,
-            is_heat_pump_suitable_archetype=household.is_heat_pump_suitable_archetype,
+            is_heat_pump_suitable_archetype=True
+            if all_agents_heat_pump_suitable
+            else household.is_heat_pump_suitable_archetype,
             is_heat_pump_aware=random.random() < heat_pump_awareness,
         )
 
@@ -108,6 +111,7 @@ def create_and_run_simulation(
     heating_system_hassle_factor: float,
     intervention: str,
     air_source_heat_pump_discount_factor_2022: float,
+    all_agents_heat_pump_suitable: bool,
 ):
 
     model = DomesticHeatingABM(
@@ -124,6 +128,7 @@ def create_and_run_simulation(
         household_population,
         heat_pump_awareness,
         model.start_datetime,
+        all_agents_heat_pump_suitable,
     )
     model.add_agents(households)
 
