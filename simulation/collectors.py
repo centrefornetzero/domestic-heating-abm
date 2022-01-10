@@ -45,6 +45,10 @@ def household_heating_system(household) -> str:
     return household.heating_system.name
 
 
+def household_heating_functioning(household) -> bool:
+    return household.heating_functioning
+
+
 def household_heating_install_date(household) -> datetime.date:
     return household.heating_system_install_date
 
@@ -193,6 +197,7 @@ def get_agent_collectors(
         collect_when(model, is_first_timestep)(household_is_heat_pump_suitable),
         collect_when(model, is_first_timestep)(household_is_heat_pump_aware),
         household_heating_system,
+        household_heating_functioning,
         household_heating_install_date,
         household_epc,
         household_walls_energy_efficiency,
