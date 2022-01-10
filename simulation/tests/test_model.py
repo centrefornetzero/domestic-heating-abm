@@ -53,10 +53,12 @@ def test_create_household_agents() -> None:
     )
     heat_pump_awareness = 0.4
     simulation_start_datetime = datetime.datetime.now()
+    override_heat_pump_suitability = False
     household_agents = create_household_agents(
         household_population,
         heat_pump_awareness,
         simulation_start_datetime,
+        override_heat_pump_suitability,
     )
     household = next(household_agents)
 
