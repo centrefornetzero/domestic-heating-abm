@@ -103,6 +103,7 @@ class Household(Agent):
         self.is_off_gas_grid = is_off_gas_grid
         self.heating_functioning = True
         self.heating_system = heating_system
+        self.heating_system_previous = None
         self.heating_system_install_date = heating_system_install_date
         self.epc_rating = epc_rating
         self.potential_epc_rating = potential_epc_rating
@@ -461,9 +462,9 @@ class Household(Agent):
         self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
     ) -> None:
 
+        self.heating_system_previous = self.heating_system
         self.heating_system = heating_system
         self.heating_system_install_date = model.current_datetime.date()
-        self.heating_functioning = True
 
     def update_heating_status(self, model: "DomesticHeatingABM") -> None:
 
@@ -479,6 +480,8 @@ class Household(Agent):
         proba_failure = probability_density * step_interval_years
         if random.random() < proba_failure:
             self.heating_functioning = False
+        else:
+            self.heating_functioning = True
 
     def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> int:
 
