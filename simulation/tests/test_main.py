@@ -57,6 +57,14 @@ class TestParseArgs:
         with pytest.raises(SystemExit):
             parse_args([*mandatory_args, "--seed", "hello"])
 
+    def test_heating_system_hassle_factor(self, mandatory_args):
+        args = parse_args([*mandatory_args, "--heating-system-hassle-factor", "0.5"])
+        assert args.heating_system_hassle_factor == 0.5
+
+    def test_heating_system_hassle_factor_must_be_between_0_and_1(self, mandatory_args):
+        with pytest.raises(SystemExit):
+            parse_args([*mandatory_args, "--heating-system-hassle-factor", "10"])
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history
