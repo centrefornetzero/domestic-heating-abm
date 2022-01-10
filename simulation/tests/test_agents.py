@@ -540,23 +540,27 @@ class TestHousehold:
         ) < household.get_total_heating_system_costs(heat_pump, model_without_rhi)
 
     @pytest.mark.parametrize("heating_system", list(HeatingSystem))
-    def test_heating_fuel_costs_appear_lower_for_landlords_than_owner_occupiers(
-        self, heating_system
-    ):
+    def test_heating_fuel_costs_are_zero_for_landlords(self, heating_system):
 
         current_heating_system = random.choices(list(HeatingSystem))[0]
 
-        rented_household = household_factory(
+        private_rented_household = household_factory(
             occupant_type=OccupantType.RENTED_PRIVATE,
+            heating_system=current_heating_system,
+        )
+        social_rented_household = household_factory(
+            occupant_type=OccupantType.RENTED_SOCIAL,
             heating_system=current_heating_system,
         )
         owned_household = household_factory(
             occupant_type=OccupantType.OWNER_OCCUPIED,
             heating_system=current_heating_system,
         )
-
         model = model_factory()
-
-        assert rented_household.get_heating_fuel_costs(
-            heating_system, model
-        ) < owned_household.get_heating_fuel_costs(heating_system, model)
+        assert (
+            private_rented_household.get_heating_fuel_costs(heating_system, model) == 0
+        )
+        assert (
+            social_rented_household.get_heating_fuel_costs(heating_system, model) == 0
+        )
+        assert owned_household.get_heating_fuel_costs(heating_system, model) > 0
