@@ -103,7 +103,7 @@ class Household(Agent):
         self.is_off_gas_grid = is_off_gas_grid
         self.heating_functioning = True
         self.heating_system = heating_system
-        self.heating_system_prior = None
+        self.heating_system_previous = None
         self.heating_system_install_date = heating_system_install_date
         self.epc_rating = epc_rating
         self.potential_epc_rating = potential_epc_rating
@@ -462,7 +462,7 @@ class Household(Agent):
         self, heating_system: HeatingSystem, model: "DomesticHeatingABM"
     ) -> None:
 
-        self.heating_system_prior = self.heating_system
+        self.heating_system_previous = self.heating_system
         self.heating_system = heating_system
         self.heating_system_install_date = model.current_datetime.date()
 

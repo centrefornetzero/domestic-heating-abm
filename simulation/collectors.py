@@ -45,9 +45,11 @@ def household_heating_system(household) -> str:
     return household.heating_system.name
 
 
-def household_heating_system_prior(household) -> Optional[str]:
+def household_heating_system_previous(household) -> Optional[str]:
     return (
-        household.heating_system_prior.name if household.heating_system_prior else None
+        household.heating_system_previous.name
+        if household.heating_system_previous
+        else None
     )
 
 
@@ -203,7 +205,7 @@ def get_agent_collectors(
         collect_when(model, is_first_timestep)(household_is_heat_pump_suitable),
         collect_when(model, is_first_timestep)(household_is_heat_pump_aware),
         household_heating_system,
-        household_heating_system_prior,
+        household_heating_system_previous,
         household_heating_functioning,
         household_heating_install_date,
         household_epc,
