@@ -111,7 +111,7 @@ def create_and_run_simulation(
     heating_system_hassle_factor: float,
     intervention: str,
     air_source_heat_pump_discount_factor_2022: float,
-    override_heat_pump_suitability: bool,
+    all_agents_heat_pump_suitable: bool,
 ):
 
     model = DomesticHeatingABM(
@@ -128,7 +128,7 @@ def create_and_run_simulation(
         household_population,
         heat_pump_awareness,
         model.start_datetime,
-        override_heat_pump_suitability,
+        all_agents_heat_pump_suitable,
     )
     model.add_agents(households)
 
