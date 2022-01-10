@@ -441,14 +441,13 @@ class Household(Agent):
     ):
 
         weights = []
+        multiple_cap = 50  # An arbritrary cap to prevent math.exp overflowing
 
         for heating_system in costs.keys():
-            try:
-                weight = 1 / (
-                    1 + math.exp(costs[heating_system] / self.renovation_budget)
-                )
-            except OverflowError:
-                weight = 0
+            cost_as_proportion_of_budget = min(
+                costs[heating_system] / self.renovation_budget, multiple_cap
+            )
+            weight = 1 / (1 + math.exp(cost_as_proportion_of_budget))
             if self.is_heating_system_hassle(heating_system):
                 weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
