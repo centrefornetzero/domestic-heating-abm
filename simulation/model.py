@@ -11,7 +11,7 @@ from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
-    Epc,
+    EPCRating,
     HeatingSystem,
     InterventionType,
     OccupantType,
@@ -71,8 +71,8 @@ def create_household_agents(
             id=household.id,
             location=household.location,
             property_value_gbp=household.property_value_gbp,
-            floor_area_sqm=household.floor_area_sqm,
-            off_gas_grid=household.off_gas_grid,
+            total_floor_area_m2=household.total_floor_area_m2,
+            is_off_gas_grid=household.is_off_gas_grid,
             construction_year_band=ConstructionYearBand[
                 household.construction_year_band.upper()
             ]
@@ -85,8 +85,8 @@ def create_household_agents(
             - datetime.timedelta(
                 days=random.randint(0, 365 * HEATING_SYSTEM_LIFETIME_YEARS)
             ),
-            epc=Epc[household.epc.upper()],
-            potential_epc=Epc[household.potential_epc.upper()],
+            epc_rating=EPCRating[household.epc_rating.upper()],
+            potential_epc_rating=EPCRating[household.potential_epc_rating.upper()],
             occupant_type=OccupantType[household.occupant_type.upper()],
             is_solid_wall=household.is_solid_wall,
             walls_energy_efficiency=household.walls_energy_efficiency,

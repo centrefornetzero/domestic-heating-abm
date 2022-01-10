@@ -37,7 +37,7 @@ from simulation.constants import (
     BuiltForm,
     ConstructionYearBand,
     Element,
-    Epc,
+    EPCRating,
     EventTrigger,
     HeatingFuel,
     HeatingSystem,
@@ -70,15 +70,15 @@ class Household(Agent):
         id: int,
         location: str,
         property_value_gbp: int,
-        floor_area_sqm: int,
-        off_gas_grid: bool,
+        total_floor_area_m2: int,
+        is_off_gas_grid: bool,
         construction_year_band: Optional[ConstructionYearBand],
         property_type: PropertyType,
         built_form: BuiltForm,
         heating_system: HeatingSystem,
         heating_system_install_date: datetime.date,
-        epc: Epc,
-        potential_epc: Epc,
+        epc_rating: EPCRating,
+        potential_epc_rating: EPCRating,
         occupant_type: OccupantType,
         is_solid_wall: bool,
         walls_energy_efficiency: int,
@@ -93,19 +93,19 @@ class Household(Agent):
         self.property_type = property_type
         self.occupant_type = occupant_type
         self.built_form = built_form
-        self.floor_area_sqm = floor_area_sqm
+        self.total_floor_area_m2 = total_floor_area_m2
         self.property_value_gbp = property_value_gbp
         self.is_solid_wall = is_solid_wall
         self.construction_year_band = construction_year_band
         self.is_heat_pump_suitable_archetype = is_heat_pump_suitable_archetype
 
         # Heating / energy performance attributes
-        self.off_gas_grid = off_gas_grid
+        self.is_off_gas_grid = is_off_gas_grid
         self.heating_functioning = True
         self.heating_system = heating_system
         self.heating_system_install_date = heating_system_install_date
-        self.epc = epc
-        self.potential_epc = potential_epc
+        self.epc_rating = epc_rating
+        self.potential_epc_rating = potential_epc_rating
         self.walls_energy_efficiency = walls_energy_efficiency
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
@@ -191,7 +191,10 @@ class Household(Agent):
     def insulation_segment(self) -> InsulationSegment:
 
         if self.property_type == PropertyType.FLAT:
-            if self.floor_area_sqm < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["FLAT"]:
+            if (
+                self.total_floor_area_m2
+                < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["FLAT"]
+            ):
                 return InsulationSegment.SMALL_FLAT
             return InsulationSegment.LARGE_FLAT
 
@@ -201,7 +204,7 @@ class Household(Agent):
         ):
             return (
                 InsulationSegment.SMALL_MID_TERRACE_HOUSE
-                if self.floor_area_sqm
+                if self.total_floor_area_m2
                 < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["MID_TERRACE_HOUSE"]
                 else InsulationSegment.LARGE_MID_TERRACE_HOUSE
             )
@@ -212,7 +215,7 @@ class Household(Agent):
         ]:
             return (
                 InsulationSegment.SMALL_SEMI_END_TERRACE_HOUSE
-                if self.floor_area_sqm
+                if self.total_floor_area_m2
                 < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["SEMI_OR_END_TERRACE_HOUSE"]
                 else InsulationSegment.LARGE_SEMI_END_TERRACE_HOUSE
             )
@@ -223,7 +226,7 @@ class Household(Agent):
         ):
             return (
                 InsulationSegment.SMALL_DETACHED_HOUSE
-                if self.floor_area_sqm
+                if self.total_floor_area_m2
                 < RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT["SMALL_DETACHED_HOUSE"]
                 else InsulationSegment.LARGE_DETACHED_HOUSE
             )
@@ -239,7 +242,7 @@ class Household(Agent):
             if not all(
                 [
                     self.is_heat_pump_suitable_archetype,
-                    self.potential_epc.value >= Epc.C.value,
+                    self.potential_epc_rating.value >= EPCRating.C.value,
                 ]
             )
             else True
@@ -248,9 +251,9 @@ class Household(Agent):
     @property
     def property_size(self) -> PropertySize:
 
-        if self.floor_area_sqm < FLOOR_AREA_SQM_33RD_PERCENTILE:
+        if self.total_floor_area_m2 < FLOOR_AREA_SQM_33RD_PERCENTILE:
             return PropertySize.SMALL
-        elif self.floor_area_sqm > FLOOR_AREA_SQM_66TH_PERCENTILE:
+        elif self.total_floor_area_m2 > FLOOR_AREA_SQM_66TH_PERCENTILE:
             return PropertySize.LARGE
         else:
             return PropertySize.MEDIUM
@@ -259,7 +262,7 @@ class Household(Agent):
     def annual_kwh_heating_demand(self) -> float:
 
         return (
-            self.floor_area_sqm * HEATING_KWH_PER_SQM_ANNUAL
+            self.total_floor_area_m2 * HEATING_KWH_PER_SQM_ANNUAL
         ) / FUEL_KWH_TO_HEAT_KWH[self.heating_system]
 
     @property
@@ -323,9 +326,9 @@ class Household(Agent):
             )[0]
 
         if event_trigger == EventTrigger.EPC_C_UPGRADE:
-            # The number of insulation elements a household would require to reach epc C
+            # The number of insulation elements a household would require to reach epc_rating C
             # We assume each insulation measure will contribute +1 EPC grade
-            return max(0, Epc.C.value - self.epc.value)
+            return max(0, EPCRating.C.value - self.epc_rating.value)
 
         return 0
 
@@ -375,8 +378,8 @@ class Household(Agent):
                 self.windows_energy_efficiency = 5
 
         n_measures = len(insulation_elements)
-        improved_epc_level = min(6, self.epc.value + n_measures)
-        self.epc = Epc(improved_epc_level)
+        improved_epc_level = min(6, self.epc_rating.value + n_measures)
+        self.epc_rating = EPCRating(improved_epc_level)
 
     def get_chosen_insulation_costs(self, event_trigger: EventTrigger):
 
@@ -397,7 +400,7 @@ class Household(Agent):
         if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
             heating_system_options -= HEAT_PUMPS
 
-        if self.off_gas_grid:
+        if self.is_off_gas_grid:
             heating_system_options -= {HeatingSystem.BOILER_GAS}
         else:
             heating_system_options -= {HeatingSystem.BOILER_OIL}
@@ -480,7 +483,7 @@ class Household(Agent):
     def compute_heat_pump_capacity_kw(self, heat_pump_type: HeatingSystem) -> int:
 
         capacity_kw = (
-            HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.floor_area_sqm
+            HEAT_PUMP_CAPACITY_SCALE_FACTOR[heat_pump_type] * self.total_floor_area_m2
         )
         return math.ceil(
             min(

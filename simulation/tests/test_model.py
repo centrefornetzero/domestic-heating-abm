@@ -7,7 +7,7 @@ from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
-    Epc,
+    EPCRating,
     HeatingSystem,
     OccupantType,
     PropertyType,
@@ -35,15 +35,15 @@ def test_create_household_agents() -> None:
             "id": [1],
             "location": ["Birmingham"],
             "property_value_gbp": [264_000],
-            "floor_area_sqm": [82],
-            "off_gas_grid": [False],
+            "total_floor_area_m2": [82],
+            "is_off_gas_grid": [False],
             "construction_year_band": ["BUILT_2007_ONWARDS"],
             "property_type": ["house"],
             "built_form": ["mid_terrace"],
             "heating_system": ["boiler_gas"],
-            "epc": ["C"],
-            "potential_epc": ["B"],
-            "occupant_type": ["owner_occupier"],
+            "epc_rating": ["C"],
+            "potential_epc_rating": ["B"],
+            "occupant_type": ["owner_occupied"],
             "is_solid_wall": [False],
             "walls_energy_efficiency": [3],
             "windows_energy_efficiency": [3],
@@ -63,8 +63,8 @@ def test_create_household_agents() -> None:
     assert household.id == 1
     assert household.location == "Birmingham"
     assert household.property_value_gbp == 264_000
-    assert household.floor_area_sqm == 82
-    assert not household.off_gas_grid
+    assert household.total_floor_area_m2 == 82
+    assert not household.is_off_gas_grid
     assert household.construction_year_band == ConstructionYearBand.BUILT_2007_ONWARDS
     assert household.property_type == PropertyType.HOUSE
     assert household.built_form == BuiltForm.MID_TERRACE
@@ -75,9 +75,9 @@ def test_create_household_agents() -> None:
         <= household.heating_system_install_date
         <= simulation_start_datetime.date()
     )
-    assert household.epc == Epc.C
-    assert household.potential_epc == Epc.B
-    assert household.occupant_type == OccupantType.OWNER_OCCUPIER
+    assert household.epc_rating == EPCRating.C
+    assert household.potential_epc_rating == EPCRating.B
+    assert household.occupant_type == OccupantType.OWNER_OCCUPIED
     assert not household.is_solid_wall
     assert household.walls_energy_efficiency == 3
     assert household.windows_energy_efficiency == 3

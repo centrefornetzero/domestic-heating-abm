@@ -12,7 +12,7 @@ from simulation.constants import (
     BuiltForm,
     ConstructionYearBand,
     Element,
-    Epc,
+    EPCRating,
     EventTrigger,
     HeatingFuel,
     HeatingSystem,
@@ -29,16 +29,16 @@ class TestHousehold:
             id=1,
             location="London",
             property_value_gbp=400_000,
-            floor_area_sqm=100,
-            off_gas_grid=False,
+            total_floor_area_m2=100,
+            is_off_gas_grid=False,
             construction_year_band=ConstructionYearBand.BUILT_1900_1929,
             property_type=PropertyType.HOUSE,
             built_form=BuiltForm.MID_TERRACE,
             heating_system=HeatingSystem.BOILER_ELECTRIC,
             heating_system_install_date=datetime.date(1995, 1, 1),
-            epc=Epc.C,
-            potential_epc=Epc.B,
-            occupant_type=OccupantType.RENTER_PRIVATE,
+            epc_rating=EPCRating.C,
+            potential_epc_rating=EPCRating.B,
+            occupant_type=OccupantType.RENTED_PRIVATE,
             is_solid_wall=False,
             walls_energy_efficiency=4,
             windows_energy_efficiency=4,
@@ -49,16 +49,16 @@ class TestHousehold:
         assert household.id == 1
         assert household.location == "London"
         assert household.property_value_gbp == 400_000
-        assert household.floor_area_sqm == 100
-        assert not household.off_gas_grid
+        assert household.total_floor_area_m2 == 100
+        assert not household.is_off_gas_grid
         assert household.construction_year_band == ConstructionYearBand.BUILT_1900_1929
         assert household.property_type == PropertyType.HOUSE
         assert household.built_form == BuiltForm.MID_TERRACE
         assert household.heating_system == HeatingSystem.BOILER_ELECTRIC
         assert household.heating_system_install_date == datetime.date(1995, 1, 1)
-        assert household.epc == Epc.C
-        assert household.potential_epc == Epc.B
-        assert household.occupant_type == OccupantType.RENTER_PRIVATE
+        assert household.epc_rating == EPCRating.C
+        assert household.potential_epc_rating == EPCRating.B
+        assert household.occupant_type == OccupantType.RENTED_PRIVATE
         assert not household.is_solid_wall
         assert household.walls_energy_efficiency == 4
         assert household.windows_energy_efficiency == 4
@@ -152,22 +152,22 @@ class TestHousehold:
             <= 3
         )
 
-    @pytest.mark.parametrize("epc", list(Epc))
+    @pytest.mark.parametrize("epc_rating", list(EPCRating))
     def test_num_insulation_measures_chosen_by_household_corresponds_to_current_epc_value(
         self,
-        epc,
+        epc_rating,
     ) -> None:
 
-        household = household_factory(epc=epc)
-        if household.epc.value < Epc.C.value:
-            expected_insulation_elements = Epc.C.value - epc.value
+        household = household_factory(epc_rating=epc_rating)
+        if household.epc_rating.value < EPCRating.C.value:
+            expected_insulation_elements = EPCRating.C.value - epc_rating.value
             assert (
                 household.get_num_insulation_elements(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
                 )
                 == expected_insulation_elements
             )
-        if household.epc.value >= Epc.C.value:
+        if household.epc_rating.value >= EPCRating.C.value:
             assert (
                 household.get_num_insulation_elements(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
@@ -198,17 +198,17 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(
-            roof_energy_efficiency=3, walls_energy_efficiency=2, epc=Epc.D
+            roof_energy_efficiency=3, walls_energy_efficiency=2, epc_rating=EPCRating.D
         )
         household.install_insulation_elements({Element.ROOF: 1_000})
 
         assert household.roof_energy_efficiency == 5
-        assert household.epc == Epc.C
+        assert household.epc_rating == EPCRating.C
 
         household.install_insulation_elements({Element.WALLS: 3_000})
 
         assert household.walls_energy_efficiency == 5
-        assert household.epc == Epc.B
+        assert household.epc_rating == EPCRating.B
 
     def test_impact_of_installing_insulation_measures_is_capped_at_epc_A(
         self,
@@ -218,18 +218,20 @@ class TestHousehold:
             roof_energy_efficiency=4,
             walls_energy_efficiency=5,
             windows_energy_efficiency=5,
-            epc=Epc.A,
+            epc_rating=EPCRating.A,
         )
         epc_A_household.install_insulation_elements({Element.ROOF: 1_000})
 
         assert epc_A_household.roof_energy_efficiency == 5
-        assert epc_A_household.epc == Epc.A
+        assert epc_A_household.epc_rating == EPCRating.A
 
     def test_households_with_potential_epc_below_C_are_not_heat_pump_suitable(
         self,
     ) -> None:
 
-        low_potential_epc_household = household_factory(potential_epc=Epc.D)
+        low_potential_epc_household = household_factory(
+            potential_epc_rating=EPCRating.D
+        )
 
         assert not low_potential_epc_household.is_heat_pump_suitable
 
@@ -249,7 +251,7 @@ class TestHousehold:
         event_trigger,
     ) -> None:
 
-        unsuitable_household = household_factory(potential_epc=Epc.D)
+        unsuitable_household = household_factory(potential_epc_rating=EPCRating.D)
         model = model_factory()
         assert not HEAT_PUMPS.intersection(
             unsuitable_household.get_heating_system_options(
@@ -271,24 +273,24 @@ class TestHousehold:
         assert heating_system_options.intersection(HEAT_PUMPS) == set()
 
     @pytest.mark.parametrize("event_trigger", list(EventTrigger))
-    def test_gas_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+    def test_gas_boiler_not_in_heating_system_options_if_household_is_off_gas_grid(
         self, event_trigger
     ) -> None:
 
-        off_gas_grid_household = household_factory(off_gas_grid=True)
+        is_off_gas_grid_household = household_factory(is_off_gas_grid=True)
         model = model_factory()
-        heating_system_options = off_gas_grid_household.get_heating_system_options(
+        heating_system_options = is_off_gas_grid_household.get_heating_system_options(
             model, event_trigger
         )
         assert heating_system_options.intersection({HeatingSystem.BOILER_GAS}) == set()
 
     @pytest.mark.parametrize("event_trigger", list(EventTrigger))
-    def test_oil_boiler_not_in_heating_system_options_if_household_off_gas_grid(
+    def test_oil_boiler_not_in_heating_system_options_if_household_is_off_gas_grid(
         self,
         event_trigger,
     ) -> None:
 
-        on_gas_grid_household = household_factory(off_gas_grid=False)
+        on_gas_grid_household = household_factory(is_off_gas_grid=False)
         model = model_factory()
         heating_system_options = on_gas_grid_household.get_heating_system_options(
             model, event_trigger
@@ -301,7 +303,9 @@ class TestHousehold:
         event_trigger,
     ) -> None:
 
-        larger_household = household_factory(floor_area_sqm=random.randint(67, 200))
+        larger_household = household_factory(
+            total_floor_area_m2=random.randint(67, 200)
+        )
         model = model_factory()
 
         assert larger_household.property_size != PropertySize.SMALL
@@ -320,7 +324,7 @@ class TestHousehold:
     ) -> None:
 
         heat_pump_suitable_household = household_factory(
-            epc=Epc.B,
+            epc_rating=EPCRating.B,
             is_heat_pump_suitable_archetype=True,
             heating_system=HeatingSystem.BOILER_GAS,
         )
@@ -339,7 +343,9 @@ class TestHousehold:
     ) -> None:
 
         household_with_heat_pump = household_factory(
-            epc=Epc.B, is_heat_pump_suitable_archetype=True, heating_system=heat_pump
+            epc_rating=EPCRating.B,
+            is_heat_pump_suitable_archetype=True,
+            heating_system=heat_pump,
         )
         model = model_factory()
         assert household_with_heat_pump.is_heat_pump_suitable
@@ -377,9 +383,9 @@ class TestHousehold:
         self, heat_pump
     ) -> None:
 
-        household = household_factory(floor_area_sqm=random.randint(20, 180))
+        household = household_factory(total_floor_area_m2=random.randint(20, 180))
         larger_household = household_factory(
-            floor_area_sqm=household.floor_area_sqm * 1.1
+            total_floor_area_m2=household.total_floor_area_m2 * 1.1
         )
 
         assert household.compute_heat_pump_capacity_kw(
@@ -391,7 +397,7 @@ class TestHousehold:
         self, heat_pump
     ) -> None:
 
-        household = household_factory(floor_area_sqm=random.randint(20, 180))
+        household = household_factory(total_floor_area_m2=random.randint(20, 180))
 
         assert (
             MIN_HEAT_PUMP_CAPACITY_KW[heat_pump]
@@ -406,10 +412,10 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(
-            floor_area_sqm=random.randint(20, 180), heating_system=heating_system
+            total_floor_area_m2=random.randint(20, 180), heating_system=heating_system
         )
         larger_household = household_factory(
-            floor_area_sqm=household.floor_area_sqm * 1.1,
+            total_floor_area_m2=household.total_floor_area_m2 * 1.1,
             heating_system=heating_system,
         )
 
@@ -425,11 +431,11 @@ class TestHousehold:
     ) -> None:
 
         household_with_gas_boiler = household_factory(
-            floor_area_sqm=random.randint(20, 180),
+            total_floor_area_m2=random.randint(20, 180),
             heating_system=HeatingSystem.BOILER_GAS,
         )
         household_with_heat_pump = household_factory(
-            floor_area_sqm=household_with_gas_boiler.floor_area_sqm,
+            total_floor_area_m2=household_with_gas_boiler.total_floor_area_m2,
             heating_system=heat_pump,
         )
 
@@ -438,15 +444,15 @@ class TestHousehold:
             < household_with_gas_boiler.annual_kwh_heating_demand
         )
 
-    @pytest.mark.parametrize("epc", list(Epc))
+    @pytest.mark.parametrize("epc_rating", list(EPCRating))
     def test_household_chooses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
         self,
-        epc,
+        epc_rating,
     ) -> None:
 
-        household = household_factory(epc=epc)
+        household = household_factory(epc_rating=epc_rating)
 
-        if epc.value >= Epc.C.value:
+        if epc_rating.value >= EPCRating.C.value:
             assert (
                 household.get_chosen_insulation_costs(
                     event_trigger=EventTrigger.EPC_C_UPGRADE
@@ -454,7 +460,7 @@ class TestHousehold:
                 == {}
             )
 
-        if epc.value < Epc.C.value:
+        if epc_rating.value < EPCRating.C.value:
             chosen_insulation_elements = household.get_chosen_insulation_costs(
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )
