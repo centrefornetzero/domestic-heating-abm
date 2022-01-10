@@ -506,7 +506,7 @@ class TestHousehold:
         )
 
     @pytest.mark.parametrize("heating_system", list(HeatingSystem))
-    def test_households_install_working_heating_systems_at_model_current_datetime(
+    def test_households_installs_heating_systems_at_model_current_datetime_and_heating_becomes_functioning(
         self,
         heating_system,
     ) -> None:
@@ -520,6 +520,10 @@ class TestHousehold:
 
         assert household.heating_system == heating_system
         assert household.heating_system_install_date == model.current_datetime.date()
+
+        household.update_heating_status(model)
+
+        assert household.heating_functioning
 
     @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
     def test_total_heating_system_costs_are_lower_for_heat_pumps_if_model_intervention_rhi(
