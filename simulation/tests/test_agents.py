@@ -519,7 +519,6 @@ class TestHousehold:
         household.install_heating_system(heating_system, model)
 
         assert household.heating_system == heating_system
-        assert household.heating_functioning
         assert household.heating_system_install_date == model.current_datetime.date()
 
     @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
