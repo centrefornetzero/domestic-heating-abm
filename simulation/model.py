@@ -65,7 +65,7 @@ def create_household_agents(
     household_population: pd.DataFrame,
     heat_pump_awareness: float,
     simulation_start_datetime: datetime.datetime,
-    override_heat_pump_suitability: bool,
+    all_agents_heat_pump_suitable: bool,
 ) -> Iterator[Household]:
     for household in household_population.itertuples():
         yield Household(
@@ -94,7 +94,7 @@ def create_household_agents(
             windows_energy_efficiency=household.windows_energy_efficiency,
             roof_energy_efficiency=household.roof_energy_efficiency,
             is_heat_pump_suitable_archetype=True
-            if override_heat_pump_suitability
+            if all_agents_heat_pump_suitable
             else household.is_heat_pump_suitable_archetype,
             is_heat_pump_aware=random.random() < heat_pump_awareness,
         )

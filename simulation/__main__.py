@@ -62,8 +62,8 @@ def parse_args(args=None):
     )
 
     parser.add_argument(
-        "--override-heat-pump-suitability",
-        default=True,
+        "--all-agents-heat-pump-suitable",
+        default=False,
         type=bool,
         help="When True, 100% of households are assumed suitable for heat pumps. When False, households are assigned a heat pump suitability as per the source data file.",
     )
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         args.heating_system_hassle_factor,
         args.intervention,
         args.air_source_heat_pump_discount_factor_2022,
-        args.override_heat_pump_suitability,
+        args.all_agents_heat_pump_suitable,
     )
 
     write_jsonlines(history, args.history_file)
