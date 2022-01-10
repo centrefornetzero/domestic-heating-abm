@@ -412,6 +412,20 @@ class Household(Agent):
 
         return heating_system_options
 
+    def get_heating_fuel_costs(
+        self,
+        heating_system: HeatingSystem,
+        model: "DomesticHeatingABM",
+    ):
+
+        if self.occupant_type == OccupantType.OWNER_OCCUPIED:
+            return get_heating_fuel_costs_net_present_value(
+                self, heating_system, model.household_num_lookahead_years
+            )
+
+        # Fuel bills are generally paid by tenants; landlords/rented households will not consider fuel bill differences
+        return 0
+
     def get_total_heating_system_costs(
         self,
         heating_system: HeatingSystem,
@@ -419,8 +433,8 @@ class Household(Agent):
     ):
 
         unit_and_install_costs = get_unit_and_install_costs(self, heating_system, model)
-        fuel_costs_net_present_value = get_heating_fuel_costs_net_present_value(
-            self, heating_system, model.household_num_lookahead_years
+        fuel_costs_net_present_value = self.get_heating_fuel_costs(
+            heating_system, model
         )
 
         if model.intervention == InterventionType.RHI:
