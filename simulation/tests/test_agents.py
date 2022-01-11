@@ -564,3 +564,24 @@ class TestHousehold:
             social_rented_household.get_heating_fuel_costs(heating_system, model) == 0
         )
         assert owned_household.get_heating_fuel_costs(heating_system, model) > 0
+
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_total_heating_system_costs_are_lower_for_heat_pumps_if_model_intervention_boiler_upgrade_scheme(
+        self, heat_pump
+    ):
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0])
+
+        model_without_boiler_upgrade_scheme = model_factory(
+            start_datetime=datetime.datetime(2023, 1, 1, 0, 0)
+        )
+        model_with_boiler_upgrade_scheme = model_factory(
+            start_datetime=datetime.datetime(2023, 1, 1, 0, 0),
+            intervention="boiler_upgrade_scheme",
+        )
+
+        assert household.get_total_heating_system_costs(
+            heat_pump, model_with_boiler_upgrade_scheme
+        ) < household.get_total_heating_system_costs(
+            heat_pump, model_without_boiler_upgrade_scheme
+        )
