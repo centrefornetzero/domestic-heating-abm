@@ -1,3 +1,4 @@
+import datetime
 import random
 from typing import TYPE_CHECKING, Dict
 
@@ -296,3 +297,35 @@ def estimate_rhi_annual_payment(
     )
 
     return rhi_annual_payment_gbp
+
+
+def estimate_boiler_upgrade_scheme_grant(
+    heating_system: HeatingSystem,
+    model: "DomesticHeatingABM",
+):
+
+    if heating_system not in [
+        HeatingSystem.HEAT_PUMP_AIR_SOURCE,
+        HeatingSystem.HEAT_PUMP_GROUND_SOURCE,
+    ]:
+        return 0
+
+    boiler_upgrade_funding_cap_gbp = 450_000_000
+    if (
+        model.boiler_upgrade_scheme_cumulative_spend_gbp
+        > boiler_upgrade_funding_cap_gbp
+    ):
+        return 0
+
+    if (
+        not datetime.date(2022, 4, 1)
+        <= model.current_datetime.date()
+        < datetime.date(2025, 4, 1)
+    ):
+        return 0
+
+    if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
+        return 5_000
+
+    if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
+        return 6_000

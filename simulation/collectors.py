@@ -173,8 +173,16 @@ def household_heating_system_total_cost_heat_pump_ground_source(household) -> in
     )
 
 
+def household_boiler_upgrade_grant_used(household) -> int:
+    return household.boiler_upgrade_grant_used
+
+
 def model_current_datetime(model) -> datetime.datetime:
     return model.current_datetime
+
+
+def model_boiler_upgrade_scheme_cumulative_spend_gbp(model) -> int:
+    return model.boiler_upgrade_scheme_cumulative_spend_gbp
 
 
 def is_first_timestep(model: "DomesticHeatingABM") -> bool:
@@ -225,9 +233,11 @@ def get_agent_collectors(
         household_heating_system_total_cost_boiler_electric,
         household_heating_system_total_cost_heat_pump_air_source,
         household_heating_system_total_cost_heat_pump_ground_source,
+        household_boiler_upgrade_grant_used,
     ]
 
 
 model_collectors = [
     model_current_datetime,
+    model_boiler_upgrade_scheme_cumulative_spend_gbp,
 ]

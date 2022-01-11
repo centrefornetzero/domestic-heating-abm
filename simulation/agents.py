@@ -54,6 +54,7 @@ from simulation.costs import (
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
     discount_annual_cash_flow,
+    estimate_boiler_upgrade_scheme_grant,
     estimate_rhi_annual_payment,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
@@ -147,6 +148,8 @@ class Household(Agent):
         self.renovate_heating_system = False
         self.epc_c_upgrade_costs = {}
         self.heating_system_total_costs = {}
+        self.boiler_upgrade_grant_available = False
+        self.boiler_upgrade_grant_used = 0
 
     @property
     def heating_fuel(self) -> HeatingFuel:
@@ -437,6 +440,11 @@ class Household(Agent):
             heating_system, model
         )
 
+        if model.intervention == InterventionType.BOILER_UPGRADE_SCHEME:
+            subsidies = estimate_boiler_upgrade_scheme_grant(heating_system, model)
+            if subsidies > 0:
+                self.boiler_upgrade_grant_available = True
+
         if model.intervention == InterventionType.RHI:
             rhi_annual_payment = estimate_rhi_annual_payment(self, heating_system)
             subsidies = discount_annual_cash_flow(
@@ -444,7 +452,7 @@ class Household(Agent):
                 cashflow_gbp=rhi_annual_payment,
                 duration_years=7,
             )
-        else:
+        if not model.intervention:
             subsidies = 0
 
         return unit_and_install_costs + fuel_costs_net_present_value - subsidies
@@ -454,7 +462,7 @@ class Household(Agent):
     ):
 
         weights = []
-        multiple_cap = 50  # An arbritrary cap to prevent math.exp overflowing
+        multiple_cap = 50  # An arbitrary cap to prevent math.exp overflowing
 
         for heating_system in costs.keys():
             cost_as_proportion_of_budget = min(
@@ -475,10 +483,18 @@ class Household(Agent):
         self.heating_system = heating_system
         self.heating_system_install_date = model.current_datetime.date()
 
+        if self.boiler_upgrade_grant_available:
+            if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
+                self.boiler_upgrade_grant_used = 5_000
+            if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
+                self.boiler_upgrade_grant_used = 6_000
+
     def update_heating_status(self, model: "DomesticHeatingABM") -> None:
 
         self.epc_c_upgrade_costs = {}
         self.heating_system_total_costs = {}
+        self.boiler_upgrade_grant_available = False
+        self.boiler_upgrade_grant_used = 0
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         probability_density = weibull_hazard_rate(

@@ -43,6 +43,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.air_source_heat_pump_discount_factor_2022 = (
             air_source_heat_pump_discount_factor_2022
         )
+        self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
 
         super().__init__(UnorderedSpace())
 
@@ -57,8 +58,21 @@ class DomesticHeatingABM(AgentBasedModel):
             month = self.current_datetime.month
             return 1 - (month / 12 * self.air_source_heat_pump_discount_factor_2022)
 
+    @property
+    def boiler_upgrade_scheme_spend_gbp(self) -> int:
+        return sum(
+            [
+                agent.boiler_upgrade_grant_used
+                for agent in self.space.agents
+                if isinstance(agent, Household)
+            ]
+        )
+
     def increment_timestep(self):
         self.current_datetime += self.step_interval
+        self.boiler_upgrade_scheme_cumulative_spend_gbp += (
+            self.boiler_upgrade_scheme_spend_gbp
+        )
 
 
 def create_household_agents(
