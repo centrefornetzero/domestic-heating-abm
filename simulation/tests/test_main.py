@@ -65,6 +65,10 @@ class TestParseArgs:
         with pytest.raises(SystemExit):
             parse_args([*mandatory_args, "--heating-system-hassle-factor", "10"])
 
+    def test_help_flag(self):
+        with pytest.raises(SystemExit):
+            parse_args(["-h"])
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history
