@@ -19,7 +19,7 @@ ENV PYTHONHASHSEED=0
 FROM dependencies AS runtime
 
 COPY --chown=user . .
-ENTRYPOINT ["python", "-m", "app"]
+ENTRYPOINT ["python", "-m", "simulation"]
 
 
 FROM dependencies AS testrunner
