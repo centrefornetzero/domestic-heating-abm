@@ -473,6 +473,11 @@ class Household(Agent):
                 weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
 
+        #  Households for which all options are highly unaffordable (x10 out of budget) "repair" their existing heating system
+        threshold_weight = 1 / (1 + math.exp(10))
+        if all([w < threshold_weight for w in weights]):
+            return self.heating_system
+
         return random.choices(list(costs.keys()), weights)[0]
 
     def install_heating_system(
