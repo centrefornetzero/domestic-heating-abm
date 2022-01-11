@@ -177,10 +177,12 @@ class TestCosts:
             quote = future_quote
 
     @pytest.mark.parametrize("boiler", set(BOILERS))
-    def test_boiler_upgrade_scheme_grant_is_always_zero_for_boilers(self, boiler):
+    def test_boiler_upgrade_scheme_grant_is_zero_for_boilers_within_grant_window(
+        self, boiler
+    ):
 
-        start_datetime = datetime.datetime(2022, 1, 1, 0, 0)
-        end_datetime = datetime.datetime(2032, 1, 1, 0, 0)
+        start_datetime = datetime.datetime(2022, 4, 1, 0, 0)
+        end_datetime = datetime.datetime(2025, 4, 1, 0, 0)
         random_n_days = random.randrange((end_datetime - start_datetime).days)
         start_datetime = start_datetime + datetime.timedelta(days=random_n_days)
 
@@ -190,16 +192,13 @@ class TestCosts:
 
         assert estimate_boiler_upgrade_scheme_grant(boiler, model) == 0
 
-    @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
     def test_boiler_upgrade_scheme_grant_is_zero_when_outside_grant_window(
-        self, heat_pump
+        self, heating_system
     ):
 
-        model = model_factory(start_datetime=datetime.datetime(2023, 1, 1, 0, 0))
-        assert estimate_boiler_upgrade_scheme_grant(heat_pump, model) > 0
-
-        model.current_datetime = datetime.datetime(2027, 1, 1, 0, 0)
-        assert estimate_boiler_upgrade_scheme_grant(heat_pump, model) == 0
+        model = model_factory(start_datetime=datetime.datetime(2026, 1, 1, 0, 0))
+        assert estimate_boiler_upgrade_scheme_grant(heating_system, model) == 0
 
     @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
     def test_boiler_upgrade_scheme_grant_is_zero_when_grant_cap_exceeded(
