@@ -148,6 +148,7 @@ class Household(Agent):
         self.renovate_heating_system = False
         self.epc_c_upgrade_costs = {}
         self.heating_system_total_costs = {}
+        self.boiler_upgrade_grant_available = False
         self.boiler_upgrade_grant_used = 0
 
     @property
@@ -441,7 +442,8 @@ class Household(Agent):
 
         if model.intervention == InterventionType.BOILER_UPGRADE_SCHEME:
             subsidies = estimate_boiler_upgrade_scheme_grant(heating_system, model)
-            self.boiler_upgrade_grant_used += subsidies
+            if subsidies > 0:
+                self.boiler_upgrade_grant_available = True
 
         if model.intervention == InterventionType.RHI:
             rhi_annual_payment = estimate_rhi_annual_payment(self, heating_system)
@@ -481,10 +483,17 @@ class Household(Agent):
         self.heating_system = heating_system
         self.heating_system_install_date = model.current_datetime.date()
 
+        if self.boiler_upgrade_grant_available:
+            if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
+                self.boiler_upgrade_grant_used = 5_000
+            if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
+                self.boiler_upgrade_grant_used = 6_000
+
     def update_heating_status(self, model: "DomesticHeatingABM") -> None:
 
         self.epc_c_upgrade_costs = {}
         self.heating_system_total_costs = {}
+        self.boiler_upgrade_grant_available = False
         self.boiler_upgrade_grant_used = 0
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
