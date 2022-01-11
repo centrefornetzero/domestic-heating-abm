@@ -197,3 +197,4 @@ FLOOR_AREA_SQM_66TH_PERCENTILE = 89
 
 class InterventionType(enum.Enum):
     RHI = 0
+    BOILER_UPGRADE_SCHEME = 1

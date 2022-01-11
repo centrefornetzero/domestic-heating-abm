@@ -59,7 +59,7 @@ def parse_args(args=None):
 
     parser.add_argument(
         "--intervention",
-        choices=["rhi"],
+        choices=["rhi", "boiler_upgrade_scheme"],
         type=str,
     )
 
