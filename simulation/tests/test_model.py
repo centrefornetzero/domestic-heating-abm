@@ -13,7 +13,7 @@ from simulation.constants import (
     PropertyType,
 )
 from simulation.model import create_household_agents
-from simulation.tests.common import model_factory
+from simulation.tests.common import household_factory, model_factory
 
 
 class TestDomesticHeatingABM:
@@ -27,6 +27,32 @@ class TestDomesticHeatingABM:
 
         model.increment_timestep()
         assert model.current_datetime == start_datetime + step_interval
+
+    def test_increment_timestep_updates_boiler_upgrade_scheme_cumulative_spend_gbp(
+        self,
+    ) -> None:
+
+        model = model_factory()
+        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 0
+
+        household_using_boiler_upgrade_grant_ASHP = household_factory()
+        household_using_boiler_upgrade_grant_ASHP.boiler_upgrade_grant_used = 5_000
+
+        household_using_boiler_upgrade_grant_GSHP = household_factory()
+        household_using_boiler_upgrade_grant_GSHP.boiler_upgrade_grant_used = 6_000
+
+        model.add_agents(
+            [
+                household_using_boiler_upgrade_grant_ASHP,
+                household_using_boiler_upgrade_grant_GSHP,
+            ]
+        )
+
+        model.increment_timestep()
+        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 11_000
+
+        model.increment_timestep()
+        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 22_000
 
 
 def test_create_household_agents() -> None:
