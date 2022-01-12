@@ -146,10 +146,7 @@ class Household(Agent):
         self.is_renovating = False
         self.renovate_insulation = False
         self.renovate_heating_system = False
-        self.epc_c_upgrade_costs = {}
-        self.heating_system_total_costs = {}
-        self.boiler_upgrade_grant_available = False
-        self.boiler_upgrade_grant_used = 0
+        self.reset_previous_heating_decision_log()
 
     @property
     def heating_fuel(self) -> HeatingFuel:
@@ -455,7 +452,7 @@ class Household(Agent):
         if not model.intervention:
             subsidies = 0
 
-        return unit_and_install_costs + fuel_costs_net_present_value - subsidies
+        return unit_and_install_costs, fuel_costs_net_present_value, -subsidies
 
     def choose_heating_system(
         self, costs: Dict[HeatingSystem, float], heating_system_hassle_factor: float
@@ -494,12 +491,20 @@ class Household(Agent):
             if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
                 self.boiler_upgrade_grant_used = 6_000
 
-    def update_heating_status(self, model: "DomesticHeatingABM") -> None:
+    def reset_previous_heating_decision_log(self) -> None:
 
-        self.epc_c_upgrade_costs = {}
-        self.heating_system_total_costs = {}
+        # resets attributes specific to a previous heating system decision
+        self.heating_system_costs_unit_and_install = {}
+        self.heating_system_costs_fuel = {}
+        self.heating_system_costs_subsidies = {}
+        self.heating_system_costs_insulation = {}
+        self.insulation_element_upgrade_costs = {}
         self.boiler_upgrade_grant_available = False
         self.boiler_upgrade_grant_used = 0
+
+    def update_heating_status(self, model: "DomesticHeatingABM") -> None:
+
+        self.reset_previous_heating_decision_log()
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         probability_density = weibull_hazard_rate(
@@ -553,22 +558,46 @@ class Household(Agent):
                 event_trigger=EventTrigger.EPC_C_UPGRADE
             )
 
-            costs = {}
-            for heating_system in heating_system_options:
-                costs[heating_system] = self.get_total_heating_system_costs(
-                    heating_system, model
-                )
-                if heating_system in HEAT_PUMPS:
-                    costs[heating_system] += sum(chosen_insulation_costs.values())
+            costs_unit_and_install = {}
+            costs_fuel = {}
+            costs_subsidies = {}
+            costs_insulation = {}
 
-            self.heating_system_total_costs = costs
-            self.epc_c_upgrade_costs = chosen_insulation_costs
+            for heating_system in heating_system_options:
+
+                (
+                    costs_unit_and_install[heating_system],
+                    costs_fuel[heating_system],
+                    costs_subsidies[heating_system],
+                ) = self.get_total_heating_system_costs(heating_system, model)
+
+                if heating_system in HEAT_PUMPS:
+                    costs_insulation[heating_system] = sum(
+                        chosen_insulation_costs.values()
+                    )
+                else:
+                    costs_insulation[heating_system] = 0
+
+            heating_system_replacement_costs = {
+                heating_system: costs_unit_and_install[heating_system]
+                + costs_fuel[heating_system]
+                + costs_subsidies[heating_system]
+                + costs_insulation[heating_system]
+                for heating_system in heating_system_options
+            }
 
             chosen_heating_system = self.choose_heating_system(
-                costs, model.heating_system_hassle_factor
+                heating_system_replacement_costs, model.heating_system_hassle_factor
             )
 
             self.install_heating_system(chosen_heating_system, model)
             if chosen_heating_system in HEAT_PUMPS:
                 upgraded_insulation_elements = chosen_insulation_costs.keys()
                 self.install_insulation_elements(upgraded_insulation_elements)
+
+            # store all costs associated with heating system decisions as household attributes for simulation logging
+            self.heating_system_costs_unit_and_install = costs_unit_and_install
+            self.heating_system_costs_fuel = costs_fuel
+            self.heating_system_costs_subsidies = costs_subsidies
+            self.heating_system_costs_insulation = costs_insulation
+            self.insulation_element_upgrade_costs = chosen_insulation_costs

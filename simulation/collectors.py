@@ -133,43 +133,115 @@ def household_annual_heating_fuel_bill(household) -> int:
     return household.annual_heating_fuel_bill
 
 
-def household_epc_c_upgrade_cost_roof(household) -> int:
-    return int(household.epc_c_upgrade_costs.get(Element.ROOF) or 0)
+def household_element_upgrade_cost_roof(household) -> int:
+    return int(household.insulation_element_upgrade_costs.get(Element.ROOF) or 0)
 
 
-def household_epc_c_upgrade_cost_walls(household) -> int:
-    return int(household.epc_c_upgrade_costs.get(Element.WALLS) or 0)
+def household_element_upgrade_cost_walls(household) -> int:
+    return int(household.insulation_element_upgrade_costs.get(Element.WALLS) or 0)
 
 
-def household_epc_c_upgrade_cost_windows(household) -> int:
-    return int(household.epc_c_upgrade_costs.get(Element.GLAZING) or 0)
+def household_element_upgrade_cost_windows(household) -> int:
+    return int(household.insulation_element_upgrade_costs.get(Element.GLAZING) or 0)
 
 
-def household_heating_system_total_cost_boiler_gas(household) -> int:
-    return int(household.heating_system_total_costs.get(HeatingSystem.BOILER_GAS) or 0)
+def household_heating_system_costs_unit_and_install_boiler_gas(household) -> int:
+    return household.heating_system_costs_unit_and_install.get(HeatingSystem.BOILER_GAS)
 
 
-def household_heating_system_total_cost_boiler_oil(household) -> int:
-    return int(household.heating_system_total_costs.get(HeatingSystem.BOILER_OIL) or 0)
-
-
-def household_heating_system_total_cost_boiler_electric(household) -> int:
-    return int(
-        household.heating_system_total_costs.get(HeatingSystem.BOILER_ELECTRIC) or 0
+def household_heating_system_costs_unit_and_install_boiler_electric(household) -> int:
+    return household.heating_system_costs_unit_and_install.get(
+        HeatingSystem.BOILER_ELECTRIC
     )
 
 
-def household_heating_system_total_cost_heat_pump_air_source(household) -> int:
-    return int(
-        household.heating_system_total_costs.get(HeatingSystem.HEAT_PUMP_AIR_SOURCE)
-        or 0
+def household_heating_system_costs_unit_and_install_boiler_oil(household) -> int:
+    return household.heating_system_costs_unit_and_install.get(HeatingSystem.BOILER_OIL)
+
+
+def household_heating_system_costs_unit_and_install_heat_pump_air_source(
+    household,
+) -> int:
+    return household.heating_system_costs_unit_and_install.get(
+        HeatingSystem.HEAT_PUMP_AIR_SOURCE
     )
 
 
-def household_heating_system_total_cost_heat_pump_ground_source(household) -> int:
-    return int(
-        household.heating_system_total_costs.get(HeatingSystem.HEAT_PUMP_GROUND_SOURCE)
-        or 0
+def household_heating_system_costs_unit_and_install_heat_pump_ground_source(
+    household,
+) -> int:
+    return household.heating_system_costs_unit_and_install.get(
+        HeatingSystem.HEAT_PUMP_GROUND_SOURCE
+    )
+
+
+def household_heating_system_costs_fuel_boiler_gas(household) -> int:
+    return household.heating_system_costs_fuel.get(HeatingSystem.BOILER_GAS)
+
+
+def household_heating_system_costs_fuel_boiler_electric(household) -> int:
+    return household.heating_system_costs_fuel.get(HeatingSystem.BOILER_ELECTRIC)
+
+
+def household_heating_system_costs_fuel_boiler_oil(household) -> int:
+    return household.heating_system_costs_fuel.get(HeatingSystem.BOILER_OIL)
+
+
+def household_heating_system_costs_fuel_heat_pump_air_source(household) -> int:
+    return household.heating_system_costs_fuel.get(HeatingSystem.HEAT_PUMP_AIR_SOURCE)
+
+
+def household_heating_system_costs_fuel_heat_pump_ground_source(household) -> int:
+    return household.heating_system_costs_fuel.get(
+        HeatingSystem.HEAT_PUMP_GROUND_SOURCE
+    )
+
+
+def household_heating_system_costs_subsidies_boiler_gas(household) -> int:
+    return household.heating_system_costs_subsidies.get(HeatingSystem.BOILER_GAS)
+
+
+def household_heating_system_costs_subsidies_boiler_electric(household) -> int:
+    return household.heating_system_costs_subsidies.get(HeatingSystem.BOILER_ELECTRIC)
+
+
+def household_heating_system_costs_subsidies_boiler_oil(household) -> int:
+    return household.heating_system_costs_subsidies.get(HeatingSystem.BOILER_OIL)
+
+
+def household_heating_system_costs_subsidies_heat_pump_air_source(household) -> int:
+    return household.heating_system_costs_subsidies.get(
+        HeatingSystem.HEAT_PUMP_AIR_SOURCE
+    )
+
+
+def household_heating_system_costs_subsidies_heat_pump_ground_source(household) -> int:
+    return household.heating_system_costs_subsidies.get(
+        HeatingSystem.HEAT_PUMP_GROUND_SOURCE
+    )
+
+
+def household_heating_system_costs_insulation_boiler_gas(household) -> int:
+    return household.heating_system_costs_insulation.get(HeatingSystem.BOILER_GAS)
+
+
+def household_heating_system_costs_insulation_boiler_electric(household) -> int:
+    return household.heating_system_costs_insulation.get(HeatingSystem.BOILER_ELECTRIC)
+
+
+def household_heating_system_costs_insulation_boiler_oil(household) -> int:
+    return household.heating_system_costs_insulation.get(HeatingSystem.BOILER_OIL)
+
+
+def household_heating_system_costs_insulation_heat_pump_air_source(household) -> int:
+    return household.heating_system_costs_insulation.get(
+        HeatingSystem.HEAT_PUMP_AIR_SOURCE
+    )
+
+
+def household_heating_system_costs_insulation_heat_pump_ground_source(household) -> int:
+    return household.heating_system_costs_insulation.get(
+        HeatingSystem.HEAT_PUMP_GROUND_SOURCE
     )
 
 
@@ -225,14 +297,29 @@ def get_agent_collectors(
         household_is_renovating_heating_system,
         household_annual_kwh_heating_demand,
         household_annual_heating_fuel_bill,
-        household_epc_c_upgrade_cost_roof,
-        household_epc_c_upgrade_cost_walls,
-        household_epc_c_upgrade_cost_windows,
-        household_heating_system_total_cost_boiler_gas,
-        household_heating_system_total_cost_boiler_oil,
-        household_heating_system_total_cost_boiler_electric,
-        household_heating_system_total_cost_heat_pump_air_source,
-        household_heating_system_total_cost_heat_pump_ground_source,
+        household_element_upgrade_cost_roof,
+        household_element_upgrade_cost_walls,
+        household_element_upgrade_cost_windows,
+        household_heating_system_costs_unit_and_install_boiler_gas,
+        household_heating_system_costs_unit_and_install_boiler_electric,
+        household_heating_system_costs_unit_and_install_boiler_oil,
+        household_heating_system_costs_unit_and_install_heat_pump_air_source,
+        household_heating_system_costs_unit_and_install_heat_pump_ground_source,
+        household_heating_system_costs_fuel_boiler_gas,
+        household_heating_system_costs_fuel_boiler_electric,
+        household_heating_system_costs_fuel_boiler_oil,
+        household_heating_system_costs_fuel_heat_pump_air_source,
+        household_heating_system_costs_fuel_heat_pump_ground_source,
+        household_heating_system_costs_subsidies_boiler_gas,
+        household_heating_system_costs_subsidies_boiler_electric,
+        household_heating_system_costs_subsidies_boiler_oil,
+        household_heating_system_costs_subsidies_heat_pump_air_source,
+        household_heating_system_costs_subsidies_heat_pump_ground_source,
+        household_heating_system_costs_insulation_boiler_gas,
+        household_heating_system_costs_insulation_boiler_electric,
+        household_heating_system_costs_insulation_boiler_oil,
+        household_heating_system_costs_insulation_heat_pump_air_source,
+        household_heating_system_costs_insulation_heat_pump_ground_source,
         household_boiler_upgrade_grant_used,
     ]
 
