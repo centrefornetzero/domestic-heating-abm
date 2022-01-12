@@ -154,7 +154,7 @@ class Household(Agent):
         self.heating_system_costs_insulation = {}
         self.insulation_element_upgrade_costs = {}
 
-    @propertyheating_system_costs_insulation
+    @property
     def heating_fuel(self) -> HeatingFuel:
         return HEATING_SYSTEM_FUEL[self.heating_system]
 
