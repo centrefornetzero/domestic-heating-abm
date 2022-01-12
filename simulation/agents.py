@@ -147,12 +147,7 @@ class Household(Agent):
         self.renovate_insulation = False
         self.renovate_heating_system = False
         self.boiler_upgrade_grant_available = False
-        self.boiler_upgrade_grant_used = 0
-        self.heating_system_costs_unit_and_install = {}
-        self.heating_system_costs_fuel = {}
-        self.heating_system_costs_subsidies = {}
-        self.heating_system_costs_insulation = {}
-        self.insulation_element_upgrade_costs = {}
+        self.reset_previous_heating_decision_log()
 
     @property
     def heating_fuel(self) -> HeatingFuel:
