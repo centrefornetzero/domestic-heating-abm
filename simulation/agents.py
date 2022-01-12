@@ -458,11 +458,7 @@ class Household(Agent):
         if not model.intervention:
             subsidies = 0
 
-        return {
-            "unit_and_install_costs": unit_and_install_costs,
-            "fuel_costs_net_present_value": fuel_costs_net_present_value,
-            "subsidies": -subsidies,
-        }
+        return unit_and_install_costs, fuel_costs_net_present_value, -subsidies
 
     def choose_heating_system(
         self, costs: Dict[HeatingSystem, float], heating_system_hassle_factor: float
@@ -496,9 +492,9 @@ class Household(Agent):
             if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
                 self.boiler_upgrade_grant_used = 6_000
 
-    def update_heating_status(self, model: "DomesticHeatingABM") -> None:
+    def reset_previous_heating_decision_log(self) -> None:
 
-        # reset any values specific to a previous heating system decision made by household
+        # resets attributes specific to a previous heating system decision
         self.heating_system_costs_unit_and_install = {}
         self.heating_system_costs_fuel = {}
         self.heating_system_costs_subsidies = {}
@@ -506,6 +502,10 @@ class Household(Agent):
         self.insulation_element_upgrade_costs = {}
         self.boiler_upgrade_grant_available = False
         self.boiler_upgrade_grant_used = 0
+
+    def update_heating_status(self, model: "DomesticHeatingABM") -> None:
+
+        self.reset_previous_heating_decision_log()
 
         step_interval_years = model.step_interval / datetime.timedelta(days=365)
         probability_density = weibull_hazard_rate(
@@ -566,17 +566,11 @@ class Household(Agent):
 
             for heating_system in heating_system_options:
 
-                heating_system_costs = self.get_total_heating_system_costs(
-                    heating_system, model
-                )
-
-                costs_unit_and_install[heating_system] = heating_system_costs[
-                    "unit_and_install_costs"
-                ]
-                costs_fuel[heating_system] = heating_system_costs[
-                    "fuel_costs_net_present_value"
-                ]
-                costs_subsidies[heating_system] = heating_system_costs["subsidies"]
+                (
+                    costs_unit_and_install[heating_system],
+                    costs_fuel[heating_system],
+                    costs_subsidies[heating_system],
+                ) = self.get_total_heating_system_costs(heating_system, model)
 
                 if heating_system in HEAT_PUMPS:
                     costs_insulation[heating_system] = sum(

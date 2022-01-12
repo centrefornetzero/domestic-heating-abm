@@ -150,7 +150,9 @@ def household_heating_system_costs_unit_and_install_boiler_gas(household) -> int
 
 
 def household_heating_system_costs_unit_and_install_boiler_electric(household) -> int:
-    return household.heating_system_costs_unit_and_install.get(HeatingSystem.BOILER_ELECTRIC)
+    return household.heating_system_costs_unit_and_install.get(
+        HeatingSystem.BOILER_ELECTRIC
+    )
 
 
 def household_heating_system_costs_unit_and_install_boiler_oil(household) -> int:

@@ -536,12 +536,8 @@ class TestHousehold:
         model_with_rhi = model_factory(intervention="rhi")
 
         assert sum(
-            household.get_total_heating_system_costs(heat_pump, model_with_rhi).values()
-        ) < sum(
-            household.get_total_heating_system_costs(
-                heat_pump, model_without_rhi
-            ).values()
-        )
+            household.get_total_heating_system_costs(heat_pump, model_with_rhi)
+        ) < sum(household.get_total_heating_system_costs(heat_pump, model_without_rhi))
 
     @pytest.mark.parametrize("heating_system", list(HeatingSystem))
     def test_heating_fuel_costs_are_zero_for_landlords(self, heating_system):
@@ -587,9 +583,9 @@ class TestHousehold:
         assert sum(
             household.get_total_heating_system_costs(
                 heat_pump, model_with_boiler_upgrade_scheme
-            ).values()
+            )
         ) < sum(
             household.get_total_heating_system_costs(
                 heat_pump, model_without_boiler_upgrade_scheme
-            ).values()
+            )
         )
