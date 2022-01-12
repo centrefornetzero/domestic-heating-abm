@@ -177,8 +177,8 @@ RENO_PROBA_INSULATION_UPDATE = 0.33
 RENO_NUM_INSULATION_ELEMENTS_UPGRADED = {1: 0.76, 2: 0.17, 3: 0.07}
 
 # An amount a house may set aside for work related to home heating and energy efficiency
-# Expressed as a proportion of their total renovation budget (10%)
-HEATING_PROPORTION_OF_RENO_BUDGET = 0.1
+# Expressed as a proportion of their total renovation budget (20%)
+HEATING_PROPORTION_OF_RENO_BUDGET = 0.2
 
 # Upper bound on floor area sqm for to be classed as 'Small', by property type / built form
 # As per the segmentation used in Source: BEIS - WHAT DOES IT COST TO RETROFIT HOMES?

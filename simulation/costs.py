@@ -147,10 +147,12 @@ MEAN_COST_GBP_BOILER_ELECTRIC: Dict[PropertySize, int] = {
     PropertySize.LARGE: 2250 + BOILER_INSTALLATION_COST_GBP,
 }
 
+# SOURCE: https://energysavingtrust.org.uk/about-us/our-data/ (England, Scotland and Wales)
+# Fuel prices last updated in November 2021, based on predicted fuel prices for 2022
 HEATING_FUEL_PRICE_GBP_PER_KWH: Dict[HeatingFuel, float] = {
-    HeatingFuel.GAS: 0.038,
-    HeatingFuel.ELECTRICITY: 0.144,
-    HeatingFuel.OIL: 0.032,
+    HeatingFuel.GAS: 0.0465,
+    HeatingFuel.ELECTRICITY: 0.2006,
+    HeatingFuel.OIL: 0.0482,
 }
 
 # SOURCE: https://webarchive.nationalarchives.gov.uk/ukgwa/20121205193015/http:/www.decc.gov.uk/assets/decc/what%20we%20do/uk%20energy%20supply/energy%20mix/distributed%20energy%20heat/1467-potential-costs-district-heating-network.pdf
