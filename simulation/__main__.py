@@ -37,7 +37,7 @@ def parse_args(args=None):
 
     parser.add_argument("--steps", dest="time_steps", type=int, default=100)
     parser.add_argument("--heat-pump-awareness", type=float, default=0.4)
-    parser.add_argument("--annual-renovation-rate", type=float, default=0.05)
+    parser.add_argument("--annual-renovation-rate", type=float, default=0.1)
     parser.add_argument(
         "--household-num-lookahead-years",
         type=int,
@@ -53,7 +53,7 @@ def parse_args(args=None):
     parser.add_argument(
         "--heating-system-hassle-factor",
         type=float_between_0_and_1,
-        default=0.3,
+        default=0.1,
         help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
     )
 

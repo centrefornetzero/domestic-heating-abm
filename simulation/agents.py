@@ -468,10 +468,15 @@ class Household(Agent):
             cost_as_proportion_of_budget = min(
                 costs[heating_system] / self.renovation_budget, multiple_cap
             )
-            weight = 1 / (1 + math.exp(cost_as_proportion_of_budget))
+            weight = 1 / math.exp(cost_as_proportion_of_budget)
             if self.is_heating_system_hassle(heating_system):
                 weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
+
+        #  Households for which all options are highly unaffordable (x10 out of budget) "repair" their existing heating system
+        threshold_weight = 1 / math.exp(10)
+        if all([w < threshold_weight for w in weights]):
+            return self.heating_system
 
         return random.choices(list(costs.keys()), weights)[0]
 
