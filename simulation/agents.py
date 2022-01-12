@@ -146,7 +146,6 @@ class Household(Agent):
         self.is_renovating = False
         self.renovate_insulation = False
         self.renovate_heating_system = False
-        self.boiler_upgrade_grant_available = False
         self.reset_previous_heating_decision_log()
 
     @property
