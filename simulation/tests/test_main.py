@@ -30,6 +30,14 @@ def mandatory_local_args(households_file, output_file):
     return [households_file, output_file]
 
 
+@pytest.fixture
+def patch_read_gbq(monkeypatch):
+    def mock_read_gbq(query):
+        return pd.DataFrame()
+
+    monkeypatch.setattr(simulation.__main__.pd, "read_gbq", mock_read_gbq)
+
+
 class TestParseArgs:
     def test_mandatory_local_args(self, mandatory_local_args):
         args = parse_args(mandatory_local_args)
@@ -80,20 +88,13 @@ class TestParseArgs:
         with pytest.raises(SystemExit):
             parse_args(["-h"])
 
-    def test_bigquery_argument(self, output_file, monkeypatch):
-        MOCK_QUERY_RESULT = pd.DataFrame()
-
-        def mock_read_gbq(query):
-            return MOCK_QUERY_RESULT
-
-        monkeypatch.setattr(simulation.__main__.pd, "read_gbq", mock_read_gbq)
-
+    def test_bigquery_argument(self, output_file, patch_read_gbq):
         args = parse_args([output_file, "--bigquery", "select * from table"])
-        pd.testing.assert_frame_equal(args.households, MOCK_QUERY_RESULT)
+        assert isinstance(args.households, pd.DataFrame)
         assert args.history_file == output_file
 
     def test_bigquery_argument_and_households_file_are_mutually_exclusive(
-        self, households_file, output_file
+        self, households_file, output_file, patch_read_gbq
     ):
         with pytest.raises(SystemExit):
             parse_args(
