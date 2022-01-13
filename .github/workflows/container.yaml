@@ -37,3 +37,28 @@ jobs:
             "$ARTIFACT_REGISTRY"/docker/"${GITHUB_REPOSITORY#*/}":latest
           gcloud artifacts docker tags add "$ARTIFACT_REGISTRY"/docker/"${GITHUB_REPOSITORY#*/}":"$GITHUB_SHA"-testrunner \
             "$ARTIFACT_REGISTRY"/docker/"${GITHUB_REPOSITORY#*/}":latest-testrunner
+  deploy:
+    needs: build-test-push
+    environment: compute
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17'
+      - name: Install jsonnet
+        run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+      - uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DOMESTIC_HEATING_ABM_SA_KEY }}
+      - uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: cluster
+          location: europe-west2
+      - name: Set environment variables
+        run: |
+          echo "JOB_NAME=domestic-heating-abm-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "IMAGE_URI=$ARTIFACT_REGISTRY/docker/${GITHUB_REPOSITORY#*/}:latest" >> $GITHUB_ENV
+      - name: Generate and apply configurations
+        run: jsonnet --ext-str IMAGE_URI --ext-str JOB_NAME k8s/job.jsonnet | kubectl apply -f -
