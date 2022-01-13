@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+import simulation.__main__
 from abm import read_jsonlines
 from simulation.__main__ import parse_args
 
@@ -16,7 +17,7 @@ def output_file(tmp_path):
 
 
 @pytest.fixture
-def household_population_file(tmp_path):
+def households_file(tmp_path):
     households_csv_file = Path(__file__).parent / "household_population.csv"
     households = pd.read_csv(households_csv_file)
     households_parquet_file = tmp_path / "household_population.parquet"
@@ -25,14 +26,14 @@ def household_population_file(tmp_path):
 
 
 @pytest.fixture
-def mandatory_local_args(household_population_file, output_file):
-    return [household_population_file, output_file]
+def mandatory_local_args(households_file, output_file):
+    return [households_file, output_file]
 
 
 class TestParseArgs:
     def test_mandatory_local_args(self, mandatory_local_args):
         args = parse_args(mandatory_local_args)
-        assert isinstance(args.household_population_file, pd.DataFrame)
+        assert isinstance(args.households, pd.DataFrame)
         assert args.history_file == mandatory_local_args[1]
 
     def test_start_date_returns_datetime(self, mandatory_local_args):
@@ -78,6 +79,35 @@ class TestParseArgs:
     def test_help_flag(self):
         with pytest.raises(SystemExit):
             parse_args(["-h"])
+
+    def test_bigquery_argument(self, output_file, monkeypatch):
+        MOCK_QUERY_RESULT = pd.DataFrame()
+
+        def mock_read_gbq(query):
+            return MOCK_QUERY_RESULT
+
+        monkeypatch.setattr(simulation.__main__.pd, "read_gbq", mock_read_gbq)
+
+        args = parse_args([output_file, "--bigquery", "select * from table"])
+        pd.testing.assert_frame_equal(args.households, MOCK_QUERY_RESULT)
+        assert args.history_file == output_file
+
+    def test_bigquery_argument_and_households_file_are_mutually_exclusive(
+        self, households_file, output_file
+    ):
+        with pytest.raises(SystemExit):
+            parse_args(
+                [
+                    households_file,
+                    output_file,
+                    "--bigquery",
+                    "select * from table",
+                ]
+            )
+
+    def test_no_household_input_fails(self, output_file):
+        with pytest.raises(SystemExit):
+            parse_args([output_file])
 
 
 def assert_histories_equal(first_history, second_history):

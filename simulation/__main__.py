@@ -17,7 +17,15 @@ def parse_args(args=None):
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("household_population_file", type=pd.read_parquet)
+    households = parser.add_mutually_exclusive_group(required=True)
+    households.add_argument("households", type=pd.read_parquet, nargs="?")
+    households.add_argument(
+        "--bigquery",
+        help="Generate household agents from BigQuery result.",
+        dest="households",
+        type=pd.read_gbq,
+    )
+
     parser.add_argument("history_file")
 
     parser.add_argument(
@@ -103,7 +111,7 @@ if __name__ == "__main__":
         args.start_datetime,
         args.step_interval,
         args.time_steps,
-        args.household_population_file,
+        args.households,
         args.heat_pump_awareness,
         args.annual_renovation_rate,
         args.household_num_lookahead_years,
