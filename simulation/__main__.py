@@ -106,6 +106,12 @@ def parse_args(args=None):
         metavar="YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]]",
     )
 
+    parser.add_argument(
+        "--gas-oil-boiler-ban-date",
+        default=datetime.datetime(2035, 1, 1),
+        type=convert_to_datetime,
+    )
+
     return parser.parse_args(args)
 
 
@@ -125,6 +131,7 @@ if __name__ == "__main__":
         args.intervention,
         args.air_source_heat_pump_discount_factor_2022,
         args.all_agents_heat_pump_suitable,
+        args.gas_oil_boiler_ban_date,
     )
 
     write_jsonlines(history, args.history_file)

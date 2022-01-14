@@ -590,3 +590,26 @@ class TestHousehold:
                 heat_pump, model_without_boiler_upgrade_scheme
             )
         )
+
+    @pytest.mark.parametrize("event_trigger", set(EventTrigger))
+    def test_gas_and_oil_boilers_are_not_in_heating_options_if_gas_oil_ban_intervention_active(
+        self, event_trigger
+    ):
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0])
+
+        model_with_gas_oil_boiler_ban = model_factory(
+            start_datetime=datetime.datetime(2035, 3, 1),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
+        )
+
+        banned_heating_systems = [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
+        heating_system_options = household.get_heating_system_options(
+            model_with_gas_oil_boiler_ban, event_trigger=event_trigger
+        )
+
+        assert all(
+            heating_system not in heating_system_options
+            for heating_system in banned_heating_systems
+        )

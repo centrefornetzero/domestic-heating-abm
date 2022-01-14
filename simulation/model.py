@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Iterator, List, Optional
+from typing import Iterator, List, Optional, Set
 
 import pandas as pd
 
@@ -29,12 +29,12 @@ class DomesticHeatingABM(AgentBasedModel):
         heating_system_hassle_factor: float,
         interventions: Optional[List[InterventionType]],
         air_source_heat_pump_discount_factor_2022: float,
+        gas_oil_boiler_ban_datetime: datetime.datetime,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
         self.current_datetime = start_datetime
         self.annual_renovation_rate = annual_renovation_rate
-        self.heating_systems = set(HeatingSystem)
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
         self.interventions = interventions or []
@@ -42,8 +42,19 @@ class DomesticHeatingABM(AgentBasedModel):
             air_source_heat_pump_discount_factor_2022
         )
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
+        self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
 
         super().__init__(UnorderedSpace())
+
+    @property
+    def heating_systems(self) -> Set[HeatingSystem]:
+
+        if InterventionType.GAS_OIL_BOILER_BAN in self.interventions:
+            if self.current_datetime > self.gas_oil_boiler_ban_datetime:
+                return set(HeatingSystem).difference(
+                    [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
+                )
+        return set(HeatingSystem)
 
     @property
     def air_source_heat_pump_discount_factor(self) -> float:
@@ -124,6 +135,7 @@ def create_and_run_simulation(
     interventions: Optional[List[InterventionType]],
     air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
+    gas_oil_boiler_ban_datetime: datetime.datetime,
 ):
 
     model = DomesticHeatingABM(
@@ -134,6 +146,7 @@ def create_and_run_simulation(
         heating_system_hassle_factor=heating_system_hassle_factor,
         interventions=interventions,
         air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
+        gas_oil_boiler_ban_datetime=gas_oil_boiler_ban_datetime,
     )
 
     households = create_household_agents(
