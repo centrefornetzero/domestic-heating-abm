@@ -5,6 +5,7 @@ import random
 import pandas as pd
 
 from abm import write_jsonlines
+from simulation.constants import InterventionType
 from simulation.model import create_and_run_simulation
 
 
@@ -14,6 +15,19 @@ def parse_args(args=None):
 
     def convert_to_timedelta(minutes_string):
         return datetime.timedelta(minutes=int(minutes_string))
+
+    def float_between_0_and_1(value: str):
+        if 0 <= float(value) <= 1:
+            return float(value)
+        raise ValueError(f"Value must be between 0 and 1, got {value}")
+
+    def convert_str_to_intervention_list(intervention_string):
+        if intervention_string:
+            return [
+                InterventionType[intervention.upper()]
+                for intervention in intervention_string.split(",")
+            ]
+        return []
 
     parser = argparse.ArgumentParser()
 
@@ -53,11 +67,6 @@ def parse_args(args=None):
         help="The number of years households look ahead when making purchasing decisions; any cash flows to be exchanged further than this number of years in the future are valued at £0 by households",
     )
 
-    def float_between_0_and_1(value: str):
-        if 0 <= float(value) <= 1:
-            return float(value)
-        raise ValueError(f"Value must be between 0 and 1, got {value}")
-
     parser.add_argument(
         "--heating-system-hassle-factor",
         type=float_between_0_and_1,
@@ -66,9 +75,9 @@ def parse_args(args=None):
     )
 
     parser.add_argument(
-        "--intervention",
-        choices=["rhi", "boiler_upgrade_scheme"],
-        type=str,
+        "--interventions",
+        help="A comma separated list of interventions, without spaces. Valid list items are: rhi, boiler_upgrade_scheme.",
+        type=convert_str_to_intervention_list,
     )
 
     parser.add_argument(
@@ -116,7 +125,7 @@ if __name__ == "__main__":
         args.annual_renovation_rate,
         args.household_num_lookahead_years,
         args.heating_system_hassle_factor,
-        args.intervention,
+        args.interventions,
         args.air_source_heat_pump_discount_factor_2022,
         args.all_agents_heat_pump_suitable,
     )

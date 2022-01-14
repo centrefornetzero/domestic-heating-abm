@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Iterator
+from typing import Iterator, List
 
 import pandas as pd
 
@@ -27,7 +27,7 @@ class DomesticHeatingABM(AgentBasedModel):
         annual_renovation_rate,
         household_num_lookahead_years,
         heating_system_hassle_factor,
-        intervention,
+        interventions,
         air_source_heat_pump_discount_factor_2022,
     ):
         self.start_datetime = start_datetime
@@ -37,9 +37,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.heating_systems = set(HeatingSystem)
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
-        self.intervention = (
-            InterventionType[intervention.upper()] if intervention else None
-        )
+        self.interventions = interventions
         self.air_source_heat_pump_discount_factor_2022 = (
             air_source_heat_pump_discount_factor_2022
         )
@@ -123,7 +121,7 @@ def create_and_run_simulation(
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
-    intervention: str,
+    interventions: List[InterventionType],
     air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
 ):
@@ -134,7 +132,7 @@ def create_and_run_simulation(
         annual_renovation_rate=annual_renovation_rate,
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
-        intervention=intervention,
+        interventions=interventions,
         air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
     )
 
