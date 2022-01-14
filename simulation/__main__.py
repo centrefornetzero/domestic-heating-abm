@@ -1,6 +1,8 @@
 import argparse
 import datetime
+import os
 import random
+from functools import partial
 
 import pandas as pd
 
@@ -31,7 +33,7 @@ def parse_args(args=None):
     households.add_argument(
         "--bigquery",
         help="Generate household agents from BigQuery result.",
-        type=pd.read_gbq,
+        type=partial(pd.read_gbq, project_id=os.getenv("PROJECT_ID")),
     )
 
     parser.add_argument("history_file")

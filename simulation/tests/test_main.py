@@ -96,7 +96,7 @@ class TestParseArgs:
 
         assert args.history_file == output_file
 
-        mock_read_gbp.assert_called_with(query)
+        mock_read_gbp.assert_called_with(query, project_id=None)
         pd.testing.assert_frame_equal(args.bigquery, mock_read_gbp.return_value)
         assert args.households is None
 
