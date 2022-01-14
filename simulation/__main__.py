@@ -84,7 +84,7 @@ def parse_args(args=None):
         "--all-agents-heat-pump-suitable",
         default=False,
         type=bool,
-        help="When True, 100%% of households are assumed suitable for heat pumps. When False, households are assigned a heat pump suitability as per the source data file.",
+        help="When True, 100% of households are assumed suitable for heat pumps. When False, households are assigned a heat pump suitability as per the source data file.",
     )
 
     parser.add_argument(
