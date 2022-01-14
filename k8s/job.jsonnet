@@ -3,7 +3,7 @@
   kind: 'Job',
   metadata: {
     name: std.extVar('JOB_NAME'),
-    namespace: 'domestic-heating-abm'
+    namespace: 'domestic-heating-abm',
   },
   spec: {
     template: {
@@ -23,7 +23,7 @@
         nodeSelector: {
           'cloud.google.com/gke-spot': 'true',
         },
-        serviceAccountName: 'runner'
+        serviceAccountName: 'runner',
       },
     },
   },
