@@ -133,6 +133,12 @@ class TestParseArgs:
             InterventionType.BOILER_UPGRADE_SCHEME,
         ]
 
+    def test_gas_oil_boiler_ban_date_returns_datetime(self, mandatory_local_args):
+        args = parse_args(
+            [*mandatory_local_args, "--gas-oil-boiler-ban-date", "2030-01-01"]
+        )
+        assert args.gas_oil_boiler_ban_date == datetime.datetime(2030, 1, 1)
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history
