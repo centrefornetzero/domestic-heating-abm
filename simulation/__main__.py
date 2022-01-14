@@ -108,7 +108,7 @@ def parse_args(args=None):
 
     parser.add_argument(
         "--gas-oil-boiler-ban-date",
-        default=datetime.datetime(2035, 1, 1, 0, 0),
+        default=datetime.datetime(2035, 1, 1),
         type=convert_to_datetime,
     )
 

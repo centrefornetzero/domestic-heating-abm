@@ -599,9 +599,9 @@ class TestHousehold:
         household = household_factory(heating_system=random.choices(list(BOILERS))[0])
 
         model_with_gas_oil_boiler_ban = model_factory(
-            start_datetime=datetime.datetime(2035, 3, 1, 0, 0),
+            start_datetime=datetime.datetime(2035, 3, 1),
             interventions=[InterventionType.GAS_OIL_BOILER_BAN],
-            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1, 0, 0),
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
         )
 
         banned_heating_systems = [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
