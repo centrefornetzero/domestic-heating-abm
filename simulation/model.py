@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Iterator, List
+from typing import Iterator, List, Optional
 
 import pandas as pd
 
@@ -121,7 +121,7 @@ def create_and_run_simulation(
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
-    interventions: List[InterventionType],
+    interventions: Optional[List[InterventionType]],
     air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
 ):

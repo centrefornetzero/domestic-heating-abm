@@ -21,11 +21,8 @@ def parse_args(args=None):
             return float(value)
         raise ValueError(f"Value must be between 0 and 1, got {value}")
 
-    def convert_str_to_intervention_list(intervention_string):
-        return [
-            InterventionType[intervention.upper()]
-            for intervention in intervention_string.split(",")
-        ]
+    def map_string_to_intervention_type_enum(intervention):
+        return InterventionType[intervention.upper()]
 
     parser = argparse.ArgumentParser()
 
@@ -73,9 +70,10 @@ def parse_args(args=None):
     )
 
     parser.add_argument(
-        "--interventions",
-        help="A comma separated list of interventions, without spaces. Valid list items are: rhi, boiler_upgrade_scheme.",
-        type=convert_str_to_intervention_list,
+        "--intervention",
+        action="append",
+        help="Valid interventions are: rhi, boiler_upgrade_scheme.",
+        type=map_string_to_intervention_type_enum,
     )
 
     parser.add_argument(
@@ -123,7 +121,7 @@ if __name__ == "__main__":
         args.annual_renovation_rate,
         args.household_num_lookahead_years,
         args.heating_system_hassle_factor,
-        args.interventions,
+        args.intervention,
         args.air_source_heat_pump_discount_factor_2022,
         args.all_agents_heat_pump_suitable,
     )

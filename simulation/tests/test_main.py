@@ -9,6 +9,7 @@ import pytest
 import simulation.__main__
 from abm import read_jsonlines
 from simulation.__main__ import parse_args
+from simulation.constants import InterventionType
 
 
 @pytest.fixture
@@ -109,6 +110,22 @@ class TestParseArgs:
     def test_no_household_input_fails(self, output_file):
         with pytest.raises(SystemExit):
             parse_args([output_file])
+
+    def test_intervention_argument(self, mandatory_local_args):
+        args = parse_args(
+            [
+                *mandatory_local_args,
+                "--intervention",
+                "rhi",
+                "--intervention",
+                "boiler_upgrade_scheme",
+            ]
+        )
+
+        assert args.intervention == [
+            InterventionType.RHI,
+            InterventionType.BOILER_UPGRADE_SCHEME,
+        ]
 
 
 def assert_histories_equal(first_history, second_history):
