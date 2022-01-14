@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Iterator
+from typing import Iterator, List, Optional
 
 import pandas as pd
 
@@ -22,13 +22,13 @@ from simulation.constants import (
 class DomesticHeatingABM(AgentBasedModel):
     def __init__(
         self,
-        start_datetime,
-        step_interval,
-        annual_renovation_rate,
-        household_num_lookahead_years,
-        heating_system_hassle_factor,
-        intervention,
-        air_source_heat_pump_discount_factor_2022,
+        start_datetime: datetime.datetime,
+        step_interval: int,
+        annual_renovation_rate: float,
+        household_num_lookahead_years: int,
+        heating_system_hassle_factor: float,
+        interventions: Optional[List[InterventionType]],
+        air_source_heat_pump_discount_factor_2022: float,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -37,9 +37,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.heating_systems = set(HeatingSystem)
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
-        self.intervention = (
-            InterventionType[intervention.upper()] if intervention else None
-        )
+        self.interventions = interventions or []
         self.air_source_heat_pump_discount_factor_2022 = (
             air_source_heat_pump_discount_factor_2022
         )
@@ -123,7 +121,7 @@ def create_and_run_simulation(
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
-    intervention: str,
+    interventions: Optional[List[InterventionType]],
     air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
 ):
@@ -134,7 +132,7 @@ def create_and_run_simulation(
         annual_renovation_rate=annual_renovation_rate,
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
-        intervention=intervention,
+        interventions=interventions,
         air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
     )
 
