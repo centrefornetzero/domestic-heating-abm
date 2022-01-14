@@ -22,12 +22,10 @@ def parse_args(args=None):
         raise ValueError(f"Value must be between 0 and 1, got {value}")
 
     def convert_str_to_intervention_list(intervention_string):
-        if intervention_string:
-            return [
-                InterventionType[intervention.upper()]
-                for intervention in intervention_string.split(",")
-            ]
-        return []
+        return [
+            InterventionType[intervention.upper()]
+            for intervention in intervention_string.split(",")
+        ]
 
     parser = argparse.ArgumentParser()
 

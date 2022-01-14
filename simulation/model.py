@@ -37,7 +37,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.heating_systems = set(HeatingSystem)
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
-        self.interventions = interventions
+        self.interventions = interventions or []
         self.air_source_heat_pump_discount_factor_2022 = (
             air_source_heat_pump_discount_factor_2022
         )
