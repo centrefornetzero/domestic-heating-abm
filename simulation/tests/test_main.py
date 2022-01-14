@@ -2,6 +2,7 @@ import datetime
 import os
 import subprocess
 from pathlib import Path
+from unittest.mock import Mock
 
 import pandas as pd
 import pytest
@@ -32,11 +33,11 @@ def mandatory_local_args(households_file, output_file):
 
 
 @pytest.fixture
-def patch_read_gbq(monkeypatch):
-    def mock_read_gbq(query):
-        return pd.DataFrame()
-
-    monkeypatch.setattr(simulation.__main__.pd, "read_gbq", mock_read_gbq)
+def mock_read_gbp(monkeypatch):
+    mock = Mock()
+    mock.return_value = pd.DataFrame({"bq": ["mocked_return_value"]})
+    monkeypatch.setattr(simulation.__main__.pd, "read_gbq", mock)
+    return mock
 
 
 class TestParseArgs:
@@ -89,13 +90,18 @@ class TestParseArgs:
         with pytest.raises(SystemExit):
             parse_args(["-h"])
 
-    def test_bigquery_argument(self, output_file, patch_read_gbq):
-        args = parse_args([output_file, "--bigquery", "select * from table"])
-        assert isinstance(args.households, pd.DataFrame)
+    def test_bigquery_argument(self, output_file, mock_read_gbp):
+        query = "select * from table"
+        args = parse_args([output_file, "--bigquery", query])
+
         assert args.history_file == output_file
 
+        mock_read_gbp.assert_called_with(query)
+        pd.testing.assert_frame_equal(args.bigquery, mock_read_gbp.return_value)
+        assert args.households is None
+
     def test_bigquery_argument_and_households_file_are_mutually_exclusive(
-        self, households_file, output_file, patch_read_gbq
+        self, households_file, output_file, mock_read_gbp
     ):
         with pytest.raises(SystemExit):
             parse_args(
