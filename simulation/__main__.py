@@ -71,8 +71,8 @@ def parse_args(args=None):
     parser.add_argument(
         "--intervention",
         action="append",
-        help="Valid interventions are: " + ', '.join(member.name for member in InterventionType)
-'RHI, BOILER_UPGRADE_SCHEME',
+        help="Valid interventions are: "
+        + ", ".join(member.name for member in InterventionType),
         type=map_string_to_intervention_type_enum,
     )
 

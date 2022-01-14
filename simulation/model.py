@@ -22,13 +22,13 @@ from simulation.constants import (
 class DomesticHeatingABM(AgentBasedModel):
     def __init__(
         self,
-        start_datetime,
-        step_interval,
-        annual_renovation_rate,
-        household_num_lookahead_years,
-        heating_system_hassle_factor,
-        interventions,
-        air_source_heat_pump_discount_factor_2022,
+        start_datetime: datetime.datetime,
+        step_interval: int,
+        annual_renovation_rate: float,
+        household_num_lookahead_years: int,
+        heating_system_hassle_factor: float,
+        interventions: Optional[List[InterventionType]],
+        air_source_heat_pump_discount_factor_2022: float,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
