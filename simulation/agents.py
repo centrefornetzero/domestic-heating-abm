@@ -442,14 +442,14 @@ class Household(Agent):
             if subsidies > 0:
                 self.boiler_upgrade_grant_available = True
 
-        if InterventionType.RHI in model.interventions:
+        elif InterventionType.RHI in model.interventions:
             rhi_annual_payment = estimate_rhi_annual_payment(self, heating_system)
             subsidies = discount_annual_cash_flow(
                 discount_rate=self.discount_rate,
                 cashflow_gbp=rhi_annual_payment,
                 duration_years=7,
             )
-        if not model.interventions:
+        else:
             subsidies = 0
 
         return unit_and_install_costs, fuel_costs_net_present_value, -subsidies
