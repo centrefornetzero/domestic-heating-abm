@@ -3,7 +3,7 @@
   kind: 'Job',
   metadata: {
     name: std.extVar('JOB_NAME'),
-    namespace: 'domestic-heating-abm'
+    namespace: 'domestic-heating-abm',
   },
   spec: {
     template: {
@@ -13,17 +13,17 @@
             name: 'domestic-heating-abm',
             image: std.extVar('IMAGE_URI'),
             command: ['python', '-m', 'simulation'],
-            args: ['-h'],
-            env: {
-              PROJECT_ID: std.extVar('PROJECT_ID'),
-            },
+            args: ['--bigquery', 'select * from %s.prod_domestic_heating.dim_household_agents limit 1000' % std.extVar('PROJECT_ID'), 'output.jsonl'],
+            env: [
+              { name: 'PROJECT_ID', value: std.extVar('PROJECT_ID') },
+            ],
           },
         ],
         restartPolicy: 'Never',
         nodeSelector: {
           'cloud.google.com/gke-spot': 'true',
         },
-        serviceAccountName: 'runner'
+        serviceAccountName: 'runner',
       },
     },
   },
