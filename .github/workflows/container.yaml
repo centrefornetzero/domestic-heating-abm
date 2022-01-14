@@ -61,4 +61,6 @@ jobs:
           echo "JOB_NAME=domestic-heating-abm-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "IMAGE_URI=$ARTIFACT_REGISTRY/docker/${GITHUB_REPOSITORY#*/}:latest" >> $GITHUB_ENV
       - name: Generate and apply configurations
-        run: jsonnet --ext-str IMAGE_URI --ext-str JOB_NAME k8s/job.jsonnet | kubectl apply -f -
+        run: jsonnet --ext-str PROJECT_ID --ext-str IMAGE_URI --ext-str JOB_NAME k8s/job.jsonnet | kubectl apply -f -
+        env:
+          PROJECT_ID: ${{ secrets.GCP_DATA_WAREHOUSE_PROJECT_ID }}
