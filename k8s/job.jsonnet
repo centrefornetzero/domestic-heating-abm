@@ -14,6 +14,9 @@
             image: std.extVar('IMAGE_URI'),
             command: ['python', '-m', 'simulation'],
             args: ['-h'],
+            env: {
+              PROJECT_ID: std.extVar('PROJECT_ID'),
+            },
           },
         ],
         restartPolicy: 'Never',
