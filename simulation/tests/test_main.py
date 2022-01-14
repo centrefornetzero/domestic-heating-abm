@@ -96,7 +96,8 @@ class TestParseArgs:
         assert args.history_file == output_file
 
         mock_read_gbp.assert_called_with(query)
-        pd.testing.assert_frame_equal(args.households, mock_read_gbp.return_value)
+        pd.testing.assert_frame_equal(args.bigquery, mock_read_gbp.return_value)
+        assert args.households is None
 
     def test_bigquery_argument_and_households_file_are_mutually_exclusive(
         self, households_file, output_file, mock_read_gbp

@@ -22,7 +22,6 @@ def parse_args(args=None):
     households.add_argument(
         "--bigquery",
         help="Generate household agents from BigQuery result.",
-        dest="households",
         type=pd.read_gbq,
     )
 
@@ -106,12 +105,11 @@ if __name__ == "__main__":
     args = parse_args()
 
     random.seed(args.seed)
-
     history = create_and_run_simulation(
         args.start_datetime,
         args.step_interval,
         args.time_steps,
-        args.households,
+        args.households if args.households is not None else args.bigquery,
         args.heat_pump_awareness,
         args.annual_renovation_rate,
         args.household_num_lookahead_years,
