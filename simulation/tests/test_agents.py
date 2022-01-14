@@ -16,6 +16,7 @@ from simulation.constants import (
     EventTrigger,
     HeatingFuel,
     HeatingSystem,
+    InterventionType,
     OccupantType,
     PropertySize,
     PropertyType,
@@ -533,7 +534,7 @@ class TestHousehold:
         household = household_factory(heating_system=random.choices(list(BOILERS))[0])
 
         model_without_rhi = model_factory()
-        model_with_rhi = model_factory(intervention="rhi")
+        model_with_rhi = model_factory(interventions=[InterventionType.RHI])
 
         assert sum(
             household.get_total_heating_system_costs(heat_pump, model_with_rhi)
@@ -577,7 +578,7 @@ class TestHousehold:
         )
         model_with_boiler_upgrade_scheme = model_factory(
             start_datetime=datetime.datetime(2023, 1, 1, 0, 0),
-            intervention="boiler_upgrade_scheme",
+            interventions=[InterventionType.BOILER_UPGRADE_SCHEME],
         )
 
         assert sum(
