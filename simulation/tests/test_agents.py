@@ -615,13 +615,16 @@ class TestHousehold:
         )
 
     @pytest.mark.parametrize("event_trigger", set(EventTrigger))
+    @pytest.mark.parametrize("is_heat_pump_aware", [True, False])
     def test_heat_pump_suitable_households_can_choose_heat_pumps_in_all_event_triggers_and_irrespective_of_awareness_if_gas_oil_ban_intervention_active(
-        self, event_trigger
+        self,
+        event_trigger,
+        is_heat_pump_aware,
     ):
 
         household = household_factory(
             heating_system=random.choices(list(BOILERS))[0],
-            is_heat_pump_aware=random.choices([True, False])[0],
+            is_heat_pump_aware=is_heat_pump_aware,
             is_heat_pump_suitable_archetype=True,
         )
 
