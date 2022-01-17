@@ -185,8 +185,11 @@ def test_write_jsonlines_output_and_read_into_dataframe(tmp_path) -> None:
     ]
     filename = str(tmp_path / "filename.jsonl")
 
-    write_jsonlines(history, filename)
-    agent_history, model_history = read_jsonlines(filename)
+    with open(filename, "w") as file:
+        write_jsonlines(history, file)
+
+    with open(filename, "r") as file:
+        agent_history, model_history = read_jsonlines(file)
 
     pd.testing.assert_frame_equal(
         agent_history,

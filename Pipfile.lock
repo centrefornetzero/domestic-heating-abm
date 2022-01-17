@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8dc5b5fb13832794e9841e69ba5965a0fbdbc8a5620fc797698774881457f029"
+            "sha256": "384bd40795bcc15504459f5da59bd6ab18c6a5cef175e942fec88a0753a6c8ae"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -72,11 +72,11 @@
                 "pandas"
             ],
             "hashes": [
-                "sha256:d8cb58e50d8688cbcc1ca0562c7801f8524af3a8553f5d24f1d7353ce3a6c143",
-                "sha256:ff66d7d1f64795a855784706c3baa52d18fa0cd1cc4f0a150cf74268abb53ac0"
+                "sha256:09588ffdf0ae92673d980cdade81a371ff1852c043bebd8bab68a47fd69d8a1f",
+                "sha256:f3863ac4293f0a4585e44461d82b91f9239721ef33fc9575d401b4da7dc127bd"
             ],
             "markers": "python_version < '3.11' and python_version >= '3.6'",
-            "version": "==2.31.0"
+            "version": "==2.32.0"
         },
         "google-cloud-bigquery-storage": {
             "hashes": [
@@ -92,6 +92,13 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==2.2.1"
+        },
+        "google-cloud-storage": {
+            "hashes": [
+                "sha256:a57a15aead0f9dfbd4381f1bfdbe8bf89818a4bd75bab846cafcefb2db846c47",
+                "sha256:ec4be60bb223a3a960f0d01697d849b86d91cad815a84915a32ed3635e93a5e7"
+            ],
+            "version": "==2.0.0"
         },
         "google-crc32c": {
             "hashes": [
@@ -560,6 +567,17 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==1.16.0"
+        },
+        "smart-open": {
+            "extras": [
+                "gcs"
+            ],
+            "hashes": [
+                "sha256:71d14489da58b60ce12fc3ecb823facc59a8b23cd1b58edb97175640350d3a62",
+                "sha256:75abf758717a92a8f53aa96953f0c245c8cedf8e1e4184903db3659b419d4c17"
+            ],
+            "index": "pypi",
+            "version": "==5.2.1"
         },
         "tqdm": {
             "hashes": [
