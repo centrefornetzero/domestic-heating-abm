@@ -139,6 +139,19 @@ class TestParseArgs:
         )
         assert args.gas_oil_boiler_ban_date == datetime.datetime(2030, 1, 1)
 
+    def test_uuid_in_output_path_replaced_with_uuid_(
+        self, households_file, monkeypatch
+    ):
+        random_uuid = "RANDOM_ID"
+
+        def mock_uuid4():
+            return random_uuid
+
+        monkeypatch.setattr(simulation.__main__.uuid, "uuid4", mock_uuid4)
+
+        args = parse_args([households_file, "path/to/{uuid}/history.jsonl"])
+        assert args.history_file == f"path/to/{random_uuid}/history.jsonl"
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history
