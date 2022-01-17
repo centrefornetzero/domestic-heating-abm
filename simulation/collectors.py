@@ -93,8 +93,8 @@ def household_is_heat_pump_suitable_archetype(household) -> bool:
     return household.is_heat_pump_suitable_archetype
 
 
-def household_is_heat_pump_aware(household) -> bool:
-    return household.is_heat_pump_aware
+def household_is_heat_pump_aware_init(household) -> bool:
+    return household.is_heat_pump_aware_init
 
 
 def household_is_renovating(household) -> bool:
@@ -283,7 +283,7 @@ def get_agent_collectors(
         collect_when(model, is_first_timestep)(household_discount_rate),
         collect_when(model, is_first_timestep)(household_renovation_budget),
         collect_when(model, is_first_timestep)(household_is_heat_pump_suitable),
-        collect_when(model, is_first_timestep)(household_is_heat_pump_aware),
+        collect_when(model, is_first_timestep)(household_is_heat_pump_aware_init),
         household_heating_system,
         household_heating_system_previous,
         household_heating_functioning,

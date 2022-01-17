@@ -613,3 +613,19 @@ class TestHousehold:
             heating_system not in heating_system_options
             for heating_system in banned_heating_systems
         )
+
+    def test_households_are_aware_of_heat_pumps_if_gas_oil_ban_intervention_active(self):
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0],
+                                      is_heat_pump_aware=False)
+
+        model = model_factory()
+        assert not household.is_heat_pump_aware(model)
+
+        model_with_gas_oil_boiler_ban = model_factory(
+            start_datetime=datetime.datetime(2035, 3, 1),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
+        )
+
+        assert household.is_heat_pump_aware(model_with_gas_oil_boiler_ban)
