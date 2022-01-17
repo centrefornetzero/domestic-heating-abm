@@ -614,13 +614,16 @@ class TestHousehold:
             for heating_system in banned_heating_systems
         )
 
-    def test_households_are_aware_of_heat_pumps_if_gas_oil_ban_intervention_active(self):
+    @pytest.mark.parametrize("event_trigger", set(EventTrigger))
+    def test_heat_pump_suitable_households_can_choose_heat_pumps_in_all_event_triggers_and_irrespective_of_awareness_if_gas_oil_ban_intervention_active(
+        self, event_trigger
+    ):
 
-        household = household_factory(heating_system=random.choices(list(BOILERS))[0],
-                                      is_heat_pump_aware=False)
-
-        model = model_factory()
-        assert not household.is_heat_pump_aware(model)
+        household = household_factory(
+            heating_system=random.choices(list(BOILERS))[0],
+            is_heat_pump_aware=random.choices([True, False])[0],
+            is_heat_pump_suitable_archetype=True,
+        )
 
         model_with_gas_oil_boiler_ban = model_factory(
             start_datetime=datetime.datetime(2035, 3, 1),
@@ -628,4 +631,10 @@ class TestHousehold:
             gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
         )
 
-        assert household.is_heat_pump_aware(model_with_gas_oil_boiler_ban)
+        heating_system_options = household.get_heating_system_options(
+            model_with_gas_oil_boiler_ban, event_trigger=event_trigger
+        )
+
+        assert all(
+            heating_system in heating_system_options for heating_system in HEAT_PUMPS
+        )
