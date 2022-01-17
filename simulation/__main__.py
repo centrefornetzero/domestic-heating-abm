@@ -134,4 +134,5 @@ if __name__ == "__main__":
         args.gas_oil_boiler_ban_date,
     )
 
-    write_jsonlines(history, args.history_file)
+    with open(args.history_file, "w") as file:
+        write_jsonlines(history, file)

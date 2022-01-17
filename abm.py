@@ -9,6 +9,7 @@ from typing import (
     List,
     Optional,
     Set,
+    TextIO,
     Tuple,
     TypeVar,
 )
@@ -113,16 +114,14 @@ def collect_when(
     return collect_when_decorator
 
 
-def write_jsonlines(history: History, filename: str) -> None:
-    with open(filename, "w") as file:
-        for step in history:
-            file.write(json.dumps(step, default=str) + "\n")
+def write_jsonlines(history: History, file: TextIO) -> None:
+    for step in history:
+        file.write(json.dumps(step, default=str) + "\n")
 
 
-def read_jsonlines(filename: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    with open(filename, "r") as file:
-        decoded_lines = (json.loads(line) for line in file)
-        agent_history, model_history = zip(*decoded_lines)
+def read_jsonlines(file: TextIO) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    decoded_lines = (json.loads(line) for line in file)
+    agent_history, model_history = zip(*decoded_lines)
 
     flattened_agent_history = []
     for step, agents in enumerate(agent_history):
