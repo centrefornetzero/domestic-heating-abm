@@ -2,6 +2,7 @@ import argparse
 import datetime
 import os
 import random
+import uuid
 from functools import partial
 
 import pandas as pd
@@ -37,9 +38,13 @@ def parse_args(args=None):
         type=partial(pd.read_gbq, project_id=os.getenv("PROJECT_ID")),
     )
 
+    def format_uuid(str):
+        return str.format(uuid=uuid.uuid4())
+
     parser.add_argument(
         "history_file",
-        help="Local file or Google Cloud Storage URI. Suffix with .gz for compression.",
+        type=format_uuid,
+        help="Local file or Google Cloud Storage URI. Suffix with .gz for compression. Add {uuid} for random ID.",
     )
 
     parser.add_argument(
