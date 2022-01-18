@@ -6,7 +6,7 @@ import pandas as pd
 
 from abm import AgentBasedModel, UnorderedSpace
 from simulation.agents import Household
-from simulation.collectors import get_agent_collectors, model_collectors
+from simulation.collectors import get_agent_collectors, get_model_collectors
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
@@ -173,5 +173,6 @@ def create_and_run_simulation(
     model.add_agents(households)
 
     agent_collectors = get_agent_collectors(model)
+    model_collectors = get_model_collectors(model)
 
     return model.run(time_steps, agent_collectors, model_collectors)
