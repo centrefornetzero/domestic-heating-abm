@@ -90,12 +90,14 @@ class TestCosts:
             property_value_gbp=household.property_value_gbp * 1.1
         )
 
+        model = model_factory()
+
         assert household.discount_rate > wealthier_household.discount_rate
 
         assert get_heating_fuel_costs_net_present_value(
-            household, heating_system, num_look_ahead_years
+            household, heating_system, num_look_ahead_years, model
         ) < get_heating_fuel_costs_net_present_value(
-            wealthier_household, heating_system, num_look_ahead_years
+            wealthier_household, heating_system, num_look_ahead_years, model
         )
 
     @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))

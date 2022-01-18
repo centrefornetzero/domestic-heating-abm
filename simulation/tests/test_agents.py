@@ -613,3 +613,44 @@ class TestHousehold:
             heating_system not in heating_system_options
             for heating_system in banned_heating_systems
         )
+
+    def test_gas_boilers_have_higher_expected_fuel_costs_at_heating_decision_if_gas_prices_increase(
+        self,
+    ):
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0])
+
+        model = model_factory(
+            price_gbp_per_kwh_gas=0.0465,
+        )
+
+        _, costs_fuel, _ = household.get_total_heating_system_costs(
+            HeatingSystem.BOILER_GAS, model
+        )
+
+        model_with_higher_gas_price = model_factory(
+            price_gbp_per_kwh_gas=0.0465 * 1.2,
+        )
+
+        _, costs_fuel_higher_gas_price, _ = household.get_total_heating_system_costs(
+            HeatingSystem.BOILER_GAS, model_with_higher_gas_price
+        )
+
+        assert costs_fuel < costs_fuel_higher_gas_price
+
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_annual_heating_bills_increase_as_fuel_prices_increase(
+        self, heating_system
+    ):
+
+        household = household_factory(heating_system=heating_system)
+        model = model_factory()
+        model_with_increased_fuel_prices = model_factory(
+            price_gbp_per_kwh_gas=1,
+            price_gbp_per_kwh_electricity=1,
+            price_gbp_per_kwh_oil=1,
+        )
+
+        assert household.annual_heating_fuel_bill(
+            model
+        ) < household.annual_heating_fuel_bill(model_with_increased_fuel_prices)

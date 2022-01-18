@@ -129,10 +129,6 @@ def household_annual_kwh_heating_demand(household) -> int:
     return int(household.annual_kwh_heating_demand)
 
 
-def household_annual_heating_fuel_bill(household) -> int:
-    return household.annual_heating_fuel_bill
-
-
 def household_element_upgrade_cost_roof(household) -> int:
     return int(household.insulation_element_upgrade_costs.get(Element.ROOF) or 0)
 
@@ -296,7 +292,6 @@ def get_agent_collectors(
         household_is_renovating_insulation,
         household_is_renovating_heating_system,
         household_annual_kwh_heating_demand,
-        household_annual_heating_fuel_bill,
         household_element_upgrade_cost_roof,
         household_element_upgrade_cost_walls,
         household_element_upgrade_cost_windows,
