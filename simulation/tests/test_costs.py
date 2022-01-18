@@ -95,9 +95,9 @@ class TestCosts:
         assert household.discount_rate > wealthier_household.discount_rate
 
         assert get_heating_fuel_costs_net_present_value(
-            household, heating_system, num_look_ahead_years, model
+            household, heating_system, model
         ) < get_heating_fuel_costs_net_present_value(
-            wealthier_household, heating_system, num_look_ahead_years, model
+            wealthier_household, heating_system, model
         )
 
     @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))

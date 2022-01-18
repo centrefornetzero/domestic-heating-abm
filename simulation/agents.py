@@ -420,7 +420,6 @@ class Household(Agent):
             return get_heating_fuel_costs_net_present_value(
                 self,
                 heating_system,
-                model.household_num_lookahead_years,
                 model,
             )
 

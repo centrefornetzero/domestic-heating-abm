@@ -211,7 +211,6 @@ def discount_annual_cash_flow(
 def get_heating_fuel_costs_net_present_value(
     household: "Household",
     heating_system: HeatingSystem,
-    num_lookahead_years: int,
     model: "DomesticHeatingABM",
 ):
 
@@ -226,7 +225,9 @@ def get_heating_fuel_costs_net_present_value(
     )
 
     return discount_annual_cash_flow(
-        household.discount_rate, annual_heating_bill, num_lookahead_years
+        household.discount_rate,
+        annual_heating_bill,
+        model.household_num_lookahead_years,
     )
 
 
