@@ -43,12 +43,8 @@ class Agent:
 
 
 class AgentBasedModel:
-    def __init__(
-        self, space: Optional[UnorderedSpace] = None, **properties: Any
-    ) -> None:
+    def __init__(self, space: Optional[UnorderedSpace] = None) -> None:
         self.space = space if space else UnorderedSpace()
-        for attribute, value in properties.items():
-            setattr(self, attribute, value)
 
     def add_agent(self, agent: Agent) -> None:
         self.space.add_agent(agent)

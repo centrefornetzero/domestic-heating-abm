@@ -15,12 +15,6 @@ from abm import (
 
 
 class TestAgentBasedModel:
-    def test_create_abm_with_properties(self) -> None:
-        properties = {"a": 1, "b": 2}
-        model = AgentBasedModel(**properties)
-        assert model.a == 1
-        assert model.b == 2
-
     def test_add_agent_to_abm(self) -> None:
         model = AgentBasedModel()
         agent = Agent()
