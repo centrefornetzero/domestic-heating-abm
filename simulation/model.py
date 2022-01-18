@@ -31,9 +31,9 @@ class DomesticHeatingABM(AgentBasedModel):
         interventions: Optional[List[InterventionType]],
         air_source_heat_pump_discount_factor_2022: float,
         gas_oil_boiler_ban_datetime: datetime.datetime,
-        price_gbp_per_kwh_gas,
-        price_gbp_per_kwh_electricity,
-        price_gbp_per_kwh_oil,
+        price_gbp_per_kwh_gas: float,
+        price_gbp_per_kwh_electricity: float,
+        price_gbp_per_kwh_oil: float,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval

@@ -417,11 +417,7 @@ class Household(Agent):
     ):
 
         if self.occupant_type == OccupantType.OWNER_OCCUPIED:
-            return get_heating_fuel_costs_net_present_value(
-                self,
-                heating_system,
-                model,
-            )
+            return get_heating_fuel_costs_net_present_value(self, heating_system, model)
 
         # Fuel bills are generally paid by tenants; landlords/rented households will not consider fuel bill differences
         return 0
