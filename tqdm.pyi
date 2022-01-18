@@ -1,0 +1,3 @@
+from typing import Any, Iterator
+
+def trange(*args: Any, **kwargs: Any) -> Iterator[int]: ...

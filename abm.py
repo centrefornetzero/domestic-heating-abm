@@ -4,6 +4,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generic,
     Iterable,
     Iterator,
     List,
@@ -15,25 +16,25 @@ from typing import (
 )
 
 import pandas as pd
-from tqdm.auto import trange
+from tqdm import trange
 
+A = TypeVar("A", bound="Agent")
+M = TypeVar("M", bound="AgentBasedModel")
 T = TypeVar("T")
-AgentCallable = Callable[["Agent"], Any]
-ModelCallable = Callable[["AgentBasedModel"], Any]
-History = Iterator[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
+History = Iterable[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
 
 
-class UnorderedSpace:
+class UnorderedSpace(Generic[A]):
     def __init__(self) -> None:
-        self.agents: Set["Agent"] = set()
+        self.agents: Set[A] = set()
 
-    def add_agent(self, agent: "Agent") -> None:
+    def add_agent(self, agent: A) -> None:
         self.agents.add(agent)
 
-    def __contains__(self, agent: "Agent") -> bool:
+    def __contains__(self, agent: A) -> bool:
         return agent in self.agents
 
-    def __iter__(self) -> Iterator["Agent"]:
+    def __iter__(self) -> Iterator[A]:
         yield from self.agents
 
 
@@ -42,14 +43,14 @@ class Agent:
         raise NotImplementedError
 
 
-class AgentBasedModel:
-    def __init__(self, space: Optional[UnorderedSpace] = None) -> None:
-        self.space = space if space else UnorderedSpace()
+class AgentBasedModel(Generic[A]):
+    def __init__(self, space: Optional[UnorderedSpace[A]] = None) -> None:
+        self.space = space if space else UnorderedSpace[A]()
 
-    def add_agent(self, agent: Agent) -> None:
+    def add_agent(self, agent: A) -> None:
         self.space.add_agent(agent)
 
-    def add_agents(self, agents: Iterable[Agent]) -> None:
+    def add_agents(self, agents: Iterable[A]) -> None:
         for agent in agents:
             self.add_agent(agent)
 
@@ -59,8 +60,8 @@ class AgentBasedModel:
     def run(
         self,
         time_steps: int,
-        agent_callables: Optional[List[AgentCallable]] = None,
-        model_callables: Optional[List[ModelCallable]] = None,
+        agent_callables: Optional[List[Callable[[A], Any]]] = None,
+        model_callables: Optional[List[Callable[["AgentBasedModel[A]"], Any]]] = None,
     ) -> History:
         if agent_callables is None:
             agent_callables = []
@@ -94,7 +95,7 @@ class AgentBasedModel:
 
 
 def collect_when(
-    model: AgentBasedModel, condition: Callable[[AgentBasedModel], bool]
+    model: M, condition: Callable[[M], bool]
 ) -> Callable[[Callable[..., T]], Callable[..., Optional[T]]]:
     def collect_when_decorator(
         callable: Callable[..., T]

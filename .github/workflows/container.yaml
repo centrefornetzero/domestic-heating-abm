@@ -24,6 +24,8 @@ jobs:
             --build-arg BUILDKIT_INLINE_CACHE=1
       - name: Run pytest
         run: docker run "$ARTIFACT_REGISTRY"/docker/"${GITHUB_REPOSITORY#*/}":"$GITHUB_SHA"-testrunner pytest
+      - name: Run mypy
+        run: docker run "$ARTIFACT_REGISTRY"/docker/"${GITHUB_REPOSITORY#*/}":"$GITHUB_SHA"-testrunner mypy .
       - name: Check formatting
         run: docker run "$ARTIFACT_REGISTRY"/docker/"${GITHUB_REPOSITORY#*/}":"$GITHUB_SHA"-testrunner ./scripts/format_check.sh
       - name: Push images
