@@ -8,8 +8,10 @@ import pytest
 from abm import (
     Agent,
     AgentBasedModel,
+    History,
     UnorderedSpace,
     collect_when,
+    history_to_dataframes,
     read_jsonlines,
     write_jsonlines,
 )
@@ -176,9 +178,9 @@ class TestUnorderedSpace:
         assert set(space) == agents
 
 
-def test_write_jsonlines_output_and_read_into_dataframe(tmp_path: pathlib.Path) -> None:
-    today = datetime.date.today()
-    history = [
+def test_write_and_read_jsonlines_output(tmp_path: pathlib.Path) -> None:
+    today = datetime.date.today().isoformat()
+    history: History = [
         ([{"agent": 1}, {"agent": 2}], {"date": today, "attribute": "a"}),
         ([{"agent": 3}, {"agent": 4}], {"date": today, "attribute": "b"}),
     ]
@@ -188,14 +190,26 @@ def test_write_jsonlines_output_and_read_into_dataframe(tmp_path: pathlib.Path) 
         write_jsonlines(history, file)
 
     with open(filename, "r") as file:
-        agent_history, model_history = read_jsonlines(file)
+        deserialized_history = list(read_jsonlines(file))
+
+    assert history == deserialized_history
+
+
+def test_history_to_dataframe() -> None:
+    today = datetime.date.today().isoformat()
+    history: History = [
+        ([{"agent": 1}, {"agent": 2}], {"date": today, "attribute": "a"}),
+        ([{"agent": 3}, {"agent": 4}], {"date": today, "attribute": "b"}),
+    ]
+
+    agent_history_df, model_history_df = history_to_dataframes(history)
 
     pd.testing.assert_frame_equal(
-        agent_history,
+        agent_history_df,
         pd.DataFrame({"step": [0, 0, 1, 1], "agent": [1, 2, 3, 4]}),
     )
     pd.testing.assert_frame_equal(
-        model_history,
+        model_history_df,
         pd.DataFrame(
             {"step": [0, 1], "date": [str(today), str(today)], "attribute": ["a", "b"]},
         ),

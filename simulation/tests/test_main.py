@@ -168,14 +168,14 @@ def test_running_simulation_twice_gives_non_identical_results(
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        first_history = read_jsonlines(file)
+        first_history = list(read_jsonlines(file))
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        second_history = read_jsonlines(file)
+        second_history = list(read_jsonlines(file))
 
     with pytest.raises(AssertionError):
-        assert_histories_equal(first_history, second_history)
+        assert first_history == second_history
 
 
 def test_running_simulation_twice_with_same_seed_gives_identical_results(
@@ -193,13 +193,13 @@ def test_running_simulation_twice_with_same_seed_gives_identical_results(
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        first_history = read_jsonlines(file)
+        first_history = list(read_jsonlines(file))
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        second_history = read_jsonlines(file)
+        second_history = list(read_jsonlines(file))
 
-    assert_histories_equal(first_history, second_history)
+    assert first_history == second_history
 
 
 def test_python_hash_randomization_is_disabled():
