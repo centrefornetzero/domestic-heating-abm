@@ -153,26 +153,26 @@ class TestCosts:
             mansion, heat_pump
         ) == estimate_rhi_annual_payment(larger_mansion, heat_pump)
 
-    def test_air_source_heat_pumps_get_cheaper_across_2022(self):
+    def test_air_source_heat_pumps_get_cheaper_across_discount_schedule(self):
 
         household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
         model = model_factory(
-            start_datetime=datetime.datetime(2022, 1, 1, 0, 0),
-            air_source_heat_pump_discount_factor_2022=0.3,
+            start_datetime=datetime.datetime(2022, 1, 1),
+            air_source_heat_pump_price_discount_schedule=[
+                (datetime.datetime(2023, 1, 1), 0.7),
+            ],
         )
         quote = get_unit_and_install_costs(
             household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
         )
 
-        for n in range(1, 24):
+        for n in range(1, 12):
             model.current_datetime += relativedelta(months=1)
             future_quote = get_unit_and_install_costs(
                 household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
             )
             if n < 12:
                 assert quote > future_quote
-            if n >= 12:
-                assert quote == future_quote
 
             quote = future_quote
 

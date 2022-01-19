@@ -54,15 +54,15 @@ class TestDomesticHeatingABM:
         model.increment_timestep()
         assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 22_000
 
-    def test_heat_pump_price_discount_schedule_created_when_no_schedule_passed(
+    def test_air_source_heat_pump_price_discount_schedule_created_when_no_schedule_passed(
         self,
     ) -> None:
 
-        model = model_factory(heat_pump_price_discount_schedule=[])
+        model = model_factory(air_source_heat_pump_price_discount_schedule=[])
 
-        assert model.heat_pump_price_discount_schedule == {
-            model.start_datetime: 1,
-            model.end_datetime: 1,
+        assert model.air_source_heat_pump_price_discount_schedule == {
+            model.start_datetime: 0,
+            model.end_datetime: 0,
         }
 
     def test_heat_pump_price_discount_schedule_generated_for_full_simulation_when_partial_schedule_passed(
@@ -72,42 +72,42 @@ class TestDomesticHeatingABM:
         model = model_factory(
             start_datetime=datetime.datetime(2022, 1, 1),
             end_datetime=datetime.datetime(2035, 1, 1),
-            heat_pump_price_discount_schedule=[
-                (datetime.datetime(2023, 1, 1), 0.9),
-                (datetime.datetime(2026, 1, 1), 0.7),
+            air_source_heat_pump_price_discount_schedule=[
+                (datetime.datetime(2023, 1, 1), 0.1),
+                (datetime.datetime(2026, 1, 1), 0.2),
             ],
         )
 
-        assert model.heat_pump_price_discount_schedule == {
-            datetime.datetime(2022, 1, 1): 1,
-            datetime.datetime(2023, 1, 1): 0.9,
-            datetime.datetime(2026, 1, 1): 0.7,
-            datetime.datetime(2035, 1, 1): 0.7,
+        assert model.air_source_heat_pump_price_discount_schedule == {
+            datetime.datetime(2022, 1, 1): 0,
+            datetime.datetime(2023, 1, 1): 0.1,
+            datetime.datetime(2026, 1, 1): 0.2,
+            datetime.datetime(2035, 1, 1): 0.2,
         }
 
     def test_air_source_heat_pump_discount_factor_is_one_if_no_schedule_passed(self):
 
-        model = model_factory(heat_pump_price_discount_schedule=[])
+        model = model_factory(air_source_heat_pump_price_discount_schedule=[])
 
-        assert model.heat_pump_discount_factor == 1
+        assert model.air_source_heat_pump_discount_factor == 0
 
     def test_air_source_heat_pump_discount_factor_declines_if_passed_decreasing_price_schedule(
         self,
     ):
         model = model_factory(
             start_datetime=datetime.datetime(2022, 2, 1),
-            heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 2, 1), 1),
-                (datetime.datetime(2022, 4, 1), 0.7),
+            air_source_heat_pump_price_discount_schedule=[
+                (datetime.datetime(2022, 2, 1), 0),
+                (datetime.datetime(2022, 4, 1), 0.3),
             ],
         )
 
-        first_discount_factor = model.heat_pump_discount_factor
+        first_discount_factor = model.air_source_heat_pump_discount_factor
 
         model.increment_timestep()
-        second_discount_factor = model.heat_pump_discount_factor
+        second_discount_factor = model.air_source_heat_pump_discount_factor
 
-        assert second_discount_factor < first_discount_factor
+        assert first_discount_factor < second_discount_factor
 
 
 def test_create_household_agents() -> None:

@@ -46,8 +46,9 @@ def model_factory(**model_attributes):
         "household_num_lookahead_years": 3,
         "heating_system_hassle_factor": 0.7,
         "interventions": [],
-        "air_source_heat_pump_discount_factor_2022": 0,
         "gas_oil_boiler_ban_datetime": datetime.datetime(2035, 1, 1),
-        "heat_pump_price_discount_schedule": [(datetime.datetime(2022, 1, 1), 0.3)],
+        "air_source_heat_pump_price_discount_schedule": [
+            (datetime.datetime(2023, 1, 1), 0.3)
+        ],
     }
     return DomesticHeatingABM(**{**default_values, **model_attributes})

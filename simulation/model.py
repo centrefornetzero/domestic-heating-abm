@@ -29,9 +29,10 @@ class DomesticHeatingABM(AgentBasedModel):
         household_num_lookahead_years: int,
         heating_system_hassle_factor: float,
         interventions: Optional[List[InterventionType]],
-        air_source_heat_pump_discount_factor_2022: float,
         gas_oil_boiler_ban_datetime: datetime.datetime,
-        heat_pump_price_discount_schedule: List[Tuple[datetime.datetime, float]],
+        air_source_heat_pump_price_discount_schedule: List[
+            Tuple[datetime.datetime, float]
+        ],
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -41,14 +42,11 @@ class DomesticHeatingABM(AgentBasedModel):
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
         self.interventions = interventions or []
-        self.air_source_heat_pump_discount_factor_2022 = (
-            air_source_heat_pump_discount_factor_2022
-        )
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
         self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
-        self.heat_pump_price_discount_schedule = (
+        self.air_source_heat_pump_price_discount_schedule = (
             self.get_heat_pump_price_discount_schedule(
-                heat_pump_price_discount_schedule
+                air_source_heat_pump_price_discount_schedule
             )
         )
         super().__init__(UnorderedSpace())
@@ -66,23 +64,12 @@ class DomesticHeatingABM(AgentBasedModel):
     @property
     def air_source_heat_pump_discount_factor(self) -> float:
 
-        if self.current_datetime.year < 2022:
-            return 1
-        if self.current_datetime.year > 2022:
-            return 1 - self.air_source_heat_pump_discount_factor_2022
-        else:
-            month = self.current_datetime.month
-            return 1 - (month / 12 * self.air_source_heat_pump_discount_factor_2022)
-
-    @property
-    def heat_pump_discount_factor(self) -> float:
-
-        dates = list(self.heat_pump_price_discount_schedule.keys())
-        factors = list(self.heat_pump_price_discount_schedule.values())
+        dates = list(self.air_source_heat_pump_price_discount_schedule.keys())
+        factors = list(self.air_source_heat_pump_price_discount_schedule.values())
         date_ranges = list(zip(dates, dates[1:]))
 
         for idx, date_range in enumerate(date_ranges):
-            if date_range[idx] <= self.current_datetime <= date_range[idx+1]:
+            if date_range[idx] <= self.current_datetime <= date_range[idx + 1]:
                 proportion_through_range = (self.current_datetime - date_range[0]) / (
                     date_range[1] - date_range[0]
                 )
@@ -125,13 +112,13 @@ class DomesticHeatingABM(AgentBasedModel):
             first_date, last_date = min(price_change_dates), max(price_change_dates)
 
             if first_date > self.start_datetime:
-                discount_schedule[self.start_datetime] = 1
+                discount_schedule[self.start_datetime] = 0
 
             if last_date < self.end_datetime:
                 discount_schedule[self.end_datetime] = discount_schedule[last_date]
 
         else:
-            discount_schedule = {self.start_datetime: 1, self.end_datetime: 1}
+            discount_schedule = {self.start_datetime: 0, self.end_datetime: 0}
 
         return dict(sorted(discount_schedule.items()))
 
@@ -185,10 +172,9 @@ def create_and_run_simulation(
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
     interventions: Optional[List[InterventionType]],
-    air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
     gas_oil_boiler_ban_datetime: datetime.datetime,
-    heat_pump_price_discount_schedule: List[Tuple[datetime.datetime, float]],
+    air_source_heat_pump_price_discount_schedule: List[Tuple[datetime.datetime, float]],
 ):
 
     model = DomesticHeatingABM(
@@ -199,9 +185,8 @@ def create_and_run_simulation(
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
         interventions=interventions,
-        air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
         gas_oil_boiler_ban_datetime=gas_oil_boiler_ban_datetime,
-        heat_pump_price_discount_schedule=heat_pump_price_discount_schedule,
+        air_source_heat_pump_price_discount_schedule=air_source_heat_pump_price_discount_schedule,
     )
 
     households = create_household_agents(

@@ -98,13 +98,6 @@ def parse_args(args=None):
         help="When True, 100pc of households are assumed suitable for heat pumps. When False, households are assigned a heat pump suitability as per the source data file.",
     )
 
-    parser.add_argument(
-        "--air-source-heat-pump-discount-factor-2022",
-        type=float,
-        default=0.1,
-        help="A factor by which current (2021) air source heat pump unit+install costs will have declined by, as of the end of 2022",
-    )
-
     def check_string_is_isoformat_datetime(string) -> str:
         datetime.datetime.fromisoformat(string)
         return string
@@ -126,7 +119,7 @@ def parse_args(args=None):
     )
 
     parser.add_argument(
-        "--heat-pump-price-discount-date",
+        "--air-source-heat-pump-price-discount-date",
         action="append",
         type=map_string_to_datetime_float_tuple,
         help="A factor by which heat pump prices will fall by a specified date, provided in format 'YYYY-MM-DD:price_discount' (e.g. '2023-01-01:0.3')",
@@ -149,10 +142,9 @@ if __name__ == "__main__":
         args.household_num_lookahead_years,
         args.heating_system_hassle_factor,
         args.intervention,
-        args.air_source_heat_pump_discount_factor_2022,
         args.all_agents_heat_pump_suitable,
         args.gas_oil_boiler_ban_date,
-        args.heat_pump_price_discount_date,
+        args.air_source_heat_pump_price_discount_date,
     )
 
     if args.history_file.startswith("gs://"):
