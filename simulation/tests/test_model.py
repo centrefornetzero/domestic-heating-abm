@@ -54,6 +54,37 @@ class TestDomesticHeatingABM:
         model.increment_timestep()
         assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 22_000
 
+    def test_heat_pump_price_discount_schedule_created_when_no_schedule_passed(
+        self,
+    ) -> None:
+
+        model = model_factory(heat_pump_price_discount_schedule=[])
+
+        assert model.heat_pump_price_discount_schedule == {
+            model.start_datetime: 1,
+            model.end_datetime: 1,
+        }
+
+    def test_heat_pump_price_discount_schedule_generated_for_full_simulation_when_partial_schedule_passed(
+        self,
+    ) -> None:
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2022, 1, 1),
+            end_datetime=datetime.datetime(2035, 1, 1),
+            heat_pump_price_discount_schedule=[
+                (datetime.datetime(2023, 1, 1), 0.9),
+                (datetime.datetime(2026, 1, 1), 0.7),
+            ],
+        )
+
+        assert model.heat_pump_price_discount_schedule == {
+            datetime.datetime(2022, 1, 1): 1,
+            datetime.datetime(2023, 1, 1): 0.9,
+            datetime.datetime(2026, 1, 1): 0.7,
+            datetime.datetime(2035, 1, 1): 0.7,
+        }
+
 
 def test_create_household_agents() -> None:
     household_population = pd.DataFrame(

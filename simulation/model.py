@@ -24,6 +24,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self,
         start_datetime: datetime.datetime,
         step_interval: int,
+        end_datetime: datetime.datetime,
         annual_renovation_rate: float,
         household_num_lookahead_years: int,
         heating_system_hassle_factor: float,
@@ -34,6 +35,7 @@ class DomesticHeatingABM(AgentBasedModel):
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
+        self.end_datetime = end_datetime
         self.current_datetime = start_datetime
         self.annual_renovation_rate = annual_renovation_rate
         self.household_num_lookahead_years = household_num_lookahead_years
@@ -44,7 +46,11 @@ class DomesticHeatingABM(AgentBasedModel):
         )
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
         self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
-        self.heat_pump_price_discount_schedule = heat_pump_price_discount_schedule
+        self.heat_pump_price_discount_schedule = (
+            self.get_heat_pump_price_discount_schedule(
+                heat_pump_price_discount_schedule
+            )
+        )
         super().__init__(UnorderedSpace())
 
     @property
@@ -83,6 +89,34 @@ class DomesticHeatingABM(AgentBasedModel):
         self.boiler_upgrade_scheme_cumulative_spend_gbp += (
             self.boiler_upgrade_scheme_spend_gbp
         )
+
+    def get_heat_pump_price_discount_schedule(
+        self,
+        heat_pump_price_discount_schedule: Optional[
+            List[Tuple[datetime.datetime, float]]
+        ],
+    ):
+
+        if heat_pump_price_discount_schedule:
+
+            discount_schedule = {
+                schedule[0]: schedule[1]
+                for schedule in heat_pump_price_discount_schedule
+            }
+
+            price_change_dates = discount_schedule.keys()
+            first_date, last_date = min(price_change_dates), max(price_change_dates)
+
+            if first_date > self.start_datetime:
+                discount_schedule[self.start_datetime] = 1
+
+            if last_date < self.end_datetime:
+                discount_schedule[self.end_datetime] = discount_schedule[last_date]
+
+        else:
+            discount_schedule = {self.start_datetime: 1, self.end_datetime: 1}
+
+        return dict(sorted(discount_schedule.items()))
 
 
 def create_household_agents(
@@ -143,6 +177,7 @@ def create_and_run_simulation(
     model = DomesticHeatingABM(
         start_datetime=start_datetime,
         step_interval=step_interval,
+        end_datetime=start_datetime + step_interval * time_steps,
         annual_renovation_rate=annual_renovation_rate,
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
