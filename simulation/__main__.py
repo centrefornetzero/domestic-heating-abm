@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import pickle
 import random
 import uuid
 from functools import partial
@@ -143,8 +144,10 @@ if __name__ == "__main__":
         args.gas_oil_boiler_ban_date,
     )
 
-    if args.history_file.startswith("gs://"):
-        history = list(history)
+    history = list(history)
+
+    with open(args.history_file + ".pkl", "wb") as file:
+        pickle.dump(history, file)
 
     with smart_open.open(args.history_file, "w") as file:
         write_jsonlines(history, file)

@@ -1,5 +1,6 @@
 import datetime
 import os
+import pickle
 import subprocess
 from pathlib import Path
 from unittest.mock import Mock
@@ -198,6 +199,30 @@ def test_running_simulation_twice_with_same_seed_gives_identical_results(
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
         second_history = list(read_jsonlines(file))
+
+    assert first_history == second_history
+
+
+def test_running_simulation_twice_with_same_seed_gives_identical_results_with_pickle(
+    mandatory_local_args,
+):
+    args = [
+        "python",
+        "-m",
+        "simulation",
+        *mandatory_local_args,
+        "--seed",
+        "2021-01-01",
+    ]
+    history_file = mandatory_local_args[1]
+
+    subprocess.run(args, check=True)
+    with open(history_file + ".pkl", "rb") as file:
+        first_history = pickle.load(file)
+
+    subprocess.run(args, check=True)
+    with open(history_file + ".pkl", "rb") as file:
+        second_history = pickle.load(file)
 
     assert first_history == second_history
 
