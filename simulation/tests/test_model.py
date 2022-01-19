@@ -85,7 +85,7 @@ class TestDomesticHeatingABM:
             datetime.datetime(2035, 1, 1): 0.2,
         }
 
-    def test_air_source_heat_pump_discount_factor_is_one_if_no_schedule_passed(self):
+    def test_air_source_heat_pump_discount_factor_is_zero_if_no_schedule_passed(self):
 
         model = model_factory(air_source_heat_pump_price_discount_schedule=[])
 

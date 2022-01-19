@@ -1,5 +1,6 @@
 import datetime
 import random
+from bisect import bisect
 from typing import Iterator, List, Optional, Set, Tuple
 
 import pandas as pd
@@ -66,17 +67,15 @@ class DomesticHeatingABM(AgentBasedModel):
 
         dates = list(self.air_source_heat_pump_price_discount_schedule.keys())
         factors = list(self.air_source_heat_pump_price_discount_schedule.values())
-        date_ranges = list(zip(dates, dates[1:]))
+        index = bisect(dates, self.current_datetime)
 
-        for idx, date_range in enumerate(date_ranges):
-            if date_range[idx] <= self.current_datetime <= date_range[idx + 1]:
-                proportion_through_range = (self.current_datetime - date_range[0]) / (
-                    date_range[1] - date_range[0]
-                )
-                return (
-                    factors[idx]
-                    + (factors[idx + 1] - factors[idx]) * proportion_through_range
-                )
+        proportion_through_range = (self.current_datetime - dates[index - 1]) / (
+            dates[index] - dates[index - 1]
+        )
+        return (
+            factors[index - 1]
+            + (factors[index] - factors[index - 1]) * proportion_through_range
+        )
 
     @property
     def boiler_upgrade_scheme_spend_gbp(self) -> int:
