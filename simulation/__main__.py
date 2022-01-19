@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import pickle
 import random
 import uuid
 from functools import partial
@@ -118,6 +119,12 @@ def parse_args(args=None):
         type=convert_to_datetime,
     )
 
+    # SOURCE: Default values from https://energysavingtrust.org.uk/about-us/our-data/ (England, Scotland and Wales)
+    # These fuel prices were last updated in November 2021, based on predicted fuel prices for 2022
+    parser.add_argument("--price-gbp-per-kwh-gas", type=float, default=0.0465)
+    parser.add_argument("--price-gbp-per-kwh-electricity", type=float, default=0.2006)
+    parser.add_argument("--price-gbp-per-kwh-oil", type=float, default=0.0482)
+
     parser.add_argument(
         "--air-source-heat-pump-price-discount-date",
         action="append",
@@ -144,11 +151,16 @@ if __name__ == "__main__":
         args.intervention,
         args.all_agents_heat_pump_suitable,
         args.gas_oil_boiler_ban_date,
+        args.price_gbp_per_kwh_gas,
+        args.price_gbp_per_kwh_electricity,
+        args.price_gbp_per_kwh_oil,
         args.air_source_heat_pump_price_discount_date,
     )
 
-    if args.history_file.startswith("gs://"):
-        history = list(history)
+    history = list(history)
+
+    with open(args.history_file + ".pkl", "wb") as file:
+        pickle.dump(history, file)
 
     with smart_open.open(args.history_file, "w") as file:
         write_jsonlines(history, file)

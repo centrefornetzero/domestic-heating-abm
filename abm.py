@@ -9,7 +9,6 @@ from typing import (
     Iterator,
     List,
     Optional,
-    Set,
     TextIO,
     Tuple,
     TypeVar,
@@ -26,10 +25,10 @@ History = Iterable[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
 
 class UnorderedSpace(Generic[A]):
     def __init__(self) -> None:
-        self.agents: Set[A] = set()
+        self.agents: Dict[A, None] = dict()
 
     def add_agent(self, agent: A) -> None:
-        self.agents.add(agent)
+        self.agents[agent] = None
 
     def __contains__(self, agent: A) -> bool:
         return agent in self.agents
@@ -116,9 +115,13 @@ def write_jsonlines(history: History, file: TextIO) -> None:
         file.write(json.dumps(step, default=str) + "\n")
 
 
-def read_jsonlines(file: TextIO) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    decoded_lines = (json.loads(line) for line in file)
-    agent_history, model_history = zip(*decoded_lines)
+def read_jsonlines(file: TextIO) -> History:
+    for line in file:
+        yield tuple(json.loads(line))  # type: ignore
+
+
+def history_to_dataframes(history: History) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    agent_history, model_history = zip(*history)
 
     flattened_agent_history = []
     for step, agents in enumerate(agent_history):

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional
 
 from abm import collect_when
 from simulation.agents import Household
-from simulation.constants import Element, HeatingSystem
+from simulation.constants import Element, HeatingFuel, HeatingSystem
 
 if TYPE_CHECKING:
     from simulation.model import DomesticHeatingABM
@@ -127,10 +127,6 @@ def household_is_heat_pump_suitable(household) -> bool:
 
 def household_annual_kwh_heating_demand(household) -> int:
     return int(household.annual_kwh_heating_demand)
-
-
-def household_annual_heating_fuel_bill(household) -> int:
-    return household.annual_heating_fuel_bill
 
 
 def household_element_upgrade_cost_roof(household) -> int:
@@ -257,6 +253,18 @@ def model_boiler_upgrade_scheme_cumulative_spend_gbp(model) -> int:
     return model.boiler_upgrade_scheme_cumulative_spend_gbp
 
 
+def model_price_gbp_per_kwh_gas(model) -> float:
+    return model.fuel_price_gbp_per_kwh[HeatingFuel.GAS]
+
+
+def model_price_gbp_per_kwh_oil(model) -> float:
+    return model.fuel_price_gbp_per_kwh[HeatingFuel.OIL]
+
+
+def model_price_gbp_per_kwh_electricity(model) -> float:
+    return model.fuel_price_gbp_per_kwh[HeatingFuel.ELECTRICITY]
+
+
 def is_first_timestep(model: "DomesticHeatingABM") -> bool:
     return model.current_datetime == model.start_datetime + model.step_interval
 
@@ -296,7 +304,6 @@ def get_agent_collectors(
         household_is_renovating_insulation,
         household_is_renovating_heating_system,
         household_annual_kwh_heating_demand,
-        household_annual_heating_fuel_bill,
         household_element_upgrade_cost_roof,
         household_element_upgrade_cost_walls,
         household_element_upgrade_cost_windows,
@@ -324,7 +331,13 @@ def get_agent_collectors(
     ]
 
 
-model_collectors = [
-    model_current_datetime,
-    model_boiler_upgrade_scheme_cumulative_spend_gbp,
-]
+def get_model_collectors(
+    model: "DomesticHeatingABM",
+) -> List[Callable[["DomesticHeatingABM"], Any]]:
+    return [
+        model_current_datetime,
+        model_boiler_upgrade_scheme_cumulative_spend_gbp,
+        collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_gas),
+        collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_electricity),
+        collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_oil),
+    ]

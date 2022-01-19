@@ -7,7 +7,6 @@ import pandas as pd
 from simulation.constants import (
     FUEL_KWH_TO_HEAT_KWH,
     HEATING_SYSTEM_FUEL,
-    HeatingFuel,
     HeatingSystem,
     InsulationSegment,
     PropertySize,
@@ -147,14 +146,6 @@ MEAN_COST_GBP_BOILER_ELECTRIC: Dict[PropertySize, int] = {
     PropertySize.LARGE: 2250 + BOILER_INSTALLATION_COST_GBP,
 }
 
-# SOURCE: https://energysavingtrust.org.uk/about-us/our-data/ (England, Scotland and Wales)
-# Fuel prices last updated in November 2021, based on predicted fuel prices for 2022
-HEATING_FUEL_PRICE_GBP_PER_KWH: Dict[HeatingFuel, float] = {
-    HeatingFuel.GAS: 0.0465,
-    HeatingFuel.ELECTRICITY: 0.2006,
-    HeatingFuel.OIL: 0.0482,
-}
-
 # SOURCE: https://webarchive.nationalarchives.gov.uk/ukgwa/20121205193015/http:/www.decc.gov.uk/assets/decc/what%20we%20do/uk%20energy%20supply/energy%20mix/distributed%20energy%20heat/1467-potential-costs-district-heating-network.pdf
 # "First-time" installation costs (e.g. pipework, radiator upgrades, boreholes) are approximately 10% of total costs for ASHP, and 50% of total costs of a GSHP
 HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT = 0.1
@@ -219,7 +210,7 @@ def discount_annual_cash_flow(
 def get_heating_fuel_costs_net_present_value(
     household: "Household",
     heating_system: HeatingSystem,
-    num_lookahead_years: int,
+    model: "DomesticHeatingABM",
 ):
 
     SCALE_FACTOR_COP = (
@@ -229,11 +220,13 @@ def get_heating_fuel_costs_net_present_value(
     annual_heating_demand_kwh = household.annual_kwh_heating_demand * SCALE_FACTOR_COP
     annual_heating_bill = (
         annual_heating_demand_kwh
-        * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[heating_system]]
+        * model.fuel_price_gbp_per_kwh[HEATING_SYSTEM_FUEL[heating_system]]
     )
 
     return discount_annual_cash_flow(
-        household.discount_rate, annual_heating_bill, num_lookahead_years
+        household.discount_rate,
+        annual_heating_bill,
+        model.household_num_lookahead_years,
     )
 
 

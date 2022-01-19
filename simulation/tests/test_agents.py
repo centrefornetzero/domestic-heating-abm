@@ -613,3 +613,72 @@ class TestHousehold:
             heating_system not in heating_system_options
             for heating_system in banned_heating_systems
         )
+
+    def test_gas_boilers_have_higher_expected_fuel_costs_at_heating_decision_if_gas_prices_increase(
+        self,
+    ):
+
+        household = household_factory(heating_system=random.choices(list(BOILERS))[0])
+
+        model = model_factory(
+            price_gbp_per_kwh_gas=0.0465,
+        )
+
+        _, costs_fuel, _ = household.get_total_heating_system_costs(
+            HeatingSystem.BOILER_GAS, model
+        )
+
+        model_with_higher_gas_price = model_factory(
+            price_gbp_per_kwh_gas=0.0465 * 1.2,
+        )
+
+        _, costs_fuel_higher_gas_price, _ = household.get_total_heating_system_costs(
+            HeatingSystem.BOILER_GAS, model_with_higher_gas_price
+        )
+
+        assert costs_fuel < costs_fuel_higher_gas_price
+
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_annual_heating_bills_increase_as_fuel_prices_increase(
+        self, heating_system
+    ):
+
+        household = household_factory(heating_system=heating_system)
+        model = model_factory()
+        model_with_increased_fuel_prices = model_factory(
+            price_gbp_per_kwh_gas=1,
+            price_gbp_per_kwh_electricity=1,
+            price_gbp_per_kwh_oil=1,
+        )
+
+        assert household.annual_heating_fuel_bill(
+            model
+        ) < household.annual_heating_fuel_bill(model_with_increased_fuel_prices)
+
+    @pytest.mark.parametrize("event_trigger", set(EventTrigger))
+    @pytest.mark.parametrize("is_heat_pump_aware", [True, False])
+    def test_heat_pump_suitable_households_can_choose_heat_pumps_in_all_event_triggers_and_irrespective_of_awareness_if_gas_oil_ban_intervention_active(
+        self,
+        event_trigger,
+        is_heat_pump_aware,
+    ):
+
+        household = household_factory(
+            heating_system=random.choices(list(BOILERS))[0],
+            is_heat_pump_aware=is_heat_pump_aware,
+            is_heat_pump_suitable_archetype=True,
+        )
+
+        model_with_gas_oil_boiler_ban = model_factory(
+            start_datetime=datetime.datetime(2035, 3, 1),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
+        )
+
+        heating_system_options = household.get_heating_system_options(
+            model_with_gas_oil_boiler_ban, event_trigger=event_trigger
+        )
+
+        assert all(
+            heating_system in heating_system_options for heating_system in HEAT_PUMPS
+        )
