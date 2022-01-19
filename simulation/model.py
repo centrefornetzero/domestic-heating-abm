@@ -75,6 +75,23 @@ class DomesticHeatingABM(AgentBasedModel):
             return 1 - (month / 12 * self.air_source_heat_pump_discount_factor_2022)
 
     @property
+    def heat_pump_discount_factor(self) -> float:
+
+        dates = list(self.heat_pump_price_discount_schedule.keys())
+        factors = list(self.heat_pump_price_discount_schedule.values())
+        date_ranges = list(zip(dates, dates[1:]))
+
+        for idx, date_range in enumerate(date_ranges):
+            if date_range[idx] <= self.current_datetime <= date_range[idx+1]:
+                proportion_through_range = (self.current_datetime - date_range[0]) / (
+                    date_range[1] - date_range[0]
+                )
+                return (
+                    factors[idx]
+                    + (factors[idx + 1] - factors[idx]) * proportion_through_range
+                )
+
+    @property
     def boiler_upgrade_scheme_spend_gbp(self) -> int:
         return sum(
             [

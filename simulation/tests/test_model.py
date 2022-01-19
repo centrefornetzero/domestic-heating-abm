@@ -85,6 +85,30 @@ class TestDomesticHeatingABM:
             datetime.datetime(2035, 1, 1): 0.7,
         }
 
+    def test_air_source_heat_pump_discount_factor_is_one_if_no_schedule_passed(self):
+
+        model = model_factory(heat_pump_price_discount_schedule=[])
+
+        assert model.heat_pump_discount_factor == 1
+
+    def test_air_source_heat_pump_discount_factor_declines_if_passed_decreasing_price_schedule(
+        self,
+    ):
+        model = model_factory(
+            start_datetime=datetime.datetime(2022, 2, 1),
+            heat_pump_price_discount_schedule=[
+                (datetime.datetime(2022, 2, 1), 1),
+                (datetime.datetime(2022, 4, 1), 0.7),
+            ],
+        )
+
+        first_discount_factor = model.heat_pump_discount_factor
+
+        model.increment_timestep()
+        second_discount_factor = model.heat_pump_discount_factor
+
+        assert second_discount_factor < first_discount_factor
+
 
 def test_create_household_agents() -> None:
     household_population = pd.DataFrame(
