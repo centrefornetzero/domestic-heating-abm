@@ -9,7 +9,6 @@ from typing import (
     Iterator,
     List,
     Optional,
-    Set,
     TextIO,
     Tuple,
     TypeVar,
@@ -26,10 +25,10 @@ History = Iterable[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
 
 class UnorderedSpace(Generic[A]):
     def __init__(self) -> None:
-        self.agents: Set[A] = set()
+        self.agents: Dict[A, None] = dict()
 
     def add_agent(self, agent: A) -> None:
-        self.agents.add(agent)
+        self.agents[agent] = None
 
     def __contains__(self, agent: A) -> bool:
         return agent in self.agents
