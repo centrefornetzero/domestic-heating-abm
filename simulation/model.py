@@ -1,6 +1,6 @@
 import datetime
 import random
-from bisect import bisect
+from bisect import bisect_left
 from typing import Iterator, List, Optional, Set, Tuple
 
 import pandas as pd
@@ -77,7 +77,7 @@ class DomesticHeatingABM(AgentBasedModel):
 
         dates = list(self.air_source_heat_pump_price_discount_schedule)
         factors = list(self.air_source_heat_pump_price_discount_schedule.values())
-        index = bisect(dates, self.current_datetime)
+        index = bisect_left(dates, self.current_datetime)
 
         proportion_through_date_range = (self.current_datetime - dates[index - 1]) / (
             dates[index] - dates[index - 1]
