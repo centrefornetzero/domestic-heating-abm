@@ -65,7 +65,7 @@ class TestDomesticHeatingABM:
             model.end_datetime: 0,
         }
 
-    def test_heat_pump_price_discount_schedule_generated_for_full_simulation_when_partial_schedule_passed(
+    def test_air_source_heat_pump_price_discount_schedule_generated_for_full_simulation_when_partial_discount_schedule_passed(
         self,
     ) -> None:
 
@@ -85,13 +85,15 @@ class TestDomesticHeatingABM:
             datetime.datetime(2035, 1, 1): 0.2,
         }
 
-    def test_air_source_heat_pump_discount_factor_is_zero_if_no_schedule_passed(self):
+    def test_air_source_heat_pump_discount_factor_is_zero_if_no_discount_schedule_passed(
+        self,
+    ):
 
         model = model_factory(air_source_heat_pump_price_discount_schedule=[])
 
         assert model.air_source_heat_pump_discount_factor == 0
 
-    def test_air_source_heat_pump_discount_factor_declines_if_passed_decreasing_price_schedule(
+    def test_air_source_heat_pump_discount_factor_increases_if_passed_discount_schedule_of_increasing_factors(
         self,
     ):
         model = model_factory(
@@ -107,7 +109,7 @@ class TestDomesticHeatingABM:
         model.increment_timestep()
         second_discount_factor = model.air_source_heat_pump_discount_factor
 
-        assert first_discount_factor < second_discount_factor
+        assert second_discount_factor > first_discount_factor
 
 
 def test_create_household_agents() -> None:
