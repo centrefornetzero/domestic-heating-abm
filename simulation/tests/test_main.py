@@ -152,6 +152,22 @@ class TestParseArgs:
         args = parse_args([households_file, "path/to/{uuid}/history.jsonl"])
         assert args.history_file == f"path/to/{random_uuid}/history.jsonl"
 
+    def test_heat_pump_price_discount_date_argument(self, mandatory_local_args):
+        args = parse_args(
+            [
+                *mandatory_local_args,
+                "--heat-pump-price-discount-date",
+                "2022-01-01:0.3",
+                "--heat-pump-price-discount-date",
+                "2025-01-01:0.5",
+            ]
+        )
+
+        assert args.heat_pump_price_discount_date == [
+            (datetime.datetime(2022, 1, 1, 0, 0), 0.3),
+            (datetime.datetime(2025, 1, 1, 0, 0), 0.5),
+        ]
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history

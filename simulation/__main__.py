@@ -28,6 +28,10 @@ def parse_args(args=None):
     def map_string_to_intervention_type_enum(intervention):
         return InterventionType[intervention.upper()]
 
+    def map_string_to_datetime_float_tuple(date_price_discount_string):
+        date, price_discount = date_price_discount_string.split(":")
+        return datetime.datetime.strptime(date, "%Y-%m-%d"), float(price_discount)
+
     parser = argparse.ArgumentParser()
 
     households = parser.add_mutually_exclusive_group(required=True)
@@ -121,6 +125,13 @@ def parse_args(args=None):
         type=convert_to_datetime,
     )
 
+    parser.add_argument(
+        "--heat-pump-price-discount-date",
+        action="append",
+        type=map_string_to_datetime_float_tuple,
+        help="A factor by which heat pump prices will fall by a specified date, provided in format 'YYYY-MM-DD:price_discount' (e.g. '2023-01-01:0.3')",
+    )
+
     return parser.parse_args(args)
 
 
@@ -141,6 +152,7 @@ if __name__ == "__main__":
         args.air_source_heat_pump_discount_factor_2022,
         args.all_agents_heat_pump_suitable,
         args.gas_oil_boiler_ban_date,
+        args.heat_pump_price_discount_date,
     )
 
     if args.history_file.startswith("gs://"):

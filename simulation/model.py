@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Iterator, List, Optional, Set
+from typing import Iterator, List, Optional, Set, Tuple
 
 import pandas as pd
 
@@ -30,6 +30,7 @@ class DomesticHeatingABM(AgentBasedModel):
         interventions: Optional[List[InterventionType]],
         air_source_heat_pump_discount_factor_2022: float,
         gas_oil_boiler_ban_datetime: datetime.datetime,
+        heat_pump_price_discount_schedule: List[Tuple[datetime.datetime, float]],
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -43,7 +44,7 @@ class DomesticHeatingABM(AgentBasedModel):
         )
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
         self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
-
+        self.heat_pump_price_discount_schedule = heat_pump_price_discount_schedule
         super().__init__(UnorderedSpace())
 
     @property
@@ -136,6 +137,7 @@ def create_and_run_simulation(
     air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
     gas_oil_boiler_ban_datetime: datetime.datetime,
+    heat_pump_price_discount_schedule: List[Tuple[datetime.datetime, float]],
 ):
 
     model = DomesticHeatingABM(
@@ -147,6 +149,7 @@ def create_and_run_simulation(
         interventions=interventions,
         air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
         gas_oil_boiler_ban_datetime=gas_oil_boiler_ban_datetime,
+        heat_pump_price_discount_schedule=heat_pump_price_discount_schedule,
     )
 
     households = create_household_agents(
