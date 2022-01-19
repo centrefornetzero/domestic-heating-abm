@@ -20,4 +20,5 @@ jobs:
           key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-pipenv-${{ hashFiles('Pipfile.lock') }}
       - run: pipenv sync --dev
       - run: pipenv run pytest
+      - run: pipenv run mypy .
       - run: pipenv run ./scripts/format_check.sh

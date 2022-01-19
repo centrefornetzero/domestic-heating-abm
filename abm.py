@@ -4,36 +4,36 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generic,
     Iterable,
     Iterator,
     List,
     Optional,
-    Set,
     TextIO,
     Tuple,
     TypeVar,
 )
 
 import pandas as pd
-from tqdm.auto import trange
+from tqdm import trange
 
+A = TypeVar("A", bound="Agent")
+M = TypeVar("M", bound="AgentBasedModel")
 T = TypeVar("T")
-AgentCallable = Callable[["Agent"], Any]
-ModelCallable = Callable[["AgentBasedModel"], Any]
-History = Iterator[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
+History = Iterable[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
 
 
-class UnorderedSpace:
+class UnorderedSpace(Generic[A]):
     def __init__(self) -> None:
-        self.agents: Set["Agent"] = set()
+        self.agents: Dict[A, None] = dict()
 
-    def add_agent(self, agent: "Agent") -> None:
-        self.agents.add(agent)
+    def add_agent(self, agent: A) -> None:
+        self.agents[agent] = None
 
-    def __contains__(self, agent: "Agent") -> bool:
+    def __contains__(self, agent: A) -> bool:
         return agent in self.agents
 
-    def __iter__(self) -> Iterator["Agent"]:
+    def __iter__(self) -> Iterator[A]:
         yield from self.agents
 
 
@@ -42,18 +42,14 @@ class Agent:
         raise NotImplementedError
 
 
-class AgentBasedModel:
-    def __init__(
-        self, space: Optional[UnorderedSpace] = None, **properties: Any
-    ) -> None:
-        self.space = space if space else UnorderedSpace()
-        for attribute, value in properties.items():
-            setattr(self, attribute, value)
+class AgentBasedModel(Generic[A]):
+    def __init__(self, space: Optional[UnorderedSpace[A]] = None) -> None:
+        self.space = space if space else UnorderedSpace[A]()
 
-    def add_agent(self, agent: Agent) -> None:
+    def add_agent(self, agent: A) -> None:
         self.space.add_agent(agent)
 
-    def add_agents(self, agents: Iterable[Agent]) -> None:
+    def add_agents(self, agents: Iterable[A]) -> None:
         for agent in agents:
             self.add_agent(agent)
 
@@ -63,8 +59,8 @@ class AgentBasedModel:
     def run(
         self,
         time_steps: int,
-        agent_callables: Optional[List[AgentCallable]] = None,
-        model_callables: Optional[List[ModelCallable]] = None,
+        agent_callables: Optional[List[Callable[[A], Any]]] = None,
+        model_callables: Optional[List[Callable[["AgentBasedModel[A]"], Any]]] = None,
     ) -> History:
         if agent_callables is None:
             agent_callables = []
@@ -98,7 +94,7 @@ class AgentBasedModel:
 
 
 def collect_when(
-    model: AgentBasedModel, condition: Callable[[AgentBasedModel], bool]
+    model: M, condition: Callable[[M], bool]
 ) -> Callable[[Callable[..., T]], Callable[..., Optional[T]]]:
     def collect_when_decorator(
         callable: Callable[..., T]
@@ -119,9 +115,13 @@ def write_jsonlines(history: History, file: TextIO) -> None:
         file.write(json.dumps(step, default=str) + "\n")
 
 
-def read_jsonlines(file: TextIO) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    decoded_lines = (json.loads(line) for line in file)
-    agent_history, model_history = zip(*decoded_lines)
+def read_jsonlines(file: TextIO) -> History:
+    for line in file:
+        yield tuple(json.loads(line))  # type: ignore
+
+
+def history_to_dataframes(history: History) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    agent_history, model_history = zip(*history)
 
     flattened_agent_history = []
     for step, agents in enumerate(agent_history):

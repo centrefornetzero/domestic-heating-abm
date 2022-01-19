@@ -654,3 +654,31 @@ class TestHousehold:
         assert household.annual_heating_fuel_bill(
             model
         ) < household.annual_heating_fuel_bill(model_with_increased_fuel_prices)
+
+    @pytest.mark.parametrize("event_trigger", set(EventTrigger))
+    @pytest.mark.parametrize("is_heat_pump_aware", [True, False])
+    def test_heat_pump_suitable_households_can_choose_heat_pumps_in_all_event_triggers_and_irrespective_of_awareness_if_gas_oil_ban_intervention_active(
+        self,
+        event_trigger,
+        is_heat_pump_aware,
+    ):
+
+        household = household_factory(
+            heating_system=random.choices(list(BOILERS))[0],
+            is_heat_pump_aware=is_heat_pump_aware,
+            is_heat_pump_suitable_archetype=True,
+        )
+
+        model_with_gas_oil_boiler_ban = model_factory(
+            start_datetime=datetime.datetime(2035, 3, 1),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
+        )
+
+        heating_system_options = household.get_heating_system_options(
+            model_with_gas_oil_boiler_ban, event_trigger=event_trigger
+        )
+
+        assert all(
+            heating_system in heating_system_options for heating_system in HEAT_PUMPS
+        )

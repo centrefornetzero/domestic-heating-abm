@@ -391,8 +391,19 @@ class Household(Agent):
     ) -> Set[HeatingSystem]:
 
         heating_system_options = model.heating_systems.copy()
-        if not self.is_heat_pump_suitable or not self.is_heat_pump_aware:
+
+        is_gas_oil_boiler_ban_active = (
+            InterventionType.GAS_OIL_BOILER_BAN in model.interventions
+            and model.current_datetime >= model.gas_oil_boiler_ban_datetime
+        )
+
+        if not self.is_heat_pump_suitable:
             heating_system_options -= HEAT_PUMPS
+
+        if not is_gas_oil_boiler_ban_active:
+            # if a gas/boiler ban is active, we assume all households are aware of heat pumps
+            if not self.is_heat_pump_aware:
+                heating_system_options -= HEAT_PUMPS
 
         if self.is_off_gas_grid:
             heating_system_options -= {HeatingSystem.BOILER_GAS}
@@ -402,9 +413,9 @@ class Household(Agent):
         if self.property_size != PropertySize.SMALL:
             heating_system_options -= {HeatingSystem.BOILER_ELECTRIC}
 
-        if event_trigger == EventTrigger.BREAKDOWN:
-            # if household already has a heat pump, they can reinstall that type of heat pump in a breakdown
-            # heat pumps are otherwise unfeasible in a breakdown due to installation lead times
+        # heat pumps are unfeasible in a breakdown due to installation lead times
+        # exceptions: household already has a heat pump, or a gas/oil boiler ban is active
+        if event_trigger == EventTrigger.BREAKDOWN and not is_gas_oil_boiler_ban_active:
             unfeasible_heating_systems = HEAT_PUMPS - {self.heating_system}
             heating_system_options -= unfeasible_heating_systems
 
