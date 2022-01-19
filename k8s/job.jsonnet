@@ -13,7 +13,7 @@
             name: 'domestic-heating-abm',
             image: std.extVar('IMAGE_URI'),
             command: ['python', '-m', 'simulation'],
-            args: ['--bigquery', 'select * from %s.prod_domestic_heating.dim_household_agents limit 1000' % std.extVar('PROJECT_ID'), 'output.jsonl'],
+            args: ['--bigquery', 'select * from %s.prod_domestic_heating.dim_household_agents limit 1000' % std.extVar('PROJECT_ID'), 'gs://%/{uuid}/output.jsonl' % std.extVar('BUCKET_NAME')],
             env: [
               { name: 'PROJECT_ID', value: std.extVar('PROJECT_ID') },
             ],

@@ -1,7 +1,9 @@
 import argparse
 import datetime
 import os
+import pickle
 import random
+import uuid
 from functools import partial
 
 import pandas as pd
@@ -37,9 +39,13 @@ def parse_args(args=None):
         type=partial(pd.read_gbq, project_id=os.getenv("PROJECT_ID")),
     )
 
+    def format_uuid(str):
+        return str.format(uuid=uuid.uuid4())
+
     parser.add_argument(
         "history_file",
-        help="Local file or Google Cloud Storage URI. Suffix with .gz for compression.",
+        type=format_uuid,
+        help="Local file or Google Cloud Storage URI. Suffix with .gz for compression. Add {uuid} for random ID.",
     )
 
     parser.add_argument(
@@ -138,8 +144,10 @@ if __name__ == "__main__":
         args.gas_oil_boiler_ban_date,
     )
 
-    if args.history_file.startswith("gs://"):
-        history = list(history)
+    history = list(history)
+
+    with open(args.history_file + ".pkl", "wb") as file:
+        pickle.dump(history, file)
 
     with smart_open.open(args.history_file, "w") as file:
         write_jsonlines(history, file)

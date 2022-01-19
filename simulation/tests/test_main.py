@@ -1,11 +1,13 @@
 import datetime
 import os
+import pickle
 import subprocess
 from pathlib import Path
 from unittest.mock import Mock
 
 import pandas as pd
 import pytest
+import pytest_check as check
 
 import simulation.__main__
 from abm import read_jsonlines
@@ -139,6 +141,19 @@ class TestParseArgs:
         )
         assert args.gas_oil_boiler_ban_date == datetime.datetime(2030, 1, 1)
 
+    def test_uuid_in_output_path_replaced_with_uuid_(
+        self, households_file, monkeypatch
+    ):
+        random_uuid = "RANDOM_ID"
+
+        def mock_uuid4():
+            return random_uuid
+
+        monkeypatch.setattr(simulation.__main__.uuid, "uuid4", mock_uuid4)
+
+        args = parse_args([households_file, "path/to/{uuid}/history.jsonl"])
+        assert args.history_file == f"path/to/{random_uuid}/history.jsonl"
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history
@@ -155,14 +170,14 @@ def test_running_simulation_twice_gives_non_identical_results(
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        first_history = read_jsonlines(file)
+        first_history = list(read_jsonlines(file))
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        second_history = read_jsonlines(file)
+        second_history = list(read_jsonlines(file))
 
     with pytest.raises(AssertionError):
-        assert_histories_equal(first_history, second_history)
+        assert first_history == second_history
 
 
 def test_running_simulation_twice_with_same_seed_gives_identical_results(
@@ -180,13 +195,20 @@ def test_running_simulation_twice_with_same_seed_gives_identical_results(
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        first_history = read_jsonlines(file)
+        first_history_json = list(read_jsonlines(file))
+
+    with open(history_file + ".pkl", "rb") as file:
+        first_history_pickle = pickle.load(file)
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        second_history = read_jsonlines(file)
+        second_history_json = list(read_jsonlines(file))
 
-    assert_histories_equal(first_history, second_history)
+    with open(history_file + ".pkl", "rb") as file:
+        second_history_pickle = pickle.load(file)
+
+    check.equal(first_history_json, second_history_json)
+    check.equal(first_history_pickle, second_history_pickle)
 
 
 def test_python_hash_randomization_is_disabled():
