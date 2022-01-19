@@ -82,7 +82,6 @@ class TestCosts:
         heating_system,
     ) -> None:
 
-        num_look_ahead_years = random.randint(2, 10)
         household = household_factory(
             property_value_gbp=random.randint(50_000, 300_000)
         )
@@ -90,12 +89,15 @@ class TestCosts:
             property_value_gbp=household.property_value_gbp * 1.1
         )
 
+        num_look_ahead_years = random.randint(2, 10)
+        model = model_factory(household_num_lookahead_years=num_look_ahead_years)
+
         assert household.discount_rate > wealthier_household.discount_rate
 
         assert get_heating_fuel_costs_net_present_value(
-            household, heating_system, num_look_ahead_years
+            household, heating_system, model
         ) < get_heating_fuel_costs_net_present_value(
-            wealthier_household, heating_system, num_look_ahead_years
+            wealthier_household, heating_system, model
         )
 
     @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))

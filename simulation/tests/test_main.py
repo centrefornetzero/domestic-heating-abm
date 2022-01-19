@@ -154,6 +154,22 @@ class TestParseArgs:
         args = parse_args([households_file, "path/to/{uuid}/history.jsonl"])
         assert args.history_file == f"path/to/{random_uuid}/history.jsonl"
 
+    def test_fuel_price_arguments(self, mandatory_local_args):
+        args = parse_args(
+            [
+                *mandatory_local_args,
+                "--price-gbp-per-kwh-gas",
+                "0.03",
+                "--price-gbp-per-kwh-electricity",
+                "0.33",
+                "--price-gbp-per-kwh-oil",
+                "0.033",
+            ]
+        )
+        assert args.price_gbp_per_kwh_gas == 0.03
+        assert args.price_gbp_per_kwh_electricity == 0.33
+        assert args.price_gbp_per_kwh_oil == 0.033
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history

@@ -6,12 +6,13 @@ import pandas as pd
 
 from abm import AgentBasedModel, UnorderedSpace
 from simulation.agents import Household
-from simulation.collectors import get_agent_collectors, model_collectors
+from simulation.collectors import get_agent_collectors, get_model_collectors
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
     EPCRating,
+    HeatingFuel,
     HeatingSystem,
     InterventionType,
     OccupantType,
@@ -30,6 +31,9 @@ class DomesticHeatingABM(AgentBasedModel):
         interventions: Optional[List[InterventionType]],
         air_source_heat_pump_discount_factor_2022: float,
         gas_oil_boiler_ban_datetime: datetime.datetime,
+        price_gbp_per_kwh_gas: float,
+        price_gbp_per_kwh_electricity: float,
+        price_gbp_per_kwh_oil: float,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -43,6 +47,11 @@ class DomesticHeatingABM(AgentBasedModel):
         )
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
         self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
+        self.fuel_price_gbp_per_kwh = {
+            HeatingFuel.GAS: price_gbp_per_kwh_gas,
+            HeatingFuel.ELECTRICITY: price_gbp_per_kwh_electricity,
+            HeatingFuel.OIL: price_gbp_per_kwh_oil,
+        }
 
         super().__init__(UnorderedSpace())
 
@@ -136,6 +145,9 @@ def create_and_run_simulation(
     air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
     gas_oil_boiler_ban_datetime: datetime.datetime,
+    price_gbp_per_kwh_gas: float,
+    price_gbp_per_kwh_electricity: float,
+    price_gbp_per_kwh_oil: float,
 ):
 
     model = DomesticHeatingABM(
@@ -147,6 +159,9 @@ def create_and_run_simulation(
         interventions=interventions,
         air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
         gas_oil_boiler_ban_datetime=gas_oil_boiler_ban_datetime,
+        price_gbp_per_kwh_gas=price_gbp_per_kwh_gas,
+        price_gbp_per_kwh_electricity=price_gbp_per_kwh_electricity,
+        price_gbp_per_kwh_oil=price_gbp_per_kwh_oil,
     )
 
     households = create_household_agents(
@@ -158,5 +173,6 @@ def create_and_run_simulation(
     model.add_agents(households)
 
     agent_collectors = get_agent_collectors(model)
+    model_collectors = get_model_collectors(model)
 
     return model.run(time_steps, agent_collectors, model_collectors)

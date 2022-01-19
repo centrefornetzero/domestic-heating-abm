@@ -50,7 +50,6 @@ from simulation.constants import (
 from simulation.costs import (
     CAVITY_WALL_INSULATION_COST,
     DOUBLE_GLAZING_UPVC_COST,
-    HEATING_FUEL_PRICE_GBP_PER_KWH,
     INTERNAL_WALL_INSULATION_COST,
     LOFT_INSULATION_JOISTS_COST,
     discount_annual_cash_flow,
@@ -261,12 +260,11 @@ class Household(Agent):
             self.total_floor_area_m2 * HEATING_KWH_PER_SQM_ANNUAL
         ) / FUEL_KWH_TO_HEAT_KWH[self.heating_system]
 
-    @property
-    def annual_heating_fuel_bill(self) -> int:
+    def annual_heating_fuel_bill(self, model) -> int:
 
         return int(
             self.annual_kwh_heating_demand
-            * HEATING_FUEL_PRICE_GBP_PER_KWH[HEATING_SYSTEM_FUEL[self.heating_system]]
+            * model.fuel_price_gbp_per_kwh[HEATING_SYSTEM_FUEL[self.heating_system]]
         )
 
     def heating_system_age_years(self, current_date: datetime.date) -> float:
@@ -430,9 +428,7 @@ class Household(Agent):
     ):
 
         if self.occupant_type == OccupantType.OWNER_OCCUPIED:
-            return get_heating_fuel_costs_net_present_value(
-                self, heating_system, model.household_num_lookahead_years
-            )
+            return get_heating_fuel_costs_net_present_value(self, heating_system, model)
 
         # Fuel bills are generally paid by tenants; landlords/rented households will not consider fuel bill differences
         return 0
