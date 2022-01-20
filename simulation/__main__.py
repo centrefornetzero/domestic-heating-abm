@@ -1,7 +1,6 @@
 import argparse
 import datetime
 import os
-import pickle
 import random
 import uuid
 from functools import partial
@@ -37,7 +36,9 @@ def parse_args(args=None):
     households.add_argument(
         "--bigquery",
         help="Generate household agents from BigQuery result.",
-        type=partial(pd.read_gbq, project_id=os.getenv("PROJECT_ID")),
+        type=partial(
+            pd.read_gbq, project_id=os.getenv("PROJECT_ID"), use_bq_storage_api=True
+        ),
     )
 
     def format_uuid(str):
@@ -155,10 +156,8 @@ if __name__ == "__main__":
         args.price_gbp_per_kwh_oil,
     )
 
-    history = list(history)
-
-    with open(args.history_file + ".pkl", "wb") as file:
-        pickle.dump(history, file)
+    if args.history_file.startswith("gs://"):
+        history = list(history)
 
     with smart_open.open(args.history_file, "w") as file:
         write_jsonlines(history, file)
