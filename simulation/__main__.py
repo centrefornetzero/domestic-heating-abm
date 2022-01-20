@@ -62,7 +62,7 @@ def parse_args(args=None):
     parser.add_argument(
         "--step-interval",
         type=convert_to_months_relativedelta,
-        default=datetime.timedelta(minutes=1440),
+        default=relativedelta(months=1),
         metavar="MONTHS",
     )
 
