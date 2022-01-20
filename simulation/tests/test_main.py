@@ -1,13 +1,11 @@
 import datetime
 import os
-import pickle
 import subprocess
 from pathlib import Path
 from unittest.mock import Mock
 
 import pandas as pd
 import pytest
-import pytest_check as check
 
 import simulation.__main__
 from abm import read_jsonlines
@@ -213,20 +211,13 @@ def test_running_simulation_twice_with_same_seed_gives_identical_results(
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        first_history_json = list(read_jsonlines(file))
-
-    with open(history_file + ".pkl", "rb") as file:
-        first_history_pickle = pickle.load(file)
+        first_history = list(read_jsonlines(file))
 
     subprocess.run(args, check=True)
     with open(history_file, "r") as file:
-        second_history_json = list(read_jsonlines(file))
+        second_history = list(read_jsonlines(file))
 
-    with open(history_file + ".pkl", "rb") as file:
-        second_history_pickle = pickle.load(file)
-
-    check.equal(first_history_json, second_history_json)
-    check.equal(first_history_pickle, second_history_pickle)
+    assert first_history == second_history
 
 
 def test_python_hash_randomization_is_disabled():
