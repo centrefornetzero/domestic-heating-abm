@@ -2,7 +2,6 @@ import datetime
 import random
 
 import pytest
-from dateutil.relativedelta import relativedelta
 
 from simulation.constants import BOILERS, HEAT_PUMPS, HeatingSystem
 from simulation.costs import (
