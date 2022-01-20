@@ -8,6 +8,7 @@ from unittest.mock import Mock
 import pandas as pd
 import pytest
 import pytest_check as check
+from dateutil.relativedelta import relativedelta
 
 import simulation.__main__
 from abm import read_jsonlines
@@ -169,6 +170,10 @@ class TestParseArgs:
         assert args.price_gbp_per_kwh_gas == 0.03
         assert args.price_gbp_per_kwh_electricity == 0.33
         assert args.price_gbp_per_kwh_oil == 0.033
+
+    def test_step_interval_in_months(self, mandatory_local_args):
+        args = parse_args([*mandatory_local_args, "--step-interval", "3"])
+        assert args.step_interval == relativedelta(months=3)
 
 
 def assert_histories_equal(first_history, second_history):
