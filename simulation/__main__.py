@@ -29,6 +29,10 @@ def parse_args(args=None):
     def map_string_to_intervention_type_enum(intervention):
         return InterventionType[intervention.upper()]
 
+    def map_string_to_datetime_float_tuple(date_price_discount_string):
+        date, price_discount = date_price_discount_string.split(":")
+        return datetime.datetime.strptime(date, "%Y-%m-%d"), float(price_discount)
+
     parser = argparse.ArgumentParser()
 
     households = parser.add_mutually_exclusive_group(required=True)
@@ -96,10 +100,12 @@ def parse_args(args=None):
     )
 
     parser.add_argument(
-        "--air-source-heat-pump-discount-factor-2022",
-        type=float,
-        default=0.1,
-        help="A factor by which current (2021) air source heat pump unit+install costs will have declined by, as of the end of 2022",
+        "--air-source-heat-pump-price-discount-date",
+        action="append",
+        type=map_string_to_datetime_float_tuple,
+        default=[],
+        help="A factor by which heat pump prices will fall by a specified date.",
+        metavar="YYYY-MM-DD:price_discount",
     )
 
     def check_string_is_isoformat_datetime(string) -> str:
@@ -145,12 +151,12 @@ if __name__ == "__main__":
         args.household_num_lookahead_years,
         args.heating_system_hassle_factor,
         args.intervention,
-        args.air_source_heat_pump_discount_factor_2022,
         args.all_agents_heat_pump_suitable,
         args.gas_oil_boiler_ban_date,
         args.price_gbp_per_kwh_gas,
         args.price_gbp_per_kwh_electricity,
         args.price_gbp_per_kwh_oil,
+        args.air_source_heat_pump_price_discount_date,
     )
 
     history = list(history)
