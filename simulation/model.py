@@ -1,6 +1,7 @@
 import datetime
 import random
-from typing import Iterator, List, Optional, Set
+from bisect import bisect
+from typing import Iterator, List, Optional, Set, Tuple
 
 import pandas as pd
 
@@ -29,11 +30,13 @@ class DomesticHeatingABM(AgentBasedModel):
         household_num_lookahead_years: int,
         heating_system_hassle_factor: float,
         interventions: Optional[List[InterventionType]],
-        air_source_heat_pump_discount_factor_2022: float,
         gas_oil_boiler_ban_datetime: datetime.datetime,
         price_gbp_per_kwh_gas: float,
         price_gbp_per_kwh_electricity: float,
         price_gbp_per_kwh_oil: float,
+        air_source_heat_pump_price_discount_schedule: List[
+            Tuple[datetime.datetime, float]
+        ],
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -42,9 +45,6 @@ class DomesticHeatingABM(AgentBasedModel):
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
         self.interventions = interventions or []
-        self.air_source_heat_pump_discount_factor_2022 = (
-            air_source_heat_pump_discount_factor_2022
-        )
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
         self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
         self.fuel_price_gbp_per_kwh = {
@@ -52,6 +52,9 @@ class DomesticHeatingABM(AgentBasedModel):
             HeatingFuel.ELECTRICITY: price_gbp_per_kwh_electricity,
             HeatingFuel.OIL: price_gbp_per_kwh_oil,
         }
+        self.air_source_heat_pump_price_discount_schedule = sorted(
+            air_source_heat_pump_price_discount_schedule
+        )
 
         super().__init__(UnorderedSpace())
 
@@ -68,13 +71,20 @@ class DomesticHeatingABM(AgentBasedModel):
     @property
     def air_source_heat_pump_discount_factor(self) -> float:
 
-        if self.current_datetime.year < 2022:
-            return 1
-        if self.current_datetime.year > 2022:
-            return 1 - self.air_source_heat_pump_discount_factor_2022
-        else:
-            month = self.current_datetime.month
-            return 1 - (month / 12 * self.air_source_heat_pump_discount_factor_2022)
+        if self.air_source_heat_pump_price_discount_schedule:
+
+            step_dates, discount_factors = [
+                step for step in zip(*self.air_source_heat_pump_price_discount_schedule)
+            ]
+
+            index = bisect(step_dates, self.current_datetime)
+            current_date_precedes_first_discount_step = index == 0
+
+            if current_date_precedes_first_discount_step:
+                return 0
+            return discount_factors[index - 1]
+
+        return 0
 
     @property
     def boiler_upgrade_scheme_spend_gbp(self) -> int:
@@ -142,12 +152,12 @@ def create_and_run_simulation(
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
     interventions: Optional[List[InterventionType]],
-    air_source_heat_pump_discount_factor_2022: float,
     all_agents_heat_pump_suitable: bool,
     gas_oil_boiler_ban_datetime: datetime.datetime,
     price_gbp_per_kwh_gas: float,
     price_gbp_per_kwh_electricity: float,
     price_gbp_per_kwh_oil: float,
+    air_source_heat_pump_price_discount_schedule: List[Tuple[datetime.datetime, float]],
 ):
 
     model = DomesticHeatingABM(
@@ -157,11 +167,11 @@ def create_and_run_simulation(
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
         interventions=interventions,
-        air_source_heat_pump_discount_factor_2022=air_source_heat_pump_discount_factor_2022,
         gas_oil_boiler_ban_datetime=gas_oil_boiler_ban_datetime,
         price_gbp_per_kwh_gas=price_gbp_per_kwh_gas,
         price_gbp_per_kwh_electricity=price_gbp_per_kwh_electricity,
         price_gbp_per_kwh_oil=price_gbp_per_kwh_oil,
+        air_source_heat_pump_price_discount_schedule=air_source_heat_pump_price_discount_schedule,
     )
 
     households = create_household_agents(
