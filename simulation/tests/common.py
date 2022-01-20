@@ -1,5 +1,7 @@
 import datetime
 
+from dateutil.relativedelta import relativedelta
+
 from simulation.agents import Household
 from simulation.constants import (
     BuiltForm,
@@ -40,7 +42,7 @@ def household_factory(**agent_attributes):
 def model_factory(**model_attributes):
     default_values = {
         "start_datetime": datetime.datetime.now(),
-        "step_interval": datetime.timedelta(minutes=1440),
+        "step_interval": relativedelta(months=1),
         "annual_renovation_rate": 0.05,
         "household_num_lookahead_years": 3,
         "heating_system_hassle_factor": 0.7,

@@ -7,6 +7,7 @@ from functools import partial
 
 import pandas as pd
 import smart_open
+from dateutil.relativedelta import relativedelta
 
 from abm import write_jsonlines
 from simulation.constants import InterventionType
@@ -17,8 +18,8 @@ def parse_args(args=None):
     def convert_to_datetime(date_string):
         return datetime.datetime.strptime(date_string, "%Y-%m-%d")
 
-    def convert_to_timedelta(minutes_string):
-        return datetime.timedelta(minutes=int(minutes_string))
+    def convert_to_months_relativedelta(months_string):
+        return relativedelta(months=int(months_string))
 
     def float_between_0_and_1(value: str):
         if 0 <= float(value) <= 1:
@@ -64,8 +65,9 @@ def parse_args(args=None):
 
     parser.add_argument(
         "--step-interval",
-        type=convert_to_timedelta,
-        default=datetime.timedelta(minutes=1440),
+        type=convert_to_months_relativedelta,
+        default=relativedelta(months=1),
+        metavar="MONTHS",
     )
 
     parser.add_argument("--steps", dest="time_steps", type=int, default=100)
