@@ -34,8 +34,8 @@ class DomesticHeatingABM(AgentBasedModel):
         price_gbp_per_kwh_gas: float,
         price_gbp_per_kwh_electricity: float,
         price_gbp_per_kwh_oil: float,
-        air_source_heat_pump_price_discount_schedule: List[
-            Tuple[datetime.datetime, float]
+        air_source_heat_pump_price_discount_schedule: Optional[
+            List[Tuple[datetime.datetime, float]]
         ],
     ):
         self.start_datetime = start_datetime
@@ -52,8 +52,10 @@ class DomesticHeatingABM(AgentBasedModel):
             HeatingFuel.ELECTRICITY: price_gbp_per_kwh_electricity,
             HeatingFuel.OIL: price_gbp_per_kwh_oil,
         }
-        self.air_source_heat_pump_price_discount_schedule = sorted(
-            air_source_heat_pump_price_discount_schedule
+        self.air_source_heat_pump_price_discount_schedule = (
+            sorted(air_source_heat_pump_price_discount_schedule)
+            if air_source_heat_pump_price_discount_schedule
+            else None
         )
 
         super().__init__(UnorderedSpace())
@@ -73,9 +75,9 @@ class DomesticHeatingABM(AgentBasedModel):
 
         if self.air_source_heat_pump_price_discount_schedule:
 
-            step_dates, discount_factors = [
-                step for step in zip(*self.air_source_heat_pump_price_discount_schedule)
-            ]
+            step_dates, discount_factors = zip(
+                *self.air_source_heat_pump_price_discount_schedule
+            )
 
             index = bisect(step_dates, self.current_datetime)
             current_date_precedes_first_discount_step = index == 0
@@ -157,7 +159,9 @@ def create_and_run_simulation(
     price_gbp_per_kwh_gas: float,
     price_gbp_per_kwh_electricity: float,
     price_gbp_per_kwh_oil: float,
-    air_source_heat_pump_price_discount_schedule: List[Tuple[datetime.datetime, float]],
+    air_source_heat_pump_price_discount_schedule: Optional[
+        List[Tuple[datetime.datetime, float]]
+    ],
 ):
 
     model = DomesticHeatingABM(

@@ -58,7 +58,7 @@ class TestDomesticHeatingABM:
         self,
     ):
 
-        model = model_factory(air_source_heat_pump_price_discount_schedule=[])
+        model = model_factory(air_source_heat_pump_price_discount_schedule=None)
 
         assert model.air_source_heat_pump_discount_factor == 0
 
@@ -69,13 +69,16 @@ class TestDomesticHeatingABM:
         model = model_factory(
             start_datetime=datetime.datetime(2022, 2, 1),
             air_source_heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 2, 1), 0),
+                (datetime.datetime(2022, 2, 1), 0.1),
                 (datetime.datetime(2022, 2, 2), 0.3),
             ],
             step_interval=datetime.timedelta(minutes=1440),
         )
 
-        assert model.air_source_heat_pump_discount_factor == 0
+        assert model.air_source_heat_pump_discount_factor == 0.1
+
+        model.increment_timestep()
+        assert model.air_source_heat_pump_discount_factor == 0.3
 
         model.increment_timestep()
         assert model.air_source_heat_pump_discount_factor == 0.3

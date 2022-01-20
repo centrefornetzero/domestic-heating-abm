@@ -49,6 +49,6 @@ def model_factory(**model_attributes):
         "price_gbp_per_kwh_gas": 0.0465,
         "price_gbp_per_kwh_electricity": 0.2006,
         "price_gbp_per_kwh_oil": 0.0482,
-        "air_source_heat_pump_price_discount_schedule": [],
+        "air_source_heat_pump_price_discount_schedule": None,
     }
     return DomesticHeatingABM(**{**default_values, **model_attributes})

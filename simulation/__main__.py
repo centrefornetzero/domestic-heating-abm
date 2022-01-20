@@ -104,7 +104,6 @@ def parse_args(args=None):
         "--air-source-heat-pump-price-discount-date",
         action="append",
         type=map_string_to_datetime_float_tuple,
-        default=[],
         help="A factor by which heat pump prices will fall by a specified date.",
         metavar="YYYY-MM-DD:price_discount",
     )

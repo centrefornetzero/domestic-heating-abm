@@ -197,7 +197,7 @@ def get_unit_and_install_costs(
     if heating_system == HeatingSystem.BOILER_ELECTRIC:
         costs += MEAN_COST_GBP_BOILER_ELECTRIC[household.property_size]
 
-    return costs
+    return int(costs)
 
 
 def discount_annual_cash_flow(

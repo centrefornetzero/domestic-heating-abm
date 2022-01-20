@@ -154,14 +154,15 @@ class TestCosts:
             mansion, heat_pump
         ) == estimate_rhi_annual_payment(larger_mansion, heat_pump)
 
-    def test_air_source_heat_pumps_get_cheaper_across_discount_schedule(self):
+    def test_air_source_heat_pumps_unit_install_costs_are_adjusted_by_discount_factor_across_discount_schedule(self):
 
+        discount_factor = 0.3
         household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
         model = model_factory(
             start_datetime=datetime.datetime(2022, 1, 1),
             step_interval=datetime.timedelta(minutes=1440),
             air_source_heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 1, 2), 0.3),
+                (datetime.datetime(2022, 1, 2), discount_factor),
             ],
         )
         first_quote = get_unit_and_install_costs(
@@ -173,7 +174,7 @@ class TestCosts:
             household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
         )
 
-        assert later_quote < first_quote
+        assert later_quote == int((1 - discount_factor) * first_quote)
 
     @pytest.mark.parametrize("boiler", set(BOILERS))
     def test_boiler_upgrade_scheme_grant_is_zero_for_boilers_within_grant_window(
