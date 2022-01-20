@@ -154,7 +154,9 @@ class TestCosts:
             mansion, heat_pump
         ) == estimate_rhi_annual_payment(larger_mansion, heat_pump)
 
-    def test_air_source_heat_pumps_unit_install_costs_are_adjusted_by_discount_factor_across_discount_schedule(self):
+    def test_air_source_heat_pumps_unit_install_costs_are_adjusted_by_discount_factor_across_discount_schedule(
+        self,
+    ):
 
         discount_factor = 0.3
         household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
