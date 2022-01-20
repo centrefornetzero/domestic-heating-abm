@@ -103,6 +103,24 @@ class TestParseArgs:
         pd.testing.assert_frame_equal(args.bigquery, mock_read_gbp.return_value)
         assert args.households is None
 
+    def test_air_source_heat_pump_price_discount_date_argument(
+        self, mandatory_local_args
+    ):
+        args = parse_args(
+            [
+                *mandatory_local_args,
+                "--air-source-heat-pump-price-discount-date",
+                "2022-01-01:0.3",
+                "--air-source-heat-pump-price-discount-date",
+                "2025-01-01:0.5",
+            ]
+        )
+
+        assert args.air_source_heat_pump_price_discount_date == [
+            (datetime.datetime(2022, 1, 1), 0.3),
+            (datetime.datetime(2025, 1, 1), 0.5),
+        ]
+
     def test_bigquery_argument_and_households_file_are_mutually_exclusive(
         self, households_file, output_file, mock_read_gbp
     ):

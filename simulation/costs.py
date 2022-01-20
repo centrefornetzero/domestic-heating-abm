@@ -166,9 +166,8 @@ def get_unit_and_install_costs(
 
     if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
         kw_capacity = household.compute_heat_pump_capacity_kw(heating_system)
-        unit_and_install_costs = (
-            MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity]
-            * model.air_source_heat_pump_discount_factor
+        unit_and_install_costs = MEDIAN_COST_GBP_HEAT_PUMP_AIR_SOURCE[kw_capacity] * (
+            1 - model.air_source_heat_pump_discount_factor
         )
 
         if household.heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
@@ -198,7 +197,7 @@ def get_unit_and_install_costs(
     if heating_system == HeatingSystem.BOILER_ELECTRIC:
         costs += MEAN_COST_GBP_BOILER_ELECTRIC[household.property_size]
 
-    return costs
+    return int(costs)
 
 
 def discount_annual_cash_flow(

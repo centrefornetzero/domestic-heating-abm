@@ -54,6 +54,35 @@ class TestDomesticHeatingABM:
         model.increment_timestep()
         assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 22_000
 
+    def test_air_source_heat_pump_discount_factor_is_zero_if_no_discount_schedule_passed(
+        self,
+    ):
+
+        model = model_factory(air_source_heat_pump_price_discount_schedule=None)
+
+        assert model.air_source_heat_pump_discount_factor == 0
+
+    def test_air_source_heat_pump_discount_factor_changes_when_crosses_discount_schedule_date(
+        self,
+    ):
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2022, 2, 1),
+            air_source_heat_pump_price_discount_schedule=[
+                (datetime.datetime(2022, 2, 1), 0.1),
+                (datetime.datetime(2022, 2, 2), 0.3),
+            ],
+            step_interval=datetime.timedelta(minutes=1440),
+        )
+
+        assert model.air_source_heat_pump_discount_factor == 0.1
+
+        model.increment_timestep()
+        assert model.air_source_heat_pump_discount_factor == 0.3
+
+        model.increment_timestep()
+        assert model.air_source_heat_pump_discount_factor == 0.3
+
 
 def test_create_household_agents() -> None:
     household_population = pd.DataFrame(
