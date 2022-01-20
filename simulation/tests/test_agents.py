@@ -3,6 +3,7 @@ import random
 
 import numpy as np
 import pytest
+from dateutil.relativedelta import relativedelta
 
 from simulation.constants import (
     BOILERS,
@@ -94,7 +95,7 @@ class TestHousehold:
 
         model = model_factory(
             start_datetime=datetime.datetime.now(),
-            step_interval=datetime.timedelta(days=365),
+            step_interval=relativedelta(months=12),
             annual_renovation_rate=1.0,
         )
 
