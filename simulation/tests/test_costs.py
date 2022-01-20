@@ -2,7 +2,6 @@ import datetime
 import random
 
 import pytest
-from dateutil.relativedelta import relativedelta
 
 from simulation.constants import BOILERS, HEAT_PUMPS, HeatingSystem
 from simulation.costs import (
@@ -155,28 +154,29 @@ class TestCosts:
             mansion, heat_pump
         ) == estimate_rhi_annual_payment(larger_mansion, heat_pump)
 
-    def test_air_source_heat_pumps_get_cheaper_across_2022(self):
+    def test_air_source_heat_pumps_unit_install_costs_are_adjusted_by_discount_factor_across_discount_schedule(
+        self,
+    ):
 
+        discount_factor = 0.3
         household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
         model = model_factory(
-            start_datetime=datetime.datetime(2022, 1, 1, 0, 0),
-            air_source_heat_pump_discount_factor_2022=0.3,
+            start_datetime=datetime.datetime(2022, 1, 1),
+            step_interval=datetime.timedelta(minutes=1440),
+            air_source_heat_pump_price_discount_schedule=[
+                (datetime.datetime(2022, 1, 2), discount_factor),
+            ],
         )
-        quote = get_unit_and_install_costs(
+        first_quote = get_unit_and_install_costs(
             household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
         )
 
-        for n in range(1, 24):
-            model.current_datetime += relativedelta(months=1)
-            future_quote = get_unit_and_install_costs(
-                household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
-            )
-            if n < 12:
-                assert quote > future_quote
-            if n >= 12:
-                assert quote == future_quote
+        model.increment_timestep()
+        later_quote = get_unit_and_install_costs(
+            household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
+        )
 
-            quote = future_quote
+        assert later_quote == int((1 - discount_factor) * first_quote)
 
     @pytest.mark.parametrize("boiler", set(BOILERS))
     def test_boiler_upgrade_scheme_grant_is_zero_for_boilers_within_grant_window(
