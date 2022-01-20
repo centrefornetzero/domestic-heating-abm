@@ -277,7 +277,7 @@ class Household(Agent):
 
     def evaluate_renovation(self, model) -> None:
         step_interval_years = (
-            model.step_interval.months + 12 * model.step_interval.years
+            model.step_interval.months + (12 * model.step_interval.years)
         ) / 12
         proba_renovate = model.annual_renovation_rate * step_interval_years
         self.is_renovating = true_with_probability(proba_renovate)
@@ -514,8 +514,8 @@ class Household(Agent):
         self.reset_previous_heating_decision_log()
 
         step_interval_years = (
-            model.step_interval.months + (12 * model.step_interval.years) / 12
-        )
+            model.step_interval.months + (12 * model.step_interval.years)
+        ) / 12
         probability_density = weibull_hazard_rate(
             HAZARD_RATE_HEATING_SYSTEM_ALPHA,
             HAZARD_RATE_HEATING_SYSTEM_BETA,
