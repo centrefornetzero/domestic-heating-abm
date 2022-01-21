@@ -142,6 +142,15 @@ def parse_args(args=None):
 if __name__ == "__main__":
     args = parse_args()
 
+    print(
+        "Arguments (excluding dataframes):",
+        {
+            key: value
+            for key, value in vars(args).items()
+            if not isinstance(value, pd.DataFrame)
+        },
+    )
+
     random.seed(args.seed)
     history = create_and_run_simulation(
         args.start_datetime,
