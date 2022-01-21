@@ -41,7 +41,7 @@ def parse_args(args=None):
         "--bigquery",
         help="Generate household agents from BigQuery result.",
         type=partial(
-            pd.read_gbq, project_id=os.getenv("PROJECT_ID"), use_bq_storage_api=True
+            pd.read_gbq, project_id=os.getenv("PROJECT_ID"), use_bqstorage_api=True
         ),
     )
 
