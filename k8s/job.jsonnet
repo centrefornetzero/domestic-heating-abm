@@ -16,7 +16,7 @@
             args: [
               '--bigquery',
               'select * from %s.prod_domestic_heating.dim_household_agents limit 1000' % std.extVar('PROJECT_ID'),
-              'gs://%/%/{uuid}/output.jsonl' % [std.extVar('BUCKET_NAME'), std.extVar('JOB_NAME')],
+              'gs://%s/%s/{uuid}/output.jsonl' % [std.extVar('BUCKET_NAME'), std.extVar('JOB_NAME')],
             ],
             env: [
               { name: 'PROJECT_ID', value: std.extVar('PROJECT_ID') },
