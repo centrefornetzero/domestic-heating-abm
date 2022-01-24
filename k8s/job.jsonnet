@@ -89,7 +89,7 @@ local bigquery_arg = [
   ] + bigquery_arg),
   job('06-%s-max_industry' % std.extVar('SHORT_SHA'), [
     '--heating-system-hassle-factor',
-    '0.1',
+    '0',
     '--all-agents-heat-pump-suitable',
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
