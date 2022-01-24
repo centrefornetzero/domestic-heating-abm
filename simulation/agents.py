@@ -139,7 +139,9 @@ class Household(Agent):
         self.walls_energy_efficiency = walls_energy_efficiency
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
-        self.is_heat_pump_aware = is_heat_pump_aware
+        self.is_heat_pump_aware = max(
+            self.heating_system in HEAT_PUMPS, is_heat_pump_aware
+        )
 
         # Household investment decision attributes
         self.is_renovating = False
@@ -402,7 +404,7 @@ class Household(Agent):
 
         if not is_gas_oil_boiler_ban_active:
             # if a gas/boiler ban is active, we assume all households are aware of heat pumps
-            if not self.is_heat_pump_aware and self.heating_system not in HEAT_PUMPS:
+            if not self.is_heat_pump_aware:
                 heating_system_options -= HEAT_PUMPS
 
         if self.is_off_gas_grid:
@@ -603,6 +605,7 @@ class Household(Agent):
             if chosen_heating_system in HEAT_PUMPS:
                 upgraded_insulation_elements = chosen_insulation_costs.keys()
                 self.install_insulation_elements(upgraded_insulation_elements)
+                self.is_heat_pump_aware = True
 
             # store all costs associated with heating system decisions as household attributes for simulation logging
             self.heating_system_costs_unit_and_install = costs_unit_and_install
