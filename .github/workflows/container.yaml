@@ -77,7 +77,7 @@ jobs:
           location: europe-west2
       - name: Set environment variables
         run: |
-          echo "JOB_NAME=domestic-heating-abm-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "IMAGE_URI=$ARTIFACT_REGISTRY/docker/${GITHUB_REPOSITORY#*/}:latest" >> $GITHUB_ENV
       - name: Generate and apply configurations
         run: |
