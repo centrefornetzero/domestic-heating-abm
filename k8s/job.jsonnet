@@ -65,7 +65,6 @@ local bigquery_arg = [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
     '--gas-gbp-per-kwh',
-
     '0.0685',
     '--elec-gbp-per-kwh',
     '0.1656',
