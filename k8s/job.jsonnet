@@ -88,6 +88,8 @@ local bigquery_arg = [
     '0.0702',
   ] + bigquery_arg),
   job('06-%s-max_industry' % std.extVar('SHORT_SHA'), [
+    '--heat-pump-awareness',
+    '0.6',
     '--heating-system-hassle-factor',
     '0',
     '--all-agents-heat-pump-suitable',
