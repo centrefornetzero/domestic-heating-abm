@@ -139,8 +139,8 @@ class Household(Agent):
         self.walls_energy_efficiency = walls_energy_efficiency
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
-        self.is_heat_pump_aware = max(
-            self.heating_system in HEAT_PUMPS, is_heat_pump_aware
+        self.is_heat_pump_aware = (
+            self.heating_system in HEAT_PUMPS or is_heat_pump_aware
         )
 
         # Household investment decision attributes
