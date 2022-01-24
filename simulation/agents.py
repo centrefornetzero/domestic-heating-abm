@@ -139,7 +139,9 @@ class Household(Agent):
         self.walls_energy_efficiency = walls_energy_efficiency
         self.roof_energy_efficiency = roof_energy_efficiency
         self.windows_energy_efficiency = windows_energy_efficiency
-        self.is_heat_pump_aware = is_heat_pump_aware
+        self.is_heat_pump_aware = (
+            self.heating_system in HEAT_PUMPS or is_heat_pump_aware
+        )
 
         # Household investment decision attributes
         self.is_renovating = False
@@ -603,6 +605,7 @@ class Household(Agent):
             if chosen_heating_system in HEAT_PUMPS:
                 upgraded_insulation_elements = chosen_insulation_costs.keys()
                 self.install_insulation_elements(upgraded_insulation_elements)
+                self.is_heat_pump_aware = True
 
             # store all costs associated with heating system decisions as household attributes for simulation logging
             self.heating_system_costs_unit_and_install = costs_unit_and_install

@@ -615,6 +615,25 @@ class TestHousehold:
             for heating_system in banned_heating_systems
         )
 
+    @pytest.mark.parametrize("event_trigger", set(EventTrigger))
+    @pytest.mark.parametrize("heat_pump", HEAT_PUMPS)
+    def test_current_heat_pump_always_in_heating_options_for_existing_heat_pump_owners(
+        self,
+        heat_pump,
+        event_trigger,
+    ):
+
+        household_with_heat_pump = household_factory(
+            heating_system=heat_pump,
+            is_heat_pump_aware=False,
+        )
+        model = model_factory()
+        heating_system_options = household_with_heat_pump.get_heating_system_options(
+            model, event_trigger=event_trigger
+        )
+
+        assert heat_pump in heating_system_options
+
     def test_gas_boilers_have_higher_expected_fuel_costs_at_heating_decision_if_gas_prices_increase(
         self,
     ):
