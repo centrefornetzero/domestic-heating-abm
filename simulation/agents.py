@@ -402,7 +402,7 @@ class Household(Agent):
 
         if not is_gas_oil_boiler_ban_active:
             # if a gas/boiler ban is active, we assume all households are aware of heat pumps
-            if not self.is_heat_pump_aware:
+            if not self.is_heat_pump_aware and self.heating_system not in HEAT_PUMPS:
                 heating_system_options -= HEAT_PUMPS
 
         if self.is_off_gas_grid:
