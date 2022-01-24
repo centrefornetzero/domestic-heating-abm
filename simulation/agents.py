@@ -310,7 +310,7 @@ class Household(Agent):
         return {
             measure
             for measure, grade in measures_and_grades
-            if grade < MAX_ENERGY_EFFICIENCY_SCORE
+            if not pd.isna(grade) and (grade < MAX_ENERGY_EFFICIENCY_SCORE)
         }
 
     def get_num_insulation_elements(self, event_trigger: EventTrigger) -> int:
