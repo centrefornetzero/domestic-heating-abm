@@ -35,17 +35,17 @@ local bigquery_arg = [
 ];
 
 [
-  job('01_%s_baseline' % std.extVar('SHORT_SHA'), [
+  job('01-%s-baseline' % std.extVar('SHORT_SHA'), [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
   ] + bigquery_arg),
-  job('02_%s_bus' % std.extVar('SHORT_SHA'), [
+  job('02-%s-bus' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
   ] + bigquery_arg),
-  job('03_%s_bus_policy' % std.extVar('SHORT_SHA'), [
+  job('03-%s-bus-policy' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--air-source-heat-pump-price-discount-date',
@@ -57,7 +57,7 @@ local bigquery_arg = [
     '--oil-gbp-per-kwh',
     '0.0702',
   ] + bigquery_arg),
-  job('04_%s_bus_policy_high_awareness' % std.extVar('SHORT_SHA'), [
+  job('04-%s-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--heat-pump-awareness',
@@ -71,7 +71,7 @@ local bigquery_arg = [
     '--oil-gbp-per-kwh',
     '0.0702',
   ] + bigquery_arg),
-  job('05_%s_max_policy' % std.extVar('SHORT_SHA'), [
+  job('05-%s-max-policy' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--intervention',
@@ -87,7 +87,7 @@ local bigquery_arg = [
     '--oil-gbp-per-kwh',
     '0.0702',
   ] + bigquery_arg),
-  job('06_%s_max_industry' % std.extVar('SHORT_SHA'), [
+  job('06-%s-max-industry' % std.extVar('SHORT_SHA'), [
     '--heat-pump-awareness',
     '0.6',
     '--heating-system-hassle-factor',
@@ -98,7 +98,7 @@ local bigquery_arg = [
     '--air-source-heat-pump-price-discount-date',
     '2025-01-01:0.5',
   ] + bigquery_arg),
-  job('07_%s_max_policy_max_industry' % std.extVar('SHORT_SHA'), [
+  job('07-%s-max-policy-max-industry' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--intervention',
