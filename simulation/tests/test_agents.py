@@ -1,7 +1,7 @@
 import datetime
 import random
 
-import numpy as np
+import pandas as pd
 import pytest
 from dateutil.relativedelta import relativedelta
 
@@ -108,7 +108,7 @@ class TestHousehold:
         self,
     ) -> None:
 
-        household = household_factory(roof_energy_efficiency=np.NaN)
+        household = household_factory(roof_energy_efficiency=pd.NA)
         assert Element.ROOF not in household.get_upgradable_insulation_elements()
 
     def test_household_elements_under_max_energy_efficiency_score_are_upgradable(
