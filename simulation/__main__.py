@@ -70,7 +70,7 @@ def parse_args(args=None):
         metavar="MONTHS",
     )
 
-    parser.add_argument("--steps", dest="time_steps", type=int, default=100)
+    parser.add_argument("--steps", dest="time_steps", type=int, default=156)
     parser.add_argument("--heat-pump-awareness", type=float, default=0.4)
     parser.add_argument("--annual-renovation-rate", type=float, default=0.1)
     parser.add_argument(
