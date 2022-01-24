@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0caa1cad9dae8bbba224631aaebe8da6b5e07fedc60a33c965b65cece4da89f9"
+            "sha256": "e8b924de9a75c3ba1ce762566cbda7a0986af9738513bae1bfcb3ab31ddc8b26"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -39,9 +39,17 @@
             "markers": "python_version >= '3'",
             "version": "==2.0.10"
         },
+        "db-dtypes": {
+            "hashes": [
+                "sha256:26abca1c6691b31849b523fe017b657638eafc7442fd502ef80716126c48c083",
+                "sha256:85b6bc492fa2f865c3a85b3f7f6a46c111913d5362fda5ce34e275b44a91049c"
+            ],
+            "markers": "python_version < '3.11' and python_version >= '3.6'",
+            "version": "==0.3.1"
+        },
         "google-api-core": {
             "extras": [
-                "grpc"
+
             ],
             "hashes": [
                 "sha256:58e2c1171a3d51778bf4e428fbb4bf79cbd05007b4b44deaa80cf73c80eebc0f",
@@ -68,15 +76,14 @@
         },
         "google-cloud-bigquery": {
             "extras": [
-                "bqstorage",
-                "pandas"
+
             ],
             "hashes": [
-                "sha256:09588ffdf0ae92673d980cdade81a371ff1852c043bebd8bab68a47fd69d8a1f",
-                "sha256:f3863ac4293f0a4585e44461d82b91f9239721ef33fc9575d401b4da7dc127bd"
+                "sha256:3aaf9de371d39022b190c606a4855c13fadc27f65346a551df75364170ff7d19",
+                "sha256:97922b143035069f73ad8c84a371b8e1e50e0aa3bdadee3cfe2da697a0b6a883"
             ],
             "markers": "python_version < '3.11' and python_version >= '3.6'",
-            "version": "==2.32.0"
+            "version": "==3.0.0b1"
         },
         "google-cloud-bigquery-storage": {
             "hashes": [
@@ -340,11 +347,11 @@
         },
         "pandas-gbq": {
             "hashes": [
-                "sha256:87f615c798aa443fc30f2f29e4c62259f4b7d9f569f7e8649f4c326486f5dd4c",
-                "sha256:a1b8e8b34a202b00166ca276180d9195ff589f5a0dfa37e7a191022d8a90376f"
+                "sha256:4f91c7c654cef68eb7cd0afffe75739399540ff70dc38c88a176e6f69327c390",
+                "sha256:ac9ded0a1c58f4027a1d66b7ad8e2ca235bcff1b0e5ac7be25d28287a3615e37"
             ],
             "index": "pypi",
-            "version": "==0.16.0"
+            "version": "==0.17.0"
         },
         "proto-plus": {
             "hashes": [
@@ -613,7 +620,7 @@
                 "sha256:000ca7f471a233c2251c6c7023ee85305721bfdf18621ebff4fd17a8653427ed",
                 "sha256:0e7c33d9a63e7ddfcb86780aac87befc2fbddf46c58dbb487e0855f7ceec283c"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4.0'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'",
             "version": "==1.26.8"
         }
     },
