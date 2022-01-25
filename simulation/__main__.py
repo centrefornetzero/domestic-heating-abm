@@ -169,8 +169,5 @@ if __name__ == "__main__":
         args.air_source_heat_pump_price_discount_date,
     )
 
-    if args.history_file.startswith("gs://"):
-        history = list(history)
-
     with smart_open.open(args.history_file, "w") as file:
         write_jsonlines(history, file)
