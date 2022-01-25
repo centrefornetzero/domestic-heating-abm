@@ -19,8 +19,8 @@ local job(name, args_excl_output) = {
             ],
             resources: {
               requests: {
-                memory: '4Gi',
-                cpu: '1.0',
+                memory: '512Mi',
+                cpu: '500m',
               },
             },
           },
