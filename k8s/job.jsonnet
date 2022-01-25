@@ -13,7 +13,7 @@ local job(name, args_excl_output) = {
             name: 'domestic-heating-abm',
             image: std.extVar('IMAGE_URI'),
             command: ['python', '-m', 'simulation'],
-            args: args_excl_output + ['gs://%s/%s/{uuid}/output.jsonl' % [std.extVar('BUCKET_NAME'), name]],
+            args: args_excl_output + ['gs://%s/%s/{uuid}/output.jsonl.gz' % [std.extVar('BUCKET_NAME'), name]],
             env: [
               { name: 'PROJECT_ID', value: std.extVar('PROJECT_ID') },
             ],
