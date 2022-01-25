@@ -17,6 +17,12 @@ local job(name, args_excl_output) = {
             env: [
               { name: 'PROJECT_ID', value: std.extVar('PROJECT_ID') },
             ],
+            resources: {
+              requests: {
+                memory: '4Gi',
+                cpu: '1.0',
+              },
+            },
           },
         ],
         restartPolicy: 'Never',
