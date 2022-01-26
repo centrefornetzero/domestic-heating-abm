@@ -2,16 +2,28 @@ import argparse
 import datetime
 import os
 import random
+import sys
 import uuid
 from functools import partial
 
 import pandas as pd
 import smart_open
+import structlog
 from dateutil.relativedelta import relativedelta
 
 from abm import write_jsonlines
 from simulation.constants import InterventionType
 from simulation.model import create_and_run_simulation
+
+structlog.configure(
+    processors=[
+        structlog.processors.add_log_level,
+        structlog.processors.format_exc_info,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer(),
+    ]
+)
+logger = structlog.get_logger()
 
 
 def parse_args(args=None):
@@ -141,9 +153,9 @@ def parse_args(args=None):
 if __name__ == "__main__":
     args = parse_args()
 
-    print(
-        "Arguments (excluding dataframes):",
-        {
+    logger.info(
+        "parsed arguments",
+        **{
             key: value
             for key, value in vars(args).items()
             if not isinstance(value, pd.DataFrame)
@@ -151,23 +163,31 @@ if __name__ == "__main__":
     )
 
     random.seed(args.seed)
-    history = create_and_run_simulation(
-        args.start_datetime,
-        args.step_interval,
-        args.time_steps,
-        args.households if args.households is not None else args.bigquery,
-        args.heat_pump_awareness,
-        args.annual_renovation_rate,
-        args.household_num_lookahead_years,
-        args.heating_system_hassle_factor,
-        args.intervention,
-        args.all_agents_heat_pump_suitable,
-        args.gas_oil_boiler_ban_date,
-        args.price_gbp_per_kwh_gas,
-        args.price_gbp_per_kwh_electricity,
-        args.price_gbp_per_kwh_oil,
-        args.air_source_heat_pump_price_discount_date,
-    )
 
-    with smart_open.open(args.history_file, "w") as file:
-        write_jsonlines(history, file)
+    try:
+        history = create_and_run_simulation(
+            args.start_datetime,
+            args.step_interval,
+            args.time_steps,
+            args.households if args.households is not None else args.bigquery,
+            args.heat_pump_awareness,
+            args.annual_renovation_rate,
+            args.household_num_lookahead_years,
+            args.heating_system_hassle_factor,
+            args.intervention,
+            args.all_agents_heat_pump_suitable,
+            args.gas_oil_boiler_ban_date,
+            args.price_gbp_per_kwh_gas,
+            args.price_gbp_per_kwh_electricity,
+            args.price_gbp_per_kwh_oil,
+            args.air_source_heat_pump_price_discount_date,
+        )
+
+        with smart_open.open(args.history_file, "w") as file:
+            write_jsonlines(history, file)
+
+    except Exception:
+        logger.exception("simulation failed")
+        sys.exit(1)
+
+    logger.info("simulation complete")
