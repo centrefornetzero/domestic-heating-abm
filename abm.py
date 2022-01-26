@@ -1,5 +1,6 @@
 import functools
 import json
+import time
 from typing import (
     Any,
     Callable,
@@ -15,12 +16,15 @@ from typing import (
 )
 
 import pandas as pd
-from tqdm import trange
+import structlog
 
 A = TypeVar("A", bound="Agent")
 M = TypeVar("M", bound="AgentBasedModel")
 T = TypeVar("T")
 History = Iterable[Tuple[List[Dict[str, Any]], Dict[str, Any]]]
+
+
+logger = structlog.getLogger()
 
 
 class UnorderedSpace(Generic[A]):
@@ -68,7 +72,9 @@ class AgentBasedModel(Generic[A]):
         if model_callables is None:
             model_callables = []
 
-        for _ in trange(time_steps, desc="Running simulation"):
+        for step in range(time_steps):
+            start_time = time.time()
+
             try:
                 self.increment_timestep()
             except NotImplementedError:
@@ -89,6 +95,12 @@ class AgentBasedModel(Generic[A]):
                 model_callable.__name__: model_callable(self)
                 for model_callable in model_callables
             }
+
+            logger.info(
+                "step completed",
+                step=step,
+                elapsed_time_seconds=time.time() - start_time,
+            )
 
             yield agent_data, model_data
 
