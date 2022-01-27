@@ -218,7 +218,7 @@ class TestCosts:
             start_datetime=datetime.datetime(2023, 1, 1, 0, 0),
         )
 
-        num_households = random.randint(0, 5)
+        num_households = random.randint(1, 5)
         model.add_agents([household_factory()] * num_households)
 
         model_population_scale = (
