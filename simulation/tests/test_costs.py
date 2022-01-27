@@ -3,7 +3,12 @@ import random
 
 import pytest
 
-from simulation.constants import BOILERS, HEAT_PUMPS, HeatingSystem
+from simulation.constants import (
+    BOILERS,
+    ENGLAND_WALES_HOUSEHOLD_COUNT_2020,
+    HEAT_PUMPS,
+    HeatingSystem,
+)
 from simulation.costs import (
     estimate_boiler_upgrade_scheme_grant,
     estimate_rhi_annual_payment,
@@ -210,10 +215,20 @@ class TestCosts:
         model = model_factory(
             start_datetime=datetime.datetime(2023, 1, 1, 0, 0),
         )
-        model.boiler_upgrade_scheme_cumulative_spend_gbp = 3_000_000
+
+        model_population_scale = (
+            ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
+        )
+        boiler_upgrade_scheme_budget_scaled = 450_000_000 / model_population_scale
+
+        model.boiler_upgrade_scheme_cumulative_spend_gbp = (
+            boiler_upgrade_scheme_budget_scaled * 0.8
+        )
         assert estimate_boiler_upgrade_scheme_grant(heat_pump, model) > 0
 
-        model.boiler_upgrade_scheme_cumulative_spend_gbp = 500_000_000
+        model.boiler_upgrade_scheme_cumulative_spend_gbp = (
+            boiler_upgrade_scheme_budget_scaled
+        )
         assert estimate_boiler_upgrade_scheme_grant(heat_pump, model) == 0
 
     def test_boiler_upgrade_scheme_grant_is_non_zero_for_heat_pumps_when_grant_is_active(
