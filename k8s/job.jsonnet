@@ -28,9 +28,6 @@ local job(name, args_excl_output) = {
           },
         ],
         restartPolicy: 'Never',
-        nodeSelector: {
-          'cloud.google.com/gke-spot': 'true',
-        },
         serviceAccountName: 'runner',
       },
     },
