@@ -577,10 +577,13 @@ class TestHousehold:
         model_without_boiler_upgrade_scheme = model_factory(
             start_datetime=datetime.datetime(2023, 1, 1, 0, 0)
         )
+        model_without_boiler_upgrade_scheme.add_agents([household_factory()])
+
         model_with_boiler_upgrade_scheme = model_factory(
             start_datetime=datetime.datetime(2023, 1, 1, 0, 0),
             interventions=[InterventionType.BOILER_UPGRADE_SCHEME],
         )
+        model_with_boiler_upgrade_scheme.add_agents([household_factory()])
 
         assert sum(
             household.get_total_heating_system_costs(

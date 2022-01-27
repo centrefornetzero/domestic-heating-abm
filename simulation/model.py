@@ -37,7 +37,6 @@ class DomesticHeatingABM(AgentBasedModel):
         air_source_heat_pump_price_discount_schedule: Optional[
             List[Tuple[datetime.datetime, float]]
         ],
-        household_count: int,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -58,9 +57,12 @@ class DomesticHeatingABM(AgentBasedModel):
             if air_source_heat_pump_price_discount_schedule
             else None
         )
-        self.household_count = household_count
 
         super().__init__(UnorderedSpace())
+
+    @property
+    def household_count(self):
+        return len(self.space.agents)
 
     @property
     def heating_systems(self) -> Set[HeatingSystem]:
@@ -178,7 +180,6 @@ def create_and_run_simulation(
         price_gbp_per_kwh_electricity=price_gbp_per_kwh_electricity,
         price_gbp_per_kwh_oil=price_gbp_per_kwh_oil,
         air_source_heat_pump_price_discount_schedule=air_source_heat_pump_price_discount_schedule,
-        household_count=len(household_population),
     )
 
     households = create_household_agents(

@@ -205,6 +205,8 @@ class TestCosts:
     ):
 
         model = model_factory(start_datetime=datetime.datetime(2026, 1, 1, 0, 0))
+        model.add_agents([household_factory()])
+
         assert estimate_boiler_upgrade_scheme_grant(heating_system, model) == 0
 
     @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
@@ -215,6 +217,9 @@ class TestCosts:
         model = model_factory(
             start_datetime=datetime.datetime(2023, 1, 1, 0, 0),
         )
+
+        num_households = random.randint(0, 5)
+        model.add_agents([household_factory()] * num_households)
 
         model_population_scale = (
             ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
@@ -238,6 +243,7 @@ class TestCosts:
         model = model_factory(
             start_datetime=datetime.datetime(2023, 1, 1, 0, 0),
         )
+        model.add_agents([household_factory()])
 
         assert (
             estimate_boiler_upgrade_scheme_grant(
