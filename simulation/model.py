@@ -166,14 +166,6 @@ def create_and_run_simulation(
     ],
 ):
 
-    households = create_household_agents(
-        household_population,
-        heat_pump_awareness,
-        start_datetime,
-        all_agents_heat_pump_suitable,
-    )
-    household_count = len(household_population)
-
     model = DomesticHeatingABM(
         start_datetime=start_datetime,
         step_interval=step_interval,
@@ -186,7 +178,14 @@ def create_and_run_simulation(
         price_gbp_per_kwh_electricity=price_gbp_per_kwh_electricity,
         price_gbp_per_kwh_oil=price_gbp_per_kwh_oil,
         air_source_heat_pump_price_discount_schedule=air_source_heat_pump_price_discount_schedule,
-        household_count=household_count,
+        household_count=len(household_population),
+    )
+
+    households = create_household_agents(
+        household_population,
+        heat_pump_awareness,
+        model.start_datetime,
+        all_agents_heat_pump_suitable,
     )
 
     model.add_agents(households)
