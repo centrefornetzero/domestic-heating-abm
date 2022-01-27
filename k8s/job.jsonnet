@@ -7,7 +7,7 @@ local job(name, args_excl_output) = {
   },
   spec: {
     completions: 10,
-    parallelism: 3,
+    parallelism: 5,
     template: {
       spec: {
         containers: [
