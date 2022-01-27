@@ -199,3 +199,7 @@ class InterventionType(enum.Enum):
     RHI = 0
     BOILER_UPGRADE_SCHEME = 1
     GAS_OIL_BOILER_BAN = 2
+
+
+# Source: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/families/datasets/householdsbytypeofhouseholdandfamilyregionsofenglandandukconstituentcountries
+ENGLAND_WALES_HOUSEHOLD_COUNT_2020 = 24_600_000

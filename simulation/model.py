@@ -61,6 +61,10 @@ class DomesticHeatingABM(AgentBasedModel):
         super().__init__(UnorderedSpace())
 
     @property
+    def household_count(self):
+        return len(self.space.agents)
+
+    @property
     def heating_systems(self) -> Set[HeatingSystem]:
 
         if InterventionType.GAS_OIL_BOILER_BAN in self.interventions:
@@ -184,6 +188,7 @@ def create_and_run_simulation(
         model.start_datetime,
         all_agents_heat_pump_suitable,
     )
+
     model.add_agents(households)
 
     agent_collectors = get_agent_collectors(model)
