@@ -6,8 +6,8 @@ local job(name, args_excl_output) = {
     namespace: 'domestic-heating-abm',
   },
   spec: {
-    completions: 20,
-    parallelism: 20,
+    completions: 10,
+    parallelism: 3,
     template: {
       spec: {
         containers: [
@@ -21,8 +21,8 @@ local job(name, args_excl_output) = {
             ],
             resources: {
               requests: {
-                memory: '512Mi',
-                cpu: '250m',
+                memory: '1024Mi',
+                cpu: '1000m',
               },
             },
           },
