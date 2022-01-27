@@ -77,8 +77,7 @@ def get_weibull_percentile_from_value(
 def get_weibull_value_from_percentile(
     alpha: float, beta: float, percentile: float
 ) -> float:
-    epsilon = 0.0000001
-    return beta * (-math.log(1 + epsilon - percentile)) ** (1 / alpha)
+    return beta * (-math.log(1 - percentile)) ** (1 / alpha)
 
 
 def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
@@ -156,24 +155,28 @@ class Household(Agent):
     @property
     def wealth_percentile(self) -> float:
 
-        return get_weibull_percentile_from_value(
+        PERCENTILE_FLOOR = 0.001
+        PERCENTILE_CAP = 0.999
+
+        percentile = get_weibull_percentile_from_value(
             GB_PROPERTY_VALUE_WEIBULL_ALPHA,
             GB_PROPERTY_VALUE_WEIBULL_BETA,
             self.property_value_gbp,
         )
 
+        return min(max(percentile, PERCENTILE_FLOOR), PERCENTILE_CAP)
+
     @property
     def discount_rate(self) -> float:
 
-        return max(
-            1
-            - get_weibull_value_from_percentile(
-                DISCOUNT_RATE_WEIBULL_ALPHA,
-                DISCOUNT_RATE_WEIBULL_BETA,
-                self.wealth_percentile,
-            ),
-            0,
+        DISCOUNT_RATE_CAP = 1
+        percentile = get_weibull_value_from_percentile(
+            DISCOUNT_RATE_WEIBULL_ALPHA,
+            DISCOUNT_RATE_WEIBULL_BETA,
+            1 - self.wealth_percentile,
         )
+
+        return min(percentile, DISCOUNT_RATE_CAP)
 
     @property
     def renovation_budget(self) -> float:
