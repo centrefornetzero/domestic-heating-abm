@@ -68,11 +68,11 @@ class DomesticHeatingABM(AgentBasedModel):
         super().__init__(UnorderedSpace())
 
     @property
-    def household_count(self):
+    def household_count(self) -> int:
         return len(self.space.agents)
 
     @property
-    def heat_pump_installers(self):
+    def heat_pump_installers(self) -> int:
 
         years_elapsed = (self.current_datetime - self.start_datetime).days / 365
         return int(
@@ -81,17 +81,17 @@ class DomesticHeatingABM(AgentBasedModel):
         )
 
     @property
-    def heat_pump_installation_capacity_per_step(self):
+    def heat_pump_installation_capacity_per_step(self) -> int:
 
         months_per_step = self.step_interval.months
         installations_per_installer_per_step = (
             months_per_step / HEAT_PUMP_INSTALLATION_DURATION_MONTHS
         )
 
-        return self.heat_pump_installers * installations_per_installer_per_step
+        return int(self.heat_pump_installers * installations_per_installer_per_step)
 
     @property
-    def has_heat_pump_installation_capacity(self):
+    def has_heat_pump_installation_capacity(self) -> bool:
         return (
             self.heat_pump_installation_capacity_per_step
             > self.heat_pump_installations_at_current_step
