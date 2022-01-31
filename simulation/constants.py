@@ -203,3 +203,7 @@ class InterventionType(enum.Enum):
 
 # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/families/datasets/householdsbytypeofhouseholdandfamilyregionsofenglandandukconstituentcountries
 ENGLAND_WALES_HOUSEHOLD_COUNT_2020 = 24_600_000
+
+# Source: https://mcscertified.com/
+HEAT_PUMP_INSTALLER_COUNT = 1_700
+HEAT_PUMP_INSTALLATION_DURATION_MONTHS = 0.5
