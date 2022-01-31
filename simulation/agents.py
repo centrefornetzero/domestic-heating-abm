@@ -410,6 +410,9 @@ class Household(Agent):
             if not self.is_heat_pump_aware:
                 heating_system_options -= HEAT_PUMPS
 
+        if not model.has_heat_pump_installation_capacity:
+            heating_system_options -= HEAT_PUMPS
+
         if self.is_off_gas_grid:
             heating_system_options -= {HeatingSystem.BOILER_GAS}
         else:
@@ -609,6 +612,7 @@ class Household(Agent):
                 upgraded_insulation_elements = chosen_insulation_costs.keys()
                 self.install_insulation_elements(upgraded_insulation_elements)
                 self.is_heat_pump_aware = True
+                model.heat_pump_installations_at_current_step += 1
 
             # store all costs associated with heating system decisions as household attributes for simulation logging
             self.heating_system_costs_unit_and_install = costs_unit_and_install
