@@ -273,6 +273,10 @@ def model_heat_pump_installation_capacity_per_step(model) -> int:
     return model.heat_pump_installation_capacity_per_step
 
 
+def model_heat_pump_installations_at_current_step(model) -> int:
+    return model.heat_pump_installations_at_current_step
+
+
 def is_first_timestep(model: "DomesticHeatingABM") -> bool:
     return model.current_datetime == model.start_datetime + model.step_interval
 
@@ -347,6 +351,7 @@ def get_model_collectors(
         model_boiler_upgrade_scheme_cumulative_spend_gbp,
         model_heat_pump_installers,
         model_heat_pump_installation_capacity_per_step,
+        model_heat_pump_installations_at_current_step,
         collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_gas),
         collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_electricity),
         collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_oil),
