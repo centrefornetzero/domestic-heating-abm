@@ -57,6 +57,9 @@ HEATING_SYSTEM_LIFETIME_YEARS = 15
 HAZARD_RATE_HEATING_SYSTEM_ALPHA = 6
 HAZARD_RATE_HEATING_SYSTEM_BETA = 15
 
+SIGMOID_K = 1
+SIGMOID_OFFSET = 7
+
 
 class ConstructionYearBand(enum.Enum):
     # These categories match the England & Wales EPC categories

@@ -34,6 +34,8 @@ from simulation.constants import (
     RENO_PROBA_HEATING_SYSTEM_UPDATE,
     RENO_PROBA_INSULATION_UPDATE,
     RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT,
+    SIGMOID_K,
+    SIGMOID_OFFSET,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -90,6 +92,11 @@ def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
     Source: https://en.wikipedia.org/wiki/Weibull_distribution
     """
     return (alpha / beta) * (age_years / beta) ** (alpha - 1)
+
+
+def sigmoid(x: float, k: float = SIGMOID_K, offset: float = SIGMOID_OFFSET):
+
+    return 1 / (1 + math.exp(-k * (x - offset)))
 
 
 class Household(Agent):
@@ -391,22 +398,47 @@ class Household(Agent):
 
         return self.choose_insulation_elements(insulation_quotes, num_elements)
 
+    def get_proba_rule_out_banned_heating_systems(self, model):
+
+        if model.current_datetime >= model.gas_oil_boiler_ban_datetime:
+            return 1
+
+        max_ban_lead_time_years = 10
+        years_to_ban = (
+            model.gas_oil_boiler_ban_datetime - model.current_datetime
+        ).days / 365
+
+        if years_to_ban > max_ban_lead_time_years:
+            return 0
+
+        return sigmoid(max_ban_lead_time_years - years_to_ban)
+
     def get_heating_system_options(
         self, model: "DomesticHeatingABM", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
 
         heating_system_options = model.heating_systems.copy()
 
-        is_gas_oil_boiler_ban_active = (
+        is_gas_oil_boiler_ban_announced = (
             InterventionType.GAS_OIL_BOILER_BAN in model.interventions
-            and model.current_datetime >= model.gas_oil_boiler_ban_datetime
+            and model.current_datetime >= model.gas_oil_boiler_ban_announce_datetime
         )
 
         if not self.is_heat_pump_suitable:
             heating_system_options -= HEAT_PUMPS
 
-        if not is_gas_oil_boiler_ban_active:
-            # if a gas/boiler ban is active, we assume all households are aware of heat pumps
+        if is_gas_oil_boiler_ban_announced:
+            exclude_gas_oil_boilers = true_with_probability(
+                self.get_proba_rule_out_banned_heating_systems(model)
+            )
+
+            if exclude_gas_oil_boilers:
+                heating_system_options -= set(
+                    [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
+                )
+
+        if not is_gas_oil_boiler_ban_announced:
+            # if a gas/boiler ban is announced, we assume all households are aware of heat pumps
             if not self.is_heat_pump_aware:
                 heating_system_options -= HEAT_PUMPS
 
@@ -422,8 +454,11 @@ class Household(Agent):
             heating_system_options -= {HeatingSystem.BOILER_ELECTRIC}
 
         # heat pumps are unfeasible in a breakdown due to installation lead times
-        # exceptions: household already has a heat pump, or a gas/oil boiler ban is active
-        if event_trigger == EventTrigger.BREAKDOWN and not is_gas_oil_boiler_ban_active:
+        # exceptions: household already has a heat pump, or a gas/oil boiler ban is announced
+        if (
+            event_trigger == EventTrigger.BREAKDOWN
+            and not is_gas_oil_boiler_ban_announced
+        ):
             unfeasible_heating_systems = HEAT_PUMPS - {self.heating_system}
             heating_system_options -= unfeasible_heating_systems
 

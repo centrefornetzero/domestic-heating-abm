@@ -737,3 +737,93 @@ class TestHousehold:
         )
 
         assert all(heat_pump in heating_system_options for heat_pump in HEAT_PUMPS)
+
+    def test_households_increasingly_likely_to_rule_out_heating_systems_that_will_be_banned_as_time_to_ban_decreases(
+        self,
+    ):
+
+        household = household_factory()
+        model = model_factory(
+            start_datetime=datetime.datetime(2026, 1, 1),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_announce_datetime=datetime.datetime(2025, 1, 1),
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
+        )
+
+        proba_rule_out_banned_boilers = (
+            household.get_proba_rule_out_banned_heating_systems(model)
+        )
+
+        model.increment_timestep()
+        proba_rule_out_banned_boilers_updated = (
+            household.get_proba_rule_out_banned_heating_systems(model)
+        )
+
+        assert proba_rule_out_banned_boilers < proba_rule_out_banned_boilers_updated
+
+    def test_household_proba_rule_out_banned_heating_systems_is_one_if_ban_is_active(
+        self,
+    ):
+
+        household = household_factory()
+        model = model_factory(
+            start_datetime=datetime.datetime(2031, 1, 1),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_announce_datetime=datetime.datetime(2025, 1, 1),
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
+        )
+
+        proba_rule_out_banned_boilers = (
+            household.get_proba_rule_out_banned_heating_systems(model)
+        )
+        assert proba_rule_out_banned_boilers == 1
+
+    def test_household_proba_rule_out_banned_heating_systems_is_zero_if_more_than_10_years_til_ban_is_active(
+        self,
+    ):
+
+        household = household_factory()
+        model = model_factory(
+            start_datetime=datetime.datetime(2028, 1, 1),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_announce_datetime=datetime.datetime(2025, 1, 1),
+            gas_oil_boiler_ban_datetime=datetime.datetime(2040, 1, 1),
+        )
+
+        proba_rule_out_banned_boilers = (
+            household.get_proba_rule_out_banned_heating_systems(model)
+        )
+        assert proba_rule_out_banned_boilers == 0
+
+    @pytest.mark.parametrize("event_trigger", set(EventTrigger))
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_households_rule_out_banned_heating_systems_only_once_ban_is_announced(
+        self, event_trigger, heating_system
+    ):
+
+        household = household_factory(heating_system=heating_system)
+        model = model_factory(
+            start_datetime=datetime.datetime(2029, 12, 31),
+            interventions=[InterventionType.GAS_OIL_BOILER_BAN],
+            gas_oil_boiler_ban_announce_datetime=datetime.datetime(2030, 1, 1),
+            gas_oil_boiler_ban_datetime=datetime.datetime(2030, 1, 1),
+        )
+
+        banned_boilers = [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
+        heating_system_options = household.get_heating_system_options(
+            model, event_trigger=event_trigger
+        )
+
+        assert any(
+            banned_boiler in heating_system_options for banned_boiler in banned_boilers
+        )
+
+        model.increment_timestep()
+        heating_system_options = household.get_heating_system_options(
+            model, event_trigger=event_trigger
+        )
+
+        assert all(
+            banned_boiler not in heating_system_options
+            for banned_boiler in banned_boilers
+        )
