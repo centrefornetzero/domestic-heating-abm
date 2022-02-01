@@ -187,7 +187,7 @@ def get_unit_and_install_costs(
             # Some installation work required to install a heat pump first time does not apply to 2nd+ installations
             unit_and_install_costs *= 1 - HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT
 
-        costs += max(unit_and_install_costs, heat_pump_price_floor)
+        costs += unit_and_install_costs
 
     if heating_system == HeatingSystem.BOILER_GAS:
         costs += MEAN_COST_GBP_BOILER_GAS[household.property_size]
