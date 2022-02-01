@@ -84,14 +84,15 @@ class TestDomesticHeatingABM:
         model.increment_timestep()
         assert model.air_source_heat_pump_discount_factor == 0.3
 
-    def test_heat_pump_installers_increases_over_time_with_positive_annaul_growth_rate(
+    def test_heat_pump_installers_increases_over_time_with_positive_annual_growth_rate(
         self,
     ):
 
         model = model_factory(
-            step_interval=relativedelta(months=6),
+            step_interval=relativedelta(months=60),
             heat_pump_installer_annual_growth_rate=0.5,
         )
+        model.add_agents([household_factory() for _ in range(10_000)])
         heat_pump_installers = model.heat_pump_installers
 
         model.increment_timestep()
@@ -104,14 +105,18 @@ class TestDomesticHeatingABM:
     ):
 
         model = model_factory(
-            step_interval=relativedelta(months=6),
+            step_interval=relativedelta(months=120),
             heat_pump_installer_annual_growth_rate=0.1,
         )
+        model.add_agents([household_factory() for _ in range(10_000)])
         model.increment_timestep()
 
         model_with_higher_installer_growth = model_factory(
-            step_interval=relativedelta(months=6),
-            heat_pump_installer_annual_growth_rate=0.3,
+            step_interval=relativedelta(months=120),
+            heat_pump_installer_annual_growth_rate=0.6,
+        )
+        model_with_higher_installer_growth.add_agents(
+            [household_factory() for _ in range(10_000)]
         )
         model_with_higher_installer_growth.increment_timestep()
 
