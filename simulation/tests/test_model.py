@@ -2,6 +2,7 @@ import datetime
 
 import pandas as pd
 import pytest
+from dateutil.relativedelta import relativedelta
 
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
@@ -82,6 +83,73 @@ class TestDomesticHeatingABM:
 
         model.increment_timestep()
         assert model.air_source_heat_pump_discount_factor == 0.3
+
+    def test_heat_pump_installers_increases_over_time_with_positive_annual_growth_rate(
+        self,
+    ):
+
+        model = model_factory(
+            step_interval=relativedelta(months=60),
+            heat_pump_installer_annual_growth_rate=0.5,
+        )
+        model.add_agents([household_factory() for _ in range(10_000)])
+        heat_pump_installers = model.heat_pump_installers
+
+        model.increment_timestep()
+        future_heat_pump_installers = model.heat_pump_installers
+
+        assert heat_pump_installers < future_heat_pump_installers
+
+    def test_heat_pump_installer_count_increases_faster_with_higher_annual_growth_rate(
+        self,
+    ):
+
+        model = model_factory(
+            step_interval=relativedelta(months=120),
+            heat_pump_installer_annual_growth_rate=0.1,
+        )
+        model.add_agents([household_factory() for _ in range(10_000)])
+        model.increment_timestep()
+
+        model_with_higher_installer_growth = model_factory(
+            step_interval=relativedelta(months=120),
+            heat_pump_installer_annual_growth_rate=0.6,
+        )
+        model_with_higher_installer_growth.add_agents(
+            [household_factory() for _ in range(10_000)]
+        )
+        model_with_higher_installer_growth.increment_timestep()
+
+        assert (
+            model.heat_pump_installers
+            < model_with_higher_installer_growth.heat_pump_installers
+        )
+
+    def test_heat_pump_installation_capacity_per_step_increases_with_step_interval(
+        self,
+    ):
+
+        model_with_one_month_timestep = model_factory(
+            step_interval=relativedelta(months=1),
+        )
+
+        model_with_six_month_timestep = model_factory(
+            step_interval=relativedelta(months=6),
+        )
+
+        assert (
+            model_with_one_month_timestep.heat_pump_installation_capacity_per_step
+            < model_with_six_month_timestep.heat_pump_installation_capacity_per_step
+        )
+
+    def test_model_does_not_have_heat_pump_installation_capacity_if_installations_per_step_reached_step_capacity(
+        self,
+    ):
+        model = model_factory()
+        model.heat_pump_installations_at_current_step = (
+            model.heat_pump_installation_capacity_per_step * 1.1
+        )
+        assert not model.has_heat_pump_installation_capacity
 
 
 def test_create_household_agents() -> None:
