@@ -9,6 +9,9 @@ from abm import AgentBasedModel, UnorderedSpace
 from simulation.agents import Household
 from simulation.collectors import get_agent_collectors, get_model_collectors
 from simulation.constants import (
+    ENGLAND_WALES_HOUSEHOLD_COUNT_2020,
+    HEAT_PUMP_INSTALLATION_DURATION_MONTHS,
+    HEAT_PUMP_INSTALLER_COUNT,
     HEATING_SYSTEM_LIFETIME_YEARS,
     BuiltForm,
     ConstructionYearBand,
@@ -37,6 +40,7 @@ class DomesticHeatingABM(AgentBasedModel):
         air_source_heat_pump_price_discount_schedule: Optional[
             List[Tuple[datetime.datetime, float]]
         ],
+        heat_pump_installer_annual_growth_rate: float,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -57,12 +61,50 @@ class DomesticHeatingABM(AgentBasedModel):
             if air_source_heat_pump_price_discount_schedule
             else None
         )
+        self.heat_pump_installer_annual_growth_rate = (
+            heat_pump_installer_annual_growth_rate
+        )
+        self.heat_pump_installations_at_current_step = 0
 
         super().__init__(UnorderedSpace())
 
     @property
-    def household_count(self):
+    def household_count(self) -> int:
         return len(self.space.agents)
+
+    @property
+    def heat_pump_installers(self) -> int:
+
+        years_elapsed = (self.current_datetime - self.start_datetime).days / 365
+        population_scale_factor = (
+            self.household_count / ENGLAND_WALES_HOUSEHOLD_COUNT_2020
+        )
+
+        return max(
+            int(
+                population_scale_factor
+                * HEAT_PUMP_INSTALLER_COUNT
+                * (1 + self.heat_pump_installer_annual_growth_rate) ** years_elapsed
+            ),
+            1,
+        )
+
+    @property
+    def heat_pump_installation_capacity_per_step(self) -> int:
+
+        months_per_step = self.step_interval.months
+        installations_per_installer_per_step = (
+            months_per_step / HEAT_PUMP_INSTALLATION_DURATION_MONTHS
+        )
+
+        return int(self.heat_pump_installers * installations_per_installer_per_step)
+
+    @property
+    def has_heat_pump_installation_capacity(self) -> bool:
+        return (
+            self.heat_pump_installation_capacity_per_step
+            > self.heat_pump_installations_at_current_step
+        )
 
     @property
     def heating_systems(self) -> Set[HeatingSystem]:
@@ -107,6 +149,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.boiler_upgrade_scheme_cumulative_spend_gbp += (
             self.boiler_upgrade_scheme_spend_gbp
         )
+        self.heat_pump_installations_at_current_step = 0
 
 
 def create_household_agents(
@@ -166,6 +209,7 @@ def create_and_run_simulation(
     air_source_heat_pump_price_discount_schedule: Optional[
         List[Tuple[datetime.datetime, float]]
     ],
+    heat_pump_installer_annual_growth_rate: float,
 ):
 
     model = DomesticHeatingABM(
@@ -180,6 +224,7 @@ def create_and_run_simulation(
         price_gbp_per_kwh_electricity=price_gbp_per_kwh_electricity,
         price_gbp_per_kwh_oil=price_gbp_per_kwh_oil,
         air_source_heat_pump_price_discount_schedule=air_source_heat_pump_price_discount_schedule,
+        heat_pump_installer_annual_growth_rate=heat_pump_installer_annual_growth_rate,
     )
 
     households = create_household_agents(

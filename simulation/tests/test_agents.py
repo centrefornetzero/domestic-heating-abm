@@ -705,3 +705,35 @@ class TestHousehold:
         assert all(
             heating_system in heating_system_options for heating_system in HEAT_PUMPS
         )
+
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_household_ability_to_choose_heat_pump_as_option_depends_on_model_heat_pump_installation_capacity(
+        self, heating_system
+    ):
+
+        household = household_factory(
+            heating_system=heating_system,
+            is_heat_pump_suitable_archetype=True,
+            is_heat_pump_aware=True,
+        )
+
+        model = model_factory()
+        # heat pump installations exceed model capacity
+        model.heat_pump_installations_at_current_step = (
+            model.heat_pump_installation_capacity_per_step * 1.1
+        )
+        heating_system_options = household.get_heating_system_options(
+            model, event_trigger=EventTrigger.RENOVATION
+        )
+
+        assert all(heat_pump not in heating_system_options for heat_pump in HEAT_PUMPS)
+
+        # heat pump installations are under model capacity
+        model.heat_pump_installations_at_current_step = (
+            model.heat_pump_installation_capacity_per_step * 0.9
+        )
+        heating_system_options = household.get_heating_system_options(
+            model, event_trigger=EventTrigger.RENOVATION
+        )
+
+        assert all(heat_pump in heating_system_options for heat_pump in HEAT_PUMPS)

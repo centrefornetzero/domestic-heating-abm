@@ -121,6 +121,13 @@ def parse_args(args=None):
         metavar="YYYY-MM-DD:price_discount",
     )
 
+    parser.add_argument(
+        "--heat-pump-installer-annual-growth-rate",
+        type=float,
+        default=0,
+        help="The YoY growth rate of heat pump installers across the UK. A value of 0 indicates no growth.",
+    )
+
     def check_string_is_isoformat_datetime(string) -> str:
         datetime.datetime.fromisoformat(string)
         return string
@@ -181,6 +188,7 @@ if __name__ == "__main__":
             args.price_gbp_per_kwh_electricity,
             args.price_gbp_per_kwh_oil,
             args.air_source_heat_pump_price_discount_date,
+            args.heat_pump_installer_annual_growth_rate,
         )
 
         with smart_open.open(args.history_file, "w") as file:
