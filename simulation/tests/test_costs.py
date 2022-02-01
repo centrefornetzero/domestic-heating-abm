@@ -274,9 +274,9 @@ class TestCosts:
         heat_pump_cost = get_unit_and_install_costs(
             household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
         )
-        heat_pump_price_floor = MEAN_COST_GBP_BOILER_GAS[household.property_size]
+        ashp_price_min_cap = MEAN_COST_GBP_BOILER_GAS[household.property_size]
 
-        assert heat_pump_cost == heat_pump_price_floor
+        assert heat_pump_cost == ashp_price_min_cap
 
     def test_air_source_heat_pump_unit_and_install_costs_floored_at_gas_boiler_plus_decommissioning_costs_for_households_switching_heating_system(
         self,
@@ -292,6 +292,6 @@ class TestCosts:
         heat_pump_cost = get_unit_and_install_costs(
             household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
         )
-        heat_pump_price_floor = MEAN_COST_GBP_BOILER_GAS[household.property_size]
+        ashp_price_min_cap = MEAN_COST_GBP_BOILER_GAS[household.property_size]
 
-        assert heat_pump_cost <= heat_pump_price_floor + DECOMMISSIONING_COST_MAX
+        assert heat_pump_cost <= ashp_price_min_cap + DECOMMISSIONING_COST_MAX

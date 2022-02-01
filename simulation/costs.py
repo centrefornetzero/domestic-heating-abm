@@ -180,10 +180,10 @@ def get_unit_and_install_costs(
             # Some installation work required to install a heat pump first time does not apply to 2nd+ installations
             unit_and_install_costs *= 1 - HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT
 
-        # Any projected heat pump discounts are capped at the price of a gas boiler for a household
-        heat_pump_price_floor = MEAN_COST_GBP_BOILER_GAS[household.property_size]
+        # Any projected air source heat pump discounts are capped at the price of a gas boiler for a household
+        ashp_price_min_cap = MEAN_COST_GBP_BOILER_GAS[household.property_size]
 
-        costs += max(unit_and_install_costs, heat_pump_price_floor)
+        costs += max(unit_and_install_costs, ashp_price_min_cap)
 
     if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
         kw_capacity = household.compute_heat_pump_capacity_kw(heating_system)
