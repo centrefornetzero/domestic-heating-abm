@@ -10,6 +10,7 @@ from simulation.constants import (
     HeatingSystem,
 )
 from simulation.costs import (
+    DECOMMISSIONING_COST_MAX,
     MEAN_COST_GBP_BOILER_GAS,
     estimate_boiler_upgrade_scheme_grant,
     estimate_rhi_annual_payment,
@@ -293,7 +294,4 @@ class TestCosts:
         )
         heat_pump_price_floor = MEAN_COST_GBP_BOILER_GAS[household.property_size]
 
-        # Decommissioning costs for changing heating system type are randomly generated between 500-2_000 GBP
-        decommission_cost_max = 2_000
-
-        assert heat_pump_cost <= heat_pump_price_floor + decommission_cost_max
+        assert heat_pump_cost <= heat_pump_price_floor + DECOMMISSIONING_COST_MAX

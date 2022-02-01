@@ -152,6 +152,9 @@ MEAN_COST_GBP_BOILER_ELECTRIC: Dict[PropertySize, int] = {
 HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT = 0.1
 HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT = 0.5
 
+# Source: Distribution based on values in https://www.theccc.org.uk/publication/analysis-of-alternative-uk-heat-decarbonisation-pathways/
+DECOMMISSIONING_COST_MIN, DECOMMISSIONING_COST_MAX = 500, 2_000
+
 
 def get_unit_and_install_costs(
     household: "Household",
@@ -162,7 +165,9 @@ def get_unit_and_install_costs(
     costs = 0
 
     if heating_system != household.heating_system:
-        decommissioning_costs = random.randint(500, 2_000)
+        decommissioning_costs = random.randint(
+            DECOMMISSIONING_COST_MIN, DECOMMISSIONING_COST_MAX
+        )
         costs += decommissioning_costs
 
     if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
