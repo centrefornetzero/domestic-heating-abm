@@ -160,6 +160,8 @@ def get_unit_and_install_costs(
 ) -> int:
 
     costs = 0
+    # Any projected heat pump discounts are capped at the price of a gas boiler for a household
+    heat_pump_price_floor = MEAN_COST_GBP_BOILER_GAS[household.property_size]
 
     if heating_system != household.heating_system:
         decommissioning_costs = random.randint(500, 2_000)
@@ -173,21 +175,19 @@ def get_unit_and_install_costs(
 
         if household.heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
             # Some installation work required to install a heat pump first time does not apply to 2nd+ installations
-            costs += unit_and_install_costs * (
-                1 - HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT
-            )
-        else:
-            costs += unit_and_install_costs
+            unit_and_install_costs *= 1 - HEAT_PUMP_AIR_SOURCE_REINSTALL_DISCOUNT
+
+        costs += max(unit_and_install_costs, heat_pump_price_floor)
 
     if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
         kw_capacity = household.compute_heat_pump_capacity_kw(heating_system)
+        unit_and_install_costs = MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE[kw_capacity]
+
         if household.heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
             # Some installation work required to install a heat pump first time does not apply to 2nd+ installations
-            costs += MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE[kw_capacity] * (
-                1 - HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT
-            )
-        else:
-            costs += MEDIAN_COST_GBP_HEAT_PUMP_GROUND_SOURCE[kw_capacity]
+            unit_and_install_costs *= 1 - HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT
+
+        costs += max(unit_and_install_costs, heat_pump_price_floor)
 
     if heating_system == HeatingSystem.BOILER_GAS:
         costs += MEAN_COST_GBP_BOILER_GAS[household.property_size]

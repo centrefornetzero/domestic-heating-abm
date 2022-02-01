@@ -10,6 +10,7 @@ from simulation.constants import (
     HeatingSystem,
 )
 from simulation.costs import (
+    MEAN_COST_GBP_BOILER_GAS,
     estimate_boiler_upgrade_scheme_grant,
     estimate_rhi_annual_payment,
     get_heating_fuel_costs_net_present_value,
@@ -257,3 +258,42 @@ class TestCosts:
             )
             == 6_000
         )
+
+    def test_air_source_heat_pump_unit_and_install_costs_floored_at_gas_boiler_cost_for_households_with_air_source_heat_pump(
+        self,
+    ):
+        model = model_factory(
+            start_datetime=datetime.datetime(2022, 1, 1),
+            air_source_heat_pump_price_discount_schedule=[
+                (datetime.datetime(2022, 1, 1), 1.0)
+            ],
+        )
+
+        household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
+        heat_pump_cost = get_unit_and_install_costs(
+            household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
+        )
+        heat_pump_price_floor = MEAN_COST_GBP_BOILER_GAS[household.property_size]
+
+        assert heat_pump_cost == heat_pump_price_floor
+
+    def test_air_source_heat_pump_unit_and_install_costs_floored_at_gas_boiler_plus_decommissioning_costs_for_households_switching_heating_system(
+        self,
+    ):
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2022, 1, 1),
+            air_source_heat_pump_price_discount_schedule=[
+                (datetime.datetime(2022, 1, 1), 1.0)
+            ],
+        )
+        household = household_factory(heating_system=HeatingSystem.BOILER_GAS)
+        heat_pump_cost = get_unit_and_install_costs(
+            household, HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
+        )
+        heat_pump_price_floor = MEAN_COST_GBP_BOILER_GAS[household.property_size]
+
+        # Decommissioning costs for changing heating system type are randomly generated between 500-2_000 GBP
+        decommission_cost_max = 2_000
+
+        assert heat_pump_cost <= heat_pump_price_floor + decommission_cost_max
