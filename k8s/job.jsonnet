@@ -83,6 +83,8 @@ local bigquery_arg = [
     'gas_oil_boiler_ban',
     '--gas-oil-boiler-ban-date',
     '2030-01-01',
+    '--heat-pump-awareness',
+    '0.6',
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
     '--price-gbp-per-kwh-gas',
