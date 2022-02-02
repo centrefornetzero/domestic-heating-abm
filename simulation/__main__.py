@@ -150,7 +150,7 @@ def parse_args(args=None):
 
     parser.add_argument(
         "--gas-oil-boiler-ban-announce-date",
-        default=datetime.datetime(2025, 1, 1),
+        default=datetime.datetime(2035, 1, 1),
         type=convert_to_datetime,
     )
 
@@ -163,8 +163,17 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 
+def validate_args(args):
+    if args.gas_oil_boiler_ban_announce_date > args.gas_oil_boiler_ban_date:
+        raise ValueError(
+            f"Boiler ban announcement date must be on or before ban date, got gas_oil_boiler_ban_date:{args.gas_oil_boiler_ban_date}, gas_oil_boiler_ban_announce_date:{args.gas_oil_boiler_ban_announce_date}"
+        )
+
+
 if __name__ == "__main__":
+
     args = parse_args()
+    validate_args(args)
 
     logger.info(
         "parsed arguments",

@@ -10,7 +10,7 @@ from dateutil.relativedelta import relativedelta
 
 import simulation.__main__
 from abm import read_jsonlines
-from simulation.__main__ import parse_args
+from simulation.__main__ import parse_args, validate_args
 from simulation.constants import InterventionType
 
 
@@ -250,3 +250,20 @@ def test_running_simulation_twice_with_same_seed_gives_identical_results(
 
 def test_python_hash_randomization_is_disabled():
     assert os.environ["PYTHONHASHSEED"] == "0"
+
+
+class TestValidateArgs:
+    def test_ban_date_before_announcement_date_raises_value_error(
+        self, mandatory_local_args
+    ):
+        args = parse_args(
+            [
+                *mandatory_local_args,
+                "--gas-oil-boiler-ban-date",
+                "2025-01-01",
+                "--gas-oil-boiler-ban-announce-date",
+                "2030-01-01",
+            ]
+        )
+        with pytest.raises(ValueError):
+            validate_args(args)
