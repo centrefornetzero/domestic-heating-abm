@@ -43,6 +43,10 @@ local bigquery_arg = [
   job('00-%s-rhi' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'rhi',
+    '--start_date',
+    '2012-01-01',
+    '--steps',
+    '120',
   ] + bigquery_arg),
   job('01-%s-baseline' % std.extVar('SHORT_SHA'), [
     '--air-source-heat-pump-price-discount-date',
