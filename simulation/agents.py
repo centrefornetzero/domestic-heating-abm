@@ -94,9 +94,9 @@ def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
     return (alpha / beta) * (age_years / beta) ** (alpha - 1)
 
 
-def sigmoid(x: float, k: float = SIGMOID_K, offset: float = SIGMOID_OFFSET):
+def reverse_sigmoid(x: float, k: float = SIGMOID_K, offset: float = SIGMOID_OFFSET):
 
-    return 1 / (1 + math.exp(-k * (x - offset)))
+    return 1 / (1 + math.exp(-k * (-x - offset)))
 
 
 class Household(Agent):
@@ -403,15 +403,15 @@ class Household(Agent):
         if model.current_datetime >= model.gas_oil_boiler_ban_datetime:
             return 1
 
-        max_ban_lead_time_years = 10
         years_to_ban = (
             model.gas_oil_boiler_ban_datetime - model.current_datetime
         ).days / 365
 
+        max_ban_lead_time_years = 10
         if years_to_ban > max_ban_lead_time_years:
             return 0
 
-        return sigmoid(max_ban_lead_time_years - years_to_ban)
+        return reverse_sigmoid(years_to_ban)
 
     def get_heating_system_options(
         self, model: "DomesticHeatingABM", event_trigger: EventTrigger
