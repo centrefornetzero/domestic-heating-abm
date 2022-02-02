@@ -140,6 +140,8 @@ local bigquery_arg = [
     'boiler_upgrade_scheme',
     '--intervention',
     'gas_oil_boiler_ban',
+    '--gas-oil-boiler-ban-announce-date',
+    '2025-01-01',
     '--gas-oil-boiler-ban-date',
     '2030-01-01',
     '--heat-pump-awareness',
