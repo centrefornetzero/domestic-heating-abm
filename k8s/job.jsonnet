@@ -50,7 +50,7 @@ local bigquery_arg = [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
   ] + bigquery_arg),
-  job('03-%s-bus-policy' % std.extVar('SHORT_SHA'), [
+  job('03a-%s-bus-policy' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--air-source-heat-pump-price-discount-date',
@@ -62,7 +62,7 @@ local bigquery_arg = [
     '--price-gbp-per-kwh-oil',
     '0.0702',
   ] + bigquery_arg),
-  job('04-%s-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
+  job('03b-%s-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--heat-pump-awareness',
@@ -76,7 +76,7 @@ local bigquery_arg = [
     '--price-gbp-per-kwh-oil',
     '0.0702',
   ] + bigquery_arg),
-  job('05-%s-max-policy' % std.extVar('SHORT_SHA'), [
+  job('04a-%s-max-policy' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--intervention',
@@ -96,7 +96,27 @@ local bigquery_arg = [
     '--price-gbp-per-kwh-oil',
     '0.0702',
   ] + bigquery_arg),
-  job('06-%s-max-industry' % std.extVar('SHORT_SHA'), [
+  job('04b-%s-max-policy-delayed-announcement' % std.extVar('SHORT_SHA'), [
+    '--intervention',
+    'boiler_upgrade_scheme',
+    '--intervention',
+    'gas_oil_boiler_ban',
+    '--gas-oil-boiler-ban-date',
+    '2035-01-01',
+    '--gas-oil-boiler-ban-announce-date',
+    '2030-01-01',
+    '--heat-pump-awareness',
+    '0.6',
+    '--air-source-heat-pump-price-discount-date',
+    '2023-01-01:0.3',
+    '--price-gbp-per-kwh-gas',
+    '0.0685',
+    '--price-gbp-per-kwh-electricity',
+    '0.1656',
+    '--price-gbp-per-kwh-oil',
+    '0.0702',
+  ] + bigquery_arg),
+  job('05-%s-max-industry' % std.extVar('SHORT_SHA'), [
     '--heat-pump-awareness',
     '0.6',
     '--heating-system-hassle-factor',
@@ -107,7 +127,7 @@ local bigquery_arg = [
     '--air-source-heat-pump-price-discount-date',
     '2025-01-01:0.6',
   ] + bigquery_arg),
-  job('07-%s-max-policy-max-industry' % std.extVar('SHORT_SHA'), [
+  job('06-%s-max-policy-max-industry' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--intervention',
