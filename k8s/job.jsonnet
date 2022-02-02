@@ -105,7 +105,7 @@ local bigquery_arg = [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
     '--air-source-heat-pump-price-discount-date',
-    '2025-01-01:0.5',
+    '2025-01-01:0.6',
   ] + bigquery_arg),
   job('07-%s-max-policy-max-industry' % std.extVar('SHORT_SHA'), [
     '--intervention',
@@ -122,7 +122,7 @@ local bigquery_arg = [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
     '--air-source-heat-pump-price-discount-date',
-    '2025-01-01:0.5',
+    '2025-01-01:0.6',
     '--price-gbp-per-kwh-gas',
     '0.0685',
     '--price-gbp-per-kwh-electricity',
