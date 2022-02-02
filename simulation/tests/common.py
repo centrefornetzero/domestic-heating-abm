@@ -48,6 +48,7 @@ def model_factory(**model_attributes):
         "heating_system_hassle_factor": 0.7,
         "interventions": [],
         "gas_oil_boiler_ban_datetime": datetime.datetime(2035, 1, 1),
+        "gas_oil_boiler_ban_announce_datetime": datetime.datetime(2035, 1, 1),
         "price_gbp_per_kwh_gas": 0.0465,
         "price_gbp_per_kwh_electricity": 0.2006,
         "price_gbp_per_kwh_oil": 0.0482,

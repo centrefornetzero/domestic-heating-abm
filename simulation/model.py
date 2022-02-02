@@ -34,6 +34,7 @@ class DomesticHeatingABM(AgentBasedModel):
         heating_system_hassle_factor: float,
         interventions: Optional[List[InterventionType]],
         gas_oil_boiler_ban_datetime: datetime.datetime,
+        gas_oil_boiler_ban_announce_datetime: datetime.datetime,
         price_gbp_per_kwh_gas: float,
         price_gbp_per_kwh_electricity: float,
         price_gbp_per_kwh_oil: float,
@@ -51,6 +52,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.interventions = interventions or []
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
         self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
+        self.gas_oil_boiler_ban_announce_datetime = gas_oil_boiler_ban_announce_datetime
         self.fuel_price_gbp_per_kwh = {
             HeatingFuel.GAS: price_gbp_per_kwh_gas,
             HeatingFuel.ELECTRICITY: price_gbp_per_kwh_electricity,
@@ -203,6 +205,7 @@ def create_and_run_simulation(
     interventions: Optional[List[InterventionType]],
     all_agents_heat_pump_suitable: bool,
     gas_oil_boiler_ban_datetime: datetime.datetime,
+    gas_oil_boiler_ban_announce_datetime: datetime.datetime,
     price_gbp_per_kwh_gas: float,
     price_gbp_per_kwh_electricity: float,
     price_gbp_per_kwh_oil: float,
@@ -220,6 +223,7 @@ def create_and_run_simulation(
         heating_system_hassle_factor=heating_system_hassle_factor,
         interventions=interventions,
         gas_oil_boiler_ban_datetime=gas_oil_boiler_ban_datetime,
+        gas_oil_boiler_ban_announce_datetime=gas_oil_boiler_ban_announce_datetime,
         price_gbp_per_kwh_gas=price_gbp_per_kwh_gas,
         price_gbp_per_kwh_electricity=price_gbp_per_kwh_electricity,
         price_gbp_per_kwh_oil=price_gbp_per_kwh_oil,

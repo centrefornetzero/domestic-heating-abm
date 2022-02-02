@@ -148,6 +148,12 @@ def parse_args(args=None):
         type=convert_to_datetime,
     )
 
+    parser.add_argument(
+        "--gas-oil-boiler-ban-announce-date",
+        default=datetime.datetime(2035, 1, 1),
+        type=convert_to_datetime,
+    )
+
     # SOURCE: Default values from https://energysavingtrust.org.uk/about-us/our-data/ (England, Scotland and Wales)
     # These fuel prices were last updated in November 2021, based on predicted fuel prices for 2022
     parser.add_argument("--price-gbp-per-kwh-gas", type=float, default=0.0465)
@@ -157,8 +163,17 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 
+def validate_args(args):
+    if args.gas_oil_boiler_ban_announce_date > args.gas_oil_boiler_ban_date:
+        raise ValueError(
+            f"Boiler ban announcement date must be on or before ban date, got gas_oil_boiler_ban_date:{args.gas_oil_boiler_ban_date}, gas_oil_boiler_ban_announce_date:{args.gas_oil_boiler_ban_announce_date}"
+        )
+
+
 if __name__ == "__main__":
+
     args = parse_args()
+    validate_args(args)
 
     logger.info(
         "parsed arguments",
@@ -184,6 +199,7 @@ if __name__ == "__main__":
             args.intervention,
             args.all_agents_heat_pump_suitable,
             args.gas_oil_boiler_ban_date,
+            args.gas_oil_boiler_ban_announce_date,
             args.price_gbp_per_kwh_gas,
             args.price_gbp_per_kwh_electricity,
             args.price_gbp_per_kwh_oil,

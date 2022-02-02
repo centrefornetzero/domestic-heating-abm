@@ -57,6 +57,12 @@ HEATING_SYSTEM_LIFETIME_YEARS = 15
 HAZARD_RATE_HEATING_SYSTEM_ALPHA = 6
 HAZARD_RATE_HEATING_SYSTEM_BETA = 15
 
+# If a ban is active and has been announced, irrespective of the `SIGMOID_{K, OFFSET}` values,
+# all agents will not consider banned heating systems after this time
+MAX_BAN_LEAD_TIME_YEARS = 10
+SIGMOID_K = 1
+SIGMOID_OFFSET = 7
+
 
 class ConstructionYearBand(enum.Enum):
     # These categories match the England & Wales EPC categories
