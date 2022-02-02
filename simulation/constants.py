@@ -215,3 +215,8 @@ HEAT_PUMP_INSTALLER_COUNT = 1_700
 
 # Source: https://www.isoenergy.co.uk/latest-news/renewable-energy-news-from-isoenergy/how-long-will-it-take-to-have-a-heat-pump-installed
 HEAT_PUMP_INSTALLATION_DURATION_MONTHS = 0.5
+
+# Source: https://ukerc.ac.uk/news/heating-engineers-skills-and-heat-decarbonisation/
+# Assuming a 1:1 replacement of gas engineer to heat pump engineers
+# In 2019, 130K heating engineers registered with Gas Safe; 28mil households = 215 households to every installer
+HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR = 215

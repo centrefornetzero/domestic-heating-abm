@@ -124,7 +124,7 @@ def parse_args(args=None):
     parser.add_argument(
         "--heat-pump-installer-annual-growth-rate",
         type=float,
-        default=0,
+        default=0.565,
         help="The YoY growth rate of heat pump installers across the UK. A value of 0 indicates no growth.",
     )
 

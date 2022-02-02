@@ -13,6 +13,7 @@ from simulation.constants import (
     HEAT_PUMP_INSTALLATION_DURATION_MONTHS,
     HEAT_PUMP_INSTALLER_COUNT,
     HEATING_SYSTEM_LIFETIME_YEARS,
+    HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR,
     BuiltForm,
     ConstructionYearBand,
     EPCRating,
@@ -82,7 +83,7 @@ class DomesticHeatingABM(AgentBasedModel):
             self.household_count / ENGLAND_WALES_HOUSEHOLD_COUNT_2020
         )
 
-        return max(
+        heat_pump_installers = max(
             int(
                 population_scale_factor
                 * HEAT_PUMP_INSTALLER_COUNT
@@ -90,6 +91,16 @@ class DomesticHeatingABM(AgentBasedModel):
             ),
             1,
         )
+
+        if (
+            self.household_count / heat_pump_installers
+            < HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR
+        ):
+            return max(
+                int(self.household_count / HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR), 1
+            )
+
+        return heat_pump_installers
 
     @property
     def heat_pump_installation_capacity_per_step(self) -> int:
