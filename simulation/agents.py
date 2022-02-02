@@ -28,6 +28,7 @@ from simulation.constants import (
     HEATING_KWH_PER_SQM_ANNUAL,
     HEATING_PROPORTION_OF_RENO_BUDGET,
     HEATING_SYSTEM_FUEL,
+    MAX_BAN_LEAD_TIME_YEARS,
     MAX_HEAT_PUMP_CAPACITY_KW,
     MIN_HEAT_PUMP_CAPACITY_KW,
     RENO_NUM_INSULATION_ELEMENTS_UPGRADED,
@@ -96,7 +97,7 @@ def weibull_hazard_rate(alpha: float, beta: float, age_years: float) -> float:
 
 def reverse_sigmoid(x: float, k: float = SIGMOID_K, offset: float = SIGMOID_OFFSET):
 
-    return 1 / (1 + math.exp(-k * (-x - offset)))
+    return 1 / (1 + math.exp(k * (x + offset)))
 
 
 class Household(Agent):
@@ -407,8 +408,7 @@ class Household(Agent):
             model.gas_oil_boiler_ban_datetime - model.current_datetime
         ).days / 365
 
-        max_ban_lead_time_years = 10
-        if years_to_ban > max_ban_lead_time_years:
+        if years_to_ban > MAX_BAN_LEAD_TIME_YEARS:
             return 0
 
         return reverse_sigmoid(years_to_ban)
