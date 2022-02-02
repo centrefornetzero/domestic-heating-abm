@@ -43,7 +43,7 @@ local bigquery_arg = [
   job('00-%s-rhi' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'rhi',
-    '--start_date',
+    '--start-date',
     '2012-01-01',
     '--steps',
     '120',
