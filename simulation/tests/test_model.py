@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 
 from simulation.constants import (
     HEATING_SYSTEM_LIFETIME_YEARS,
+    HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR,
     BuiltForm,
     ConstructionYearBand,
     EPCRating,
@@ -124,6 +125,22 @@ class TestDomesticHeatingABM:
             model.heat_pump_installers
             < model_with_higher_installer_growth.heat_pump_installers
         )
+
+    def test_heat_pump_installer_count_is_capped_by_ratio_of_installers_to_households(
+        self,
+    ):
+
+        model = model_factory(
+            step_interval=relativedelta(months=120),
+            heat_pump_installer_annual_growth_rate=9,
+        )
+        model.add_agents([household_factory() for _ in range(10_000)])
+        model.increment_timestep()
+
+        hp_installer_maximum = int(
+            model.household_count / HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR
+        )
+        assert model.heat_pump_installers == hp_installer_maximum
 
     def test_heat_pump_installation_capacity_per_step_increases_with_step_interval(
         self,
