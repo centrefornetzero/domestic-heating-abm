@@ -209,14 +209,19 @@ class InterventionType(enum.Enum):
 
 # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/families/datasets/householdsbytypeofhouseholdandfamilyregionsofenglandandukconstituentcountries
 ENGLAND_WALES_HOUSEHOLD_COUNT_2020 = 24_600_000
+UK_HOUSEHOLD_COUNT = 27_800_000
 
-# Source: https://mcscertified.com/
-HEAT_PUMP_INSTALLER_COUNT = 1_700
+# Source - https://www.heatpumps.org.uk/wp-content/uploads/2020/06/Building-the-Installer-Base-for-Net-Zero-Heating_02.06.pdf
+# UK figures are proportionally scaled for England + Wales only
+HEAT_PUMP_INSTALLER_COUNT = 3_200 * (
+    ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / UK_HOUSEHOLD_COUNT
+)
 
-# Source: https://www.isoenergy.co.uk/latest-news/renewable-energy-news-from-isoenergy/how-long-will-it-take-to-have-a-heat-pump-installed
-HEAT_PUMP_INSTALLATION_DURATION_MONTHS = 0.5
+# Source - https://www.heatpumps.org.uk/wp-content/uploads/2020/06/Building-the-Installer-Base-for-Net-Zero-Heating_02.06.pdf
+# Uses the CCC Balanced Pathway scenario of 625k HPs/year in 2028, stating it requires 33,700 installers - i.e. an installation takes ~20 days
+HEAT_PUMP_INSTALLATION_DURATION_MONTHS = 0.65
 
 # Source: https://ukerc.ac.uk/news/heating-engineers-skills-and-heat-decarbonisation/
 # Assuming a 1:1 replacement of gas engineer to heat pump engineers
-# In 2019, 130K heating engineers registered with Gas Safe; 28mil households = 215 households to every installer
+# In 2019, 130K heating engineers registered with Gas Safe; 27.8mil households = ~215 households to every installer
 HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR = 215
