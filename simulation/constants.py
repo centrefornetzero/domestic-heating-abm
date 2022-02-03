@@ -213,8 +213,8 @@ UK_HOUSEHOLD_COUNT = 27_800_000
 
 # Source - https://www.heatpumps.org.uk/wp-content/uploads/2020/06/Building-the-Installer-Base-for-Net-Zero-Heating_02.06.pdf
 # UK figures are proportionally scaled for England + Wales only
-HEAT_PUMP_INSTALLER_COUNT = 3_200 * (
-    ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / UK_HOUSEHOLD_COUNT
+HEAT_PUMP_INSTALLER_COUNT = int(
+    3_200 * (ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / UK_HOUSEHOLD_COUNT)
 )
 
 # Source - https://www.heatpumps.org.uk/wp-content/uploads/2020/06/Building-the-Installer-Base-for-Net-Zero-Heating_02.06.pdf
