@@ -218,7 +218,7 @@ HEAT_PUMP_INSTALLER_COUNT = int(
 )
 
 # Source - https://www.heatpumps.org.uk/wp-content/uploads/2020/06/Building-the-Installer-Base-for-Net-Zero-Heating_02.06.pdf
-# Uses the CCC Balanced Pathway scenario of 625k HPs/year in 2028, stating it requires 33,700 installers - i.e. an installation takes ~20 days
+# Uses the CCC Balanced Pathway scenario of 625k HPs/year in 2028, stating it requires 33,700 installers - i.e. an installation takes ~19 days
 HEAT_PUMP_INSTALLATION_DURATION_MONTHS = 0.65
 
 # Source: https://ukerc.ac.uk/news/heating-engineers-skills-and-heat-decarbonisation/
