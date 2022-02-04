@@ -122,6 +122,13 @@ def parse_args(args=None):
     )
 
     parser.add_argument(
+        "--heat-pump-installer-count",
+        type=float,
+        default=2_800,
+        help="The number of HP installers at the start of the simulation.",
+    )
+
+    parser.add_argument(
         "--heat-pump-installer-annual-growth-rate",
         type=float,
         default=0.48,
@@ -204,6 +211,7 @@ if __name__ == "__main__":
             args.price_gbp_per_kwh_electricity,
             args.price_gbp_per_kwh_oil,
             args.air_source_heat_pump_price_discount_date,
+            args.heat_pump_installer_count,
             args.heat_pump_installer_annual_growth_rate,
         )
 

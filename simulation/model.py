@@ -11,7 +11,6 @@ from simulation.collectors import get_agent_collectors, get_model_collectors
 from simulation.constants import (
     ENGLAND_WALES_HOUSEHOLD_COUNT_2020,
     HEAT_PUMP_INSTALLATION_DURATION_MONTHS,
-    HEAT_PUMP_INSTALLER_COUNT,
     HEATING_SYSTEM_LIFETIME_YEARS,
     HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR,
     BuiltForm,
@@ -42,6 +41,7 @@ class DomesticHeatingABM(AgentBasedModel):
         air_source_heat_pump_price_discount_schedule: Optional[
             List[Tuple[datetime.datetime, float]]
         ],
+        heat_pump_installer_count: int,
         heat_pump_installer_annual_growth_rate: float,
     ):
         self.start_datetime = start_datetime
@@ -64,6 +64,7 @@ class DomesticHeatingABM(AgentBasedModel):
             if air_source_heat_pump_price_discount_schedule
             else None
         )
+        self.heat_pump_installer_count = heat_pump_installer_count
         self.heat_pump_installer_annual_growth_rate = (
             heat_pump_installer_annual_growth_rate
         )
@@ -86,7 +87,7 @@ class DomesticHeatingABM(AgentBasedModel):
         heat_pump_installers = max(
             int(
                 population_scale_factor
-                * HEAT_PUMP_INSTALLER_COUNT
+                * self.heat_pump_installer_count
                 * (1 + self.heat_pump_installer_annual_growth_rate) ** years_elapsed
             ),
             1,
@@ -223,6 +224,7 @@ def create_and_run_simulation(
     air_source_heat_pump_price_discount_schedule: Optional[
         List[Tuple[datetime.datetime, float]]
     ],
+    heat_pump_installer_count: int,
     heat_pump_installer_annual_growth_rate: float,
 ):
 
@@ -239,6 +241,7 @@ def create_and_run_simulation(
         price_gbp_per_kwh_electricity=price_gbp_per_kwh_electricity,
         price_gbp_per_kwh_oil=price_gbp_per_kwh_oil,
         air_source_heat_pump_price_discount_schedule=air_source_heat_pump_price_discount_schedule,
+        heat_pump_installer_count=heat_pump_installer_count,
         heat_pump_installer_annual_growth_rate=heat_pump_installer_annual_growth_rate,
     )
 
