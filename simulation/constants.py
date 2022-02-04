@@ -60,8 +60,8 @@ HAZARD_RATE_HEATING_SYSTEM_BETA = 15
 # If a ban is active and has been announced, irrespective of the `SIGMOID_{K, OFFSET}` values,
 # all agents will not consider banned heating systems after this time
 MAX_BAN_LEAD_TIME_YEARS = 10
-SIGMOID_K = 1
-SIGMOID_OFFSET = 7
+SIGMOID_K = 2
+SIGMOID_OFFSET = 0
 
 
 class ConstructionYearBand(enum.Enum):
