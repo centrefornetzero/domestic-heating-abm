@@ -47,8 +47,6 @@ local bigquery_arg = [
     '2012-01-01',
     '--steps',
     '120',
-    '--heat-pump-installer-count',
-    '1_800',
      '--heat-pump-installer-annual-growth-rate',
     '0',
   ] + bigquery_arg),
