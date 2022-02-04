@@ -40,25 +40,27 @@ local bigquery_arg = [
 ];
 
 [
-  job('00-%s-rhi' % std.extVar('SHORT_SHA'), [
+  job('01-%s-rhi' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'rhi',
     '--start-date',
     '2012-01-01',
     '--steps',
     '120',
+     '--heat-pump-installer-annual-growth-rate',
+    '0',
   ] + bigquery_arg),
-  job('01-%s-baseline' % std.extVar('SHORT_SHA'), [
+  job('02-%s-baseline' % std.extVar('SHORT_SHA'), [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
   ] + bigquery_arg),
-  job('02-%s-bus' % std.extVar('SHORT_SHA'), [
+  job('03a-%s-bus' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
   ] + bigquery_arg),
-  job('03a-%s-bus-policy' % std.extVar('SHORT_SHA'), [
+  job('03b-%s-bus-policy' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--air-source-heat-pump-price-discount-date',
@@ -70,11 +72,11 @@ local bigquery_arg = [
     '--price-gbp-per-kwh-oil',
     '0.0702',
   ] + bigquery_arg),
-  job('03b-%s-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
+  job('03c-%s-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--heat-pump-awareness',
-    '0.6',
+    '0.5',
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
     '--price-gbp-per-kwh-gas',
@@ -94,7 +96,7 @@ local bigquery_arg = [
     '--gas-oil-boiler-ban-announce-date',
     '2025-01-01',
     '--heat-pump-awareness',
-    '0.6',
+    '0.5',
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
     '--price-gbp-per-kwh-gas',
@@ -114,7 +116,7 @@ local bigquery_arg = [
     '--gas-oil-boiler-ban-announce-date',
     '2030-01-01',
     '--heat-pump-awareness',
-    '0.6',
+    '0.5',
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
     '--price-gbp-per-kwh-gas',
@@ -126,7 +128,7 @@ local bigquery_arg = [
   ] + bigquery_arg),
   job('05-%s-max-industry' % std.extVar('SHORT_SHA'), [
     '--heat-pump-awareness',
-    '0.6',
+    '0.5',
     '--heating-system-hassle-factor',
     '0',
     '--all-agents-heat-pump-suitable',
@@ -145,7 +147,7 @@ local bigquery_arg = [
     '--gas-oil-boiler-ban-date',
     '2030-01-01',
     '--heat-pump-awareness',
-    '0.6',
+    '0.5',
     '--heating-system-hassle-factor',
     '0',
     '--all-agents-heat-pump-suitable',

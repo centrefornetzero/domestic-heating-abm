@@ -60,8 +60,8 @@ HAZARD_RATE_HEATING_SYSTEM_BETA = 15
 # If a ban is active and has been announced, irrespective of the `SIGMOID_{K, OFFSET}` values,
 # all agents will not consider banned heating systems after this time
 MAX_BAN_LEAD_TIME_YEARS = 10
-SIGMOID_K = 1
-SIGMOID_OFFSET = 7
+SIGMOID_K = 2
+SIGMOID_OFFSET = 0
 
 
 class ConstructionYearBand(enum.Enum):
@@ -209,13 +209,6 @@ class InterventionType(enum.Enum):
 
 # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/families/datasets/householdsbytypeofhouseholdandfamilyregionsofenglandandukconstituentcountries
 ENGLAND_WALES_HOUSEHOLD_COUNT_2020 = 24_600_000
-UK_HOUSEHOLD_COUNT = 27_800_000
-
-# Source - https://www.heatpumps.org.uk/wp-content/uploads/2020/06/Building-the-Installer-Base-for-Net-Zero-Heating_02.06.pdf
-# UK figures are proportionally scaled for England + Wales only
-HEAT_PUMP_INSTALLER_COUNT = int(
-    3_200 * (ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / UK_HOUSEHOLD_COUNT)
-)
 
 # Source - https://www.heatpumps.org.uk/wp-content/uploads/2020/06/Building-the-Installer-Base-for-Net-Zero-Heating_02.06.pdf
 # Uses the CCC Balanced Pathway scenario of 625k HPs/year in 2028, stating it requires 33,700 installers - i.e. an installation takes ~19 days
