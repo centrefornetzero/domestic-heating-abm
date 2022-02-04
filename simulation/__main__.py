@@ -83,7 +83,7 @@ def parse_args(args=None):
     )
 
     parser.add_argument("--steps", dest="time_steps", type=int, default=156)
-    parser.add_argument("--heat-pump-awareness", type=float, default=0.4)
+    parser.add_argument("--heat-pump-awareness", type=float, default=0.25)
     parser.add_argument("--annual-renovation-rate", type=float, default=0.1)
     parser.add_argument(
         "--household-num-lookahead-years",
@@ -124,8 +124,8 @@ def parse_args(args=None):
     parser.add_argument(
         "--heat-pump-installer-annual-growth-rate",
         type=float,
-        default=0.565,
-        help="The YoY growth rate of heat pump installers across the UK. A value of 0 indicates no growth.",
+        default=0.48,
+        help="The YoY growth rate of heat pump installers across the simulation. A value of 0 indicates no growth.",
     )
 
     def check_string_is_isoformat_datetime(string) -> str:
