@@ -224,20 +224,20 @@ local job(name, args_excl_output) = {
     '0.0723',
   ]),
 
-  job('65-%s-ashp-discount-low' % std.extVar('SHORT_SHA'), [
+  job('61-%s-ashp-discount-low' % std.extVar('SHORT_SHA'), [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0',
   ]),
-  job('66-%s-ashp-discount-high' % std.extVar('SHORT_SHA'), [
+  job('62-%s-ashp-discount-high' % std.extVar('SHORT_SHA'), [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.6',
   ]),
 
-  job('67-%s-hp-installer-growth-low' % std.extVar('SHORT_SHA'), [
+  job('63-%s-hp-installer-growth-low' % std.extVar('SHORT_SHA'), [
     '--heat-pump-installer-annual-growth-rate',
     '0',
   ]),
-  job('68-%s-hp-installer-growth-high' % std.extVar('SHORT_SHA'), [
+  job('64-%s-hp-installer-growth-high' % std.extVar('SHORT_SHA'), [
     '--heat-pump-installer-annual-growth-rate',
     '1',
   ]),
