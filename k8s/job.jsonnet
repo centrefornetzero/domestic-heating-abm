@@ -207,29 +207,19 @@ local job(name, args_excl_output) = {
     '--all-agents-heat-pump-suitable',
   ]),
 
-  job('59-%s-gas-price-low' % std.extVar('SHORT_SHA'), [
+  job('59-%s-fuel-price-low' % std.extVar('SHORT_SHA'), [
     '--price-gbp-per-kwh-gas',
     '0.02325',
-  ]),
-  job('60-%s-gas-price-high' % std.extVar('SHORT_SHA'), [
-    '--price-gbp-per-kwh-gas',
-    '0.06975',
-  ]),
-
-  job('61-%s-electricity-price-low' % std.extVar('SHORT_SHA'), [
     '--price-gbp-per-kwh-electricity',
     '0.1003',
-  ]),
-  job('62-%s-electricity-price-high' % std.extVar('SHORT_SHA'), [
-    '--price-gbp-per-kwh-electricity',
-    '0.3009',
-  ]),
-
-  job('63-%s-oil-price-low' % std.extVar('SHORT_SHA'), [
     '--price-gbp-per-kwh-oil',
     '0.0241',
   ]),
-  job('64-%s-oil-price-high' % std.extVar('SHORT_SHA'), [
+  job('60-%s-fuel-price-high' % std.extVar('SHORT_SHA'), 
+    '--price-gbp-per-kwh-gas',
+    '0.06975',
+    '--price-gbp-per-kwh-electricity',
+    '0.3009',
     '--price-gbp-per-kwh-oil',
     '0.0723',
   ]),
