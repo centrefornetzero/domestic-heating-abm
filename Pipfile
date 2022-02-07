@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pandas = "==1.4.0"
-numpy = "==1.22.1"
+numpy = "==1.22.2"
 pyarrow = "==6.0.1"
 pandas-gbq = "==0.17.0"
 smart-open = {version = "==5.2.1", extras = ["gcs"]}
