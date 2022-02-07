@@ -49,7 +49,7 @@ local bigquery_arg = [
     '2012-01-01',
     '--steps',
     '120',
-     '--heat-pump-installer-annual-growth-rate',
+    '--heat-pump-installer-annual-growth-rate',
     '0',
   ] + bigquery_arg),
   job('02-%s-baseline' % std.extVar('SHORT_SHA'), [
