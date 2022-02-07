@@ -49,7 +49,7 @@
         },
         "google-api-core": {
             "extras": [
-                "grpc"
+
             ],
             "hashes": [
                 "sha256:7d030edbd3a0e994d796e62716022752684e863a6df9864b6ca82a1616c2a5a6",
@@ -742,11 +742,11 @@
         },
         "pandas-stubs": {
             "hashes": [
-                "sha256:5cc87a2d75d946170f2f13980989e38ce586495edda617514a3bfeb1c4f6b52b",
-                "sha256:aca98f86ebafa0b393f3652feaedd768ad7149dbee6a9d55f0074673f1971e21"
+                "sha256:54df4b9d344f2bbb5b65646a77d420b6f0250d2bb6742e5b04e65006acc60e8a",
+                "sha256:78801efb504abe75c2cf73cb3469b97003080e80fb03aa2a406ca4928f3fd887"
             ],
             "index": "pypi",
-            "version": "==1.2.0.45"
+            "version": "==1.2.0.47"
         },
         "pathspec": {
             "hashes": [
