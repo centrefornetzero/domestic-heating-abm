@@ -51,11 +51,9 @@ class TestParseArgs:
         args = parse_args([*mandatory_local_args, "--start-date", "2021-01-01"])
         assert args.start_datetime == datetime.datetime(2021, 1, 1)
 
-    def test_start_date_default_is_today_at_midnight(self, mandatory_local_args):
+    def test_start_date_default_is_start_of_2022(self, mandatory_local_args):
         args = parse_args(mandatory_local_args)
-        assert args.start_datetime == datetime.datetime.today().replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        assert args.start_datetime == datetime.datetime(2022, 1, 1)
 
     def test_default_seed_is_current_datetime_string(self, mandatory_local_args):
         datetime_before = datetime.datetime.now()
