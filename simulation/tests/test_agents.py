@@ -200,7 +200,10 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(
-            roof_energy_efficiency=3, walls_energy_efficiency=2, epc_rating=EPCRating.D
+            roof_energy_efficiency=3,
+            walls_energy_efficiency=2,
+            epc_rating=EPCRating.D,
+            potential_epc_rating=EPCRating.B,
         )
         household.install_insulation_elements({Element.ROOF: 1_000})
 
@@ -212,20 +215,23 @@ class TestHousehold:
         assert household.walls_energy_efficiency == 5
         assert household.epc_rating == EPCRating.B
 
-    def test_impact_of_installing_insulation_measures_is_capped_at_epc_A(
+    @pytest.mark.parametrize("epc", list(EPCRating))
+    def test_impact_of_installing_insulation_measures_is_capped_at_potential_epc(
         self,
+        epc,
     ) -> None:
 
-        epc_A_household = household_factory(
+        household_at_potential_epc = household_factory(
             roof_energy_efficiency=4,
             walls_energy_efficiency=5,
             windows_energy_efficiency=5,
-            epc_rating=EPCRating.A,
+            epc_rating=epc,
+            potential_epc_rating=epc,
         )
-        epc_A_household.install_insulation_elements({Element.ROOF: 1_000})
+        household_at_potential_epc.install_insulation_elements({Element.ROOF: 1_000})
 
-        assert epc_A_household.roof_energy_efficiency == 5
-        assert epc_A_household.epc_rating == EPCRating.A
+        assert household_at_potential_epc.roof_energy_efficiency == 5
+        assert household_at_potential_epc.epc_rating == epc
 
     def test_households_with_potential_epc_below_C_are_not_heat_pump_suitable(
         self,
