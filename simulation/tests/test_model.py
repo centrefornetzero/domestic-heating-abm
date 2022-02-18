@@ -168,6 +168,64 @@ class TestDomesticHeatingABM:
         )
         assert not model.has_heat_pump_installation_capacity
 
+    def test_model_new_builds_per_step_is_zero_if_no_year_in_annual_new_builds(self):
+        model = model_factory(annual_new_builds=None)
+        assert model.new_builds_per_step == 0
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2021, 1, 1),
+            annual_new_builds={2022: 100},
+        )
+        assert model.new_builds_per_step == 0
+
+    @pytest.mark.parametrize("year", {2020, 2021, 2022, 2023, 2024})
+    def test_model_does_not_install_heat_pumps_in_new_builds_before_2025(self, year):
+        model = model_factory(
+            start_datetime=datetime.datetime(year, 1, 1),
+            annual_new_builds={year: 100},
+        )
+        assert model.heat_pump_installation_capacity_per_step_new_builds == 0
+
+    def test_model_includes_new_builds_per_step_post_2025(self):
+        # 120 new builds per year = 10 new builds per month
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1),
+            annual_new_builds={2025: 120, 2026: 240},
+        )
+        assert model.new_builds_per_step == 10
+
+        model.current_datetime = datetime.datetime(2026, 1, 1)
+        assert model.new_builds_per_step == 20
+
+    def test_model_does_not_install_heat_pumps_in_existing_builds_when_too_many_new_builds(
+        self,
+    ):
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1),
+            annual_new_builds={2025: 120_000_000},
+        )
+        assert model.heat_pump_installation_capacity_per_step_new_builds > 0
+        assert model.heat_pump_installation_capacity_per_step_existing_builds == 0
+        assert not model.has_heat_pump_installation_capacity
+
+    def test_model_installs_heat_pumps_in_existing_builds_when_there_is_capacity(self):
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1),
+            heat_pump_installer_count=1_000_000,
+            annual_new_builds={2025: 120},
+        )
+        # We calculate the heat pump installers scaled to the number of agents in the model, so make sure there are sufficient agents
+        model.add_agents([household_factory() for _ in range(10_000)])
+
+        capacity_new_build, capacity_existing_build, capacity_total = (
+            model.heat_pump_installation_capacity_per_step_new_builds,
+            model.heat_pump_installation_capacity_per_step_existing_builds,
+            model.heat_pump_installation_capacity_per_step,
+        )
+        assert capacity_new_build + capacity_existing_build == capacity_total
+        assert 0 < capacity_new_build < capacity_existing_build
+        assert model.has_heat_pump_installation_capacity
+
 
 def test_create_household_agents() -> None:
     household_population = pd.DataFrame(

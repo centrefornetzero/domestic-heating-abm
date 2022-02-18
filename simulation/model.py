@@ -1,9 +1,10 @@
 import datetime
 import random
 from bisect import bisect
-from typing import Iterator, List, Optional, Set, Tuple
+from typing import Dict, Iterator, List, Optional, Set, Tuple
 
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 
 from abm import AgentBasedModel, UnorderedSpace
 from simulation.agents import Household
@@ -28,7 +29,7 @@ class DomesticHeatingABM(AgentBasedModel):
     def __init__(
         self,
         start_datetime: datetime.datetime,
-        step_interval: int,
+        step_interval: relativedelta,
         annual_renovation_rate: float,
         household_num_lookahead_years: int,
         heating_system_hassle_factor: float,
@@ -43,6 +44,7 @@ class DomesticHeatingABM(AgentBasedModel):
         ],
         heat_pump_installer_count: int,
         heat_pump_installer_annual_growth_rate: float,
+        annual_new_builds: Optional[Dict[int, int]],
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -69,6 +71,7 @@ class DomesticHeatingABM(AgentBasedModel):
             heat_pump_installer_annual_growth_rate
         )
         self.heat_pump_installations_at_current_step = 0
+        self.annual_new_builds = annual_new_builds
 
         super().__init__(UnorderedSpace())
 
@@ -114,9 +117,34 @@ class DomesticHeatingABM(AgentBasedModel):
         return int(self.heat_pump_installers * installations_per_installer_per_step)
 
     @property
+    def new_builds_per_step(self) -> int:
+        if self.annual_new_builds is None:
+            return 0
+
+        current_year = self.current_datetime.year
+        months_per_step = self.step_interval.months
+        years_per_step = months_per_step / 12
+        new_builds_in_current_year = self.annual_new_builds.get(current_year, 0)
+        return int(new_builds_in_current_year * years_per_step)
+
+    @property
+    def heat_pump_installation_capacity_per_step_new_builds(self) -> int:
+        # Heat pumps are not installed in new builds prior to 2025
+        current_year = self.current_datetime.year
+        return 0 if current_year < 2025 else self.new_builds_per_step
+
+    @property
+    def heat_pump_installation_capacity_per_step_existing_builds(self) -> int:
+        return max(
+            self.heat_pump_installation_capacity_per_step
+            - self.heat_pump_installation_capacity_per_step_new_builds,
+            0,
+        )
+
+    @property
     def has_heat_pump_installation_capacity(self) -> bool:
         return (
-            self.heat_pump_installation_capacity_per_step
+            self.heat_pump_installation_capacity_per_step_existing_builds
             > self.heat_pump_installations_at_current_step
         )
 
@@ -226,6 +254,7 @@ def create_and_run_simulation(
     ],
     heat_pump_installer_count: int,
     heat_pump_installer_annual_growth_rate: float,
+    annual_new_builds: Dict[int, int],
 ):
 
     model = DomesticHeatingABM(
@@ -243,6 +272,7 @@ def create_and_run_simulation(
         air_source_heat_pump_price_discount_schedule=air_source_heat_pump_price_discount_schedule,
         heat_pump_installer_count=heat_pump_installer_count,
         heat_pump_installer_annual_growth_rate=heat_pump_installer_annual_growth_rate,
+        annual_new_builds=annual_new_builds,
     )
 
     households = create_household_agents(

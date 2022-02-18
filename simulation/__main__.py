@@ -12,7 +12,7 @@ import structlog
 from dateutil.relativedelta import relativedelta
 
 from abm import write_jsonlines
-from simulation.constants import InterventionType
+from simulation.constants import ANNUAL_NEW_BUILDS, InterventionType
 from simulation.model import create_and_run_simulation
 
 structlog.configure(
@@ -133,6 +133,12 @@ def parse_args(args=None):
         help="The YoY growth rate of heat pump installers across the simulation. A value of 0 indicates no growth.",
     )
 
+    parser.add_argument(
+        "--include-new-builds",
+        action="store_true",
+        help="Include new build projections (from constants.py). Installers will also build heat pumps in new builds from 2025.",
+    )
+
     def check_string_is_isoformat_datetime(string) -> str:
         datetime.datetime.fromisoformat(string)
         return string
@@ -211,6 +217,7 @@ if __name__ == "__main__":
             args.air_source_heat_pump_price_discount_date,
             args.heat_pump_installer_count,
             args.heat_pump_installer_annual_growth_rate,
+            ANNUAL_NEW_BUILDS if args.include_new_builds else None,
         )
 
         with smart_open.open(args.history_file, "w") as file:

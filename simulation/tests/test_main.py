@@ -196,6 +196,13 @@ class TestParseArgs:
         args = parse_args([*mandatory_local_args, "--all-agents-heat-pump-suitable"])
         assert args.all_agents_heat_pump_suitable
 
+    def test_include_new_builds(self, mandatory_local_args):
+        args = parse_args([*mandatory_local_args])
+        assert not args.include_new_builds
+
+        args = parse_args([*mandatory_local_args, "--include-new-builds"])
+        assert args.include_new_builds
+
 
 def assert_histories_equal(first_history, second_history):
     first_agent_history, first_model_history = first_history

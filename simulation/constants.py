@@ -218,3 +218,38 @@ HEAT_PUMP_INSTALLATION_DURATION_MONTHS = 0.65
 # Assuming a 1:1 replacement of gas engineer to heat pump engineers
 # In 2019, 130K heating engineers registered with Gas Safe; 27.8mil households = ~215 households to every installer
 HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR = 215
+
+# Source: Element Energy for CCC (pg 33 https://www.theccc.org.uk/wp-content/uploads/2020/12/Element-Energy-Trajectories-for-Residential-Heat-Decarbonisation-Executive-Summary.pdf)
+# Note: These figures have been adjusted to the England/Wales population using ONS data
+ANNUAL_NEW_BUILDS = {
+    2021: 45238,
+    2022: 62202,
+    2023: 73511,
+    2024: 79166,
+    2025: 282735,
+    2026: 282735,
+    2027: 294044,
+    2028: 254461,
+    2029: 254461,
+    2030: 209224,
+    2031: 197914,
+    2032: 180950,
+    2033: 384520,
+    2034: 384520,
+    2035: 339282,
+    2036: 344937,
+    2037: 390174,
+    2038: 378865,
+    2039: 390174,
+    2040: 384520,
+    2041: 390174,
+    2042: 395829,
+    2043: 356246,
+    2044: 327973,
+    2045: 282735,
+    2046: 271425,
+    2047: 254461,
+    2048: 463685,
+    2049: 446721,
+    2050: 390174,
+}
