@@ -70,8 +70,6 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
-    '--price-gbp-per-kwh-oil',
-    '0.0482',
   ]),
   job('03c-%s-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
     '--intervention',
@@ -84,8 +82,6 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
-    '--price-gbp-per-kwh-oil',
-    '0.0482',
   ]),
   job('04a-%s-max-policy' % std.extVar('SHORT_SHA'), [
     '--intervention',
@@ -104,8 +100,6 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
-    '--price-gbp-per-kwh-oil',
-    '0.0482',
   ]),
   job('04b-%s-max-policy-delayed-announcement' % std.extVar('SHORT_SHA'), [
     '--intervention',
@@ -124,8 +118,6 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
-    '--price-gbp-per-kwh-oil',
-    '0.0482',
   ]),
   job('05-%s-max-industry' % std.extVar('SHORT_SHA'), [
     '--heat-pump-awareness',
@@ -160,8 +152,6 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
-    '--price-gbp-per-kwh-oil',
-    '0.0482',
   ]),
 
   // sensitivity tests
