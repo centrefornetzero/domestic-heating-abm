@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pandas = "==1.4.1"
+pandas = "==1.4.0"
 numpy = "==1.22.2"
 pyarrow = "==6.0.1"
 pandas-gbq = "==0.17.0"
