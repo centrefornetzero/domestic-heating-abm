@@ -55,6 +55,7 @@ def model_factory(**model_attributes):
         "air_source_heat_pump_price_discount_schedule": None,
         "heat_pump_installer_count": 2_800,
         "heat_pump_installer_annual_growth_rate": 0,
+        "annual_new_builds": None,
     }
 
     return DomesticHeatingABM(**{**default_values, **model_attributes})
