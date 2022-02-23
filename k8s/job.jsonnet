@@ -100,8 +100,29 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
+    '--include-new-builds',
   ]),
-  job('04b-%s-max-policy-delayed-announcement' % std.extVar('SHORT_SHA'), [
+  job('04b-%s-max-policy-unlimited-installers' % std.extVar('SHORT_SHA'), [
+    '--intervention',
+    'boiler_upgrade_scheme',
+    '--intervention',
+    'gas_oil_boiler_ban',
+    '--gas-oil-boiler-ban-date',
+    '2035-01-01',
+    '--gas-oil-boiler-ban-announce-date',
+    '2025-01-01',
+    '--heat-pump-awareness',
+    '0.5',
+    '--air-source-heat-pump-price-discount-date',
+    '2023-01-01:0.3',
+    '--price-gbp-per-kwh-gas',
+    '0.0589',
+    '--price-gbp-per-kwh-electricity',
+    '0.1494',
+    '--heat-pump-installer-count',
+    '10000000000'
+  ]),
+  job('04c-%s-max-policy-delayed-announcement' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
     '--intervention',
@@ -118,6 +139,7 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
+    '--include-new-builds'
   ]),
   job('05-%s-max-industry' % std.extVar('SHORT_SHA'), [
     '--heat-pump-awareness',
@@ -152,6 +174,7 @@ local job(name, args_excl_output) = {
     '0.0589',
     '--price-gbp-per-kwh-electricity',
     '0.1494',
+    '--include-new-builds'
   ]),
 
   // sensitivity tests
