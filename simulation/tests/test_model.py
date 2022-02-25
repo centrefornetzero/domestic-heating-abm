@@ -202,16 +202,17 @@ class TestDomesticHeatingABM:
         )
         assert model.heat_pump_installation_capacity_per_step_new_builds == 0
 
-    def test_model_includes_new_builds_per_step_post_2025(self):
-        # 120 new builds per year = 10 new builds per month
+    def test_model_installs_heat_pumps_in_new_builds_post_2025(self):
         model = model_factory(
             start_datetime=datetime.datetime(2025, 1, 1),
-            annual_new_builds={2025: 120, 2026: 240},
+            annual_new_builds={2025: 120_000},
         )
-        assert model.new_builds_per_step == 10
-
-        model.current_datetime = datetime.datetime(2026, 1, 1)
-        assert model.new_builds_per_step == 20
+        model.add_agents([household_factory() for _ in range(10_000)])
+        assert model.heat_pump_installation_capacity_per_step_new_builds > 0
+        assert (
+            model.heat_pump_installation_capacity_per_step_new_builds
+            == model.new_builds_per_step
+        )
 
     def test_model_does_not_install_heat_pumps_in_existing_builds_when_too_many_new_builds(
         self,
@@ -220,6 +221,7 @@ class TestDomesticHeatingABM:
             start_datetime=datetime.datetime(2025, 1, 1),
             annual_new_builds={2025: 120_000_000},
         )
+        model.add_agents([household_factory() for _ in range(10_000)])
         assert model.heat_pump_installation_capacity_per_step_new_builds > 0
         assert model.heat_pump_installation_capacity_per_step_existing_builds == 0
         assert not model.has_heat_pump_installation_capacity
@@ -228,7 +230,7 @@ class TestDomesticHeatingABM:
         model = model_factory(
             start_datetime=datetime.datetime(2025, 1, 1),
             heat_pump_installer_count=1_000_000,
-            annual_new_builds={2025: 120},
+            annual_new_builds={2025: 120_000},
         )
         # We calculate the heat pump installers scaled to the number of agents in the model, so make sure there are sufficient agents
         model.add_agents([household_factory() for _ in range(10_000)])
