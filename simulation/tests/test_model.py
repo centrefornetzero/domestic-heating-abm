@@ -5,6 +5,7 @@ import pytest
 from dateutil.relativedelta import relativedelta
 
 from simulation.constants import (
+    ENGLAND_WALES_HOUSEHOLD_COUNT_2020,
     HEATING_SYSTEM_LIFETIME_YEARS,
     HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR,
     BuiltForm,
@@ -177,6 +178,21 @@ class TestDomesticHeatingABM:
             annual_new_builds={2022: 100},
         )
         assert model.new_builds_per_step == 0
+
+    def test_model_new_builds_per_step_is_scaled_by_population_size(self):
+        england_wales_new_builds = 120_000
+        number_of_agents = 10_000
+        model = model_factory(
+            start_datetime=datetime.datetime(2021, 1, 1),
+            step_interval=relativedelta(months=1),  # 1 step = 1 month
+            annual_new_builds={2021: england_wales_new_builds},
+        )
+        model.add_agents([household_factory() for _ in range(number_of_agents)])
+        population_scale_factor = number_of_agents / ENGLAND_WALES_HOUSEHOLD_COUNT_2020
+        expected_new_builds_per_step = int(
+            (england_wales_new_builds / 12) * population_scale_factor
+        )
+        assert model.new_builds_per_step == expected_new_builds_per_step
 
     @pytest.mark.parametrize("year", {2020, 2021, 2022, 2023, 2024})
     def test_model_does_not_install_heat_pumps_in_new_builds_before_2025(self, year):

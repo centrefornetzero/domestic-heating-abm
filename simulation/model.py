@@ -125,7 +125,12 @@ class DomesticHeatingABM(AgentBasedModel):
         months_per_step = self.step_interval.months
         years_per_step = months_per_step / 12
         new_builds_in_current_year = self.annual_new_builds.get(current_year, 0)
-        return int(new_builds_in_current_year * years_per_step)
+        population_scale_factor = (
+            self.household_count / ENGLAND_WALES_HOUSEHOLD_COUNT_2020
+        )
+        return int(
+            new_builds_in_current_year * years_per_step * population_scale_factor
+        )
 
     @property
     def heat_pump_installation_capacity_per_step_new_builds(self) -> int:
