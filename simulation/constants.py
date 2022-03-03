@@ -221,7 +221,7 @@ HOUSEHOLDS_PER_HEAT_PUMP_INSTALLER_FLOOR = 215
 
 # Source: Element Energy for CCC (pg 33 https://www.theccc.org.uk/wp-content/uploads/2020/12/Element-Energy-Trajectories-for-Residential-Heat-Decarbonisation-Executive-Summary.pdf)
 # Note: These figures have been adjusted to the England/Wales population using ONS data
-ENGLAND_WALES_ANNUAL_NEW_BULDS = {
+ENGLAND_WALES_ANNUAL_NEW_BUILDS = {
     2021: 45238,
     2022: 62202,
     2023: 73511,
