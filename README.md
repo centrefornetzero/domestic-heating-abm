@@ -2,7 +2,7 @@
 
 [Centre for Net Zero's](https://www.centrefornetzero.org/) agent-based model (ABM) for the electrification of domestic heating in England and Wales.
 
-A report describing our methodology and findings will be published in 2022.
+To find out more about our approach and results read our report [_Hitting the Target: interventions required to meet UK Government heat pump targets_](https://www.centrefornetzero.org/res/hitting-the-target/).
 
 ## Installation
 
