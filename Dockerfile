@@ -10,7 +10,7 @@ USER user
 WORKDIR /home/user/src
 
 COPY --chown=user Pipfile* .
-RUN pipenv sync --keep-outdated
+RUN pipenv sync
 ENV PATH="/home/user/src/.venv/bin:$PATH"
 ENV PYTHONPATH=.
 ENV PYTHONHASHSEED=0
@@ -24,7 +24,7 @@ ENTRYPOINT ["python", "-m", "simulation"]
 
 FROM dependencies AS testrunner
 
-RUN pipenv sync --keep-outdated --dev
+RUN pipenv sync --dev
 ENV PYTEST_ADDOPTS="-p no:cacheprovider"
 COPY --chown=user . .
 CMD ["pytest"]
