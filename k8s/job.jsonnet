@@ -17,7 +17,7 @@ local job(name, args_excl_output) = {
             command: ['python', '-m', 'simulation'],
             args: args_excl_output + [
               '--bigquery',
-              'select * from %s.prod_domestic_heating.dim_household_agents where abs(mod(farm_fingerprint(id), 307)) = 1' % std.extVar('PROJECT_ID'),
+              'select * from %s.prod_domestic_heating.household_agents where abs(mod(farm_fingerprint(id), 307)) = 1' % std.extVar('PROJECT_ID'),
               'gs://%s/%s/{uuid}/output.jsonl.gz' % [std.extVar('BUCKET_NAME'), name],
             ],
             env: [
