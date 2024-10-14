@@ -40,7 +40,7 @@ python -m simulation households.parquet history.jsonl
 BigQuery:
 
 ```
-python -m simulation --bigquery "select * from project.prod_domestic_heating.dim_household_agents" history.jsonl
+python -m simulation --bigquery "select * from project.prod_domestic_heating.household_agents" history.jsonl
 ```
 
 ## Analysing the results
