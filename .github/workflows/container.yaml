@@ -68,7 +68,7 @@ jobs:
           go-version: '^1.17'
       - name: Install jsonnet
         run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
-      - uses: google-github-actions/auth@v0
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.DOMESTIC_HEATING_ABM_SA_KEY }}
       - uses: google-github-actions/get-gke-credentials@v2
