@@ -54,7 +54,7 @@ jobs:
           echo "IMAGE_URI=$ARTIFACT_REGISTRY/docker/${GITHUB_REPOSITORY#*/}:latest" >> $GITHUB_ENV
       - run: ./scripts/jsonnet.sh
         env:
-          PROJECT_ID: ${{ secrets.GCP_DATA_WAREHOUSE_PROJECT_ID }}
+          PROJECT_ID: ${{ secrets.GCP_DEV_DATA_WAREHOUSE_PROJECT_ID }}
           BUCKET_NAME: ${{ secrets.DOMESTIC_HEATING_ABM_BUCKET_NAME }}
   deploy:
     needs: [jsonnet-check, build-test-push]
@@ -83,5 +83,5 @@ jobs:
         run: |
           ./scripts/jsonnet.sh | kubectl apply -f -
         env:
-          PROJECT_ID: ${{ secrets.GCP_DATA_WAREHOUSE_PROJECT_ID }}
+          PROJECT_ID: ${{ secrets.GCP_DEV_DATA_WAREHOUSE_PROJECT_ID }}
           BUCKET_NAME: ${{ secrets.DOMESTIC_HEATING_ABM_BUCKET_NAME }}
