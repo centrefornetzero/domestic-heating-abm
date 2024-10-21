@@ -288,9 +288,7 @@ def estimate_rhi_annual_payment(
     annual_heat_kwh_delta_capped = (
         rhi_kwh_cap
         if annual_heat_kwh_delta > rhi_kwh_cap
-        else 0
-        if annual_heat_kwh_delta < 0
-        else annual_heat_kwh_delta
+        else 0 if annual_heat_kwh_delta < 0 else annual_heat_kwh_delta
     )
 
     rhi_annual_payment_gbp = int(
@@ -327,7 +325,7 @@ def estimate_boiler_upgrade_scheme_grant(
         return 0
 
     if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
-        return 5_000
+        return 7_500
 
     if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
-        return 6_000
+        return 7_500

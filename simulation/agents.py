@@ -539,9 +539,9 @@ class Household(Agent):
 
         if self.boiler_upgrade_grant_available:
             if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
-                self.boiler_upgrade_grant_used = 5_000
+                self.boiler_upgrade_grant_used = 7_500
             if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
-                self.boiler_upgrade_grant_used = 6_000
+                self.boiler_upgrade_grant_used = 7_500
 
     def reset_previous_heating_decision_log(self) -> None:
 

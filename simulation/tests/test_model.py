@@ -39,10 +39,10 @@ class TestDomesticHeatingABM:
         assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 0
 
         household_using_boiler_upgrade_grant_ASHP = household_factory()
-        household_using_boiler_upgrade_grant_ASHP.boiler_upgrade_grant_used = 5_000
+        household_using_boiler_upgrade_grant_ASHP.boiler_upgrade_grant_used = 7_500
 
         household_using_boiler_upgrade_grant_GSHP = household_factory()
-        household_using_boiler_upgrade_grant_GSHP.boiler_upgrade_grant_used = 6_000
+        household_using_boiler_upgrade_grant_GSHP.boiler_upgrade_grant_used = 7_500
 
         model.add_agents(
             [

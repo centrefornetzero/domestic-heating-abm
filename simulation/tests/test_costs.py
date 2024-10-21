@@ -251,13 +251,13 @@ class TestCosts:
             estimate_boiler_upgrade_scheme_grant(
                 HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
             )
-            == 5_000
+            == 7_500
         )
         assert (
             estimate_boiler_upgrade_scheme_grant(
                 HeatingSystem.HEAT_PUMP_GROUND_SOURCE, model
             )
-            == 6_000
+            == 7_500
         )
 
     def test_air_source_heat_pump_unit_and_install_costs_floored_at_gas_boiler_cost_for_households_with_air_source_heat_pump(
