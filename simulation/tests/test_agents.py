@@ -233,12 +233,12 @@ class TestHousehold:
         assert household_at_potential_epc.roof_energy_efficiency == 5
         assert household_at_potential_epc.epc_rating == epc
 
-    def test_households_with_potential_epc_below_C_are_not_heat_pump_suitable(
+    def test_households_with_potential_epc_below_D_are_not_heat_pump_suitable(
         self,
     ) -> None:
 
         low_potential_epc_household = household_factory(
-            potential_epc_rating=EPCRating.D
+            potential_epc_rating=EPCRating.E
         )
 
         assert not low_potential_epc_household.is_heat_pump_suitable
@@ -259,7 +259,7 @@ class TestHousehold:
         event_trigger,
     ) -> None:
 
-        unsuitable_household = household_factory(potential_epc_rating=EPCRating.D)
+        unsuitable_household = household_factory(potential_epc_rating=EPCRating.E)
         model = model_factory()
         assert not HEAT_PUMPS.intersection(
             unsuitable_household.get_heating_system_options(
