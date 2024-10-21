@@ -506,6 +506,19 @@ class Household(Agent):
 
         return unit_and_install_costs, fuel_costs_net_present_value, -subsidies
 
+    def reset_heating_system_hassle(self, heating_system_hassle_factor: float):
+        # Ensure landlords have a hassle factor of at least 0.4
+        if heating_system_hassle_factor < 0.4:
+            if (
+                self.occupant_type == OccupantType.RENTED_PRIVATE
+                or self.occupant_type == OccupantType.RENTED_SOCIAL
+            ):
+                return 0.4
+            else:
+                return heating_system_hassle_factor
+        else:
+            return heating_system_hassle_factor
+
     def choose_heating_system(
         self, costs: Dict[HeatingSystem, float], heating_system_hassle_factor: float
     ):
@@ -519,6 +532,9 @@ class Household(Agent):
             )
             weight = 1 / math.exp(cost_as_proportion_of_budget)
             if self.is_heating_system_hassle(heating_system):
+                heating_system_hassle_factor = self.reset_heating_system_hassle(
+                    heating_system_hassle_factor
+                )
                 weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
 

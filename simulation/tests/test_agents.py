@@ -834,3 +834,29 @@ class TestAgentsWithBoilerBan:
         assert all(
             heating_system in heating_system_options for heating_system in HEAT_PUMPS
         )
+
+    @pytest.mark.parametrize("occupant_type", list(OccupantType))
+    def test_landlord_heat_pump_hassle_if_not_already_installed(
+        self,
+        occupant_type,
+    ) -> None:
+        household = household_factory(
+            heating_system=random.choices(list(BOILERS))[0], occupant_type=occupant_type
+        )
+        if (
+            occupant_type == OccupantType.RENTED_PRIVATE
+            or occupant_type == OccupantType.RENTED_SOCIAL
+        ):
+            assert (
+                household.reset_heating_system_hassle(heating_system_hassle_factor=0.1)
+                == 0.4
+            )
+            assert (
+                household.reset_heating_system_hassle(heating_system_hassle_factor=0.5)
+                == 0.5
+            )
+        else:
+            assert (
+                household.reset_heating_system_hassle(heating_system_hassle_factor=0.1)
+                == 0.1
+            )
