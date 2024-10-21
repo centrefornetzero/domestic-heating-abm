@@ -52,10 +52,10 @@ class TestDomesticHeatingABM:
         )
 
         model.increment_timestep()
-        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 11_000
+        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 15_000
 
         model.increment_timestep()
-        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 22_000
+        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 30_000
 
     def test_air_source_heat_pump_discount_factor_is_zero_if_no_discount_schedule_passed(
         self,
