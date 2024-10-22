@@ -858,7 +858,7 @@ class TestAgentsWithBoilerBan:
                     heating_system_hassle_factor=owner_occupier_hassle_factor,
                     rented_heating_system_hassle_factor=rented_hassle_factor,
                 )
-                == 0.4
+                == rented_hassle_factor
             )
         else:
             assert (
@@ -866,5 +866,5 @@ class TestAgentsWithBoilerBan:
                     heating_system_hassle_factor=owner_occupier_hassle_factor,
                     rented_heating_system_hassle_factor=rented_hassle_factor,
                 )
-                == 0.1
+                == owner_occupier_hassle_factor
             )
