@@ -509,7 +509,11 @@ class TestHousehold:
         }
 
         assert (
-            household.choose_heating_system(costs, heating_system_hassle_factor=1)
+            household.choose_heating_system(
+                costs,
+                heating_system_hassle_factor=1,
+                rented_heating_system_hassle_factor=1,
+            )
             == HeatingSystem.BOILER_GAS
         )
 
@@ -848,15 +852,17 @@ class TestAgentsWithBoilerBan:
             or occupant_type == OccupantType.RENTED_SOCIAL
         ):
             assert (
-                household.reset_heating_system_hassle(heating_system_hassle_factor=0.1)
+                household.reset_heating_system_hassle(
+                    heating_system_hassle_factor=0.1,
+                    rented_heating_system_hassle_factor=0.4,
+                )
                 == 0.4
-            )
-            assert (
-                household.reset_heating_system_hassle(heating_system_hassle_factor=0.5)
-                == 0.5
             )
         else:
             assert (
-                household.reset_heating_system_hassle(heating_system_hassle_factor=0.1)
+                household.reset_heating_system_hassle(
+                    heating_system_hassle_factor=0.1,
+                    rented_heating_system_hassle_factor=0.4,
+                )
                 == 0.1
             )

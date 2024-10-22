@@ -33,6 +33,7 @@ class DomesticHeatingABM(AgentBasedModel):
         annual_renovation_rate: float,
         household_num_lookahead_years: int,
         heating_system_hassle_factor: float,
+        rented_heating_system_hassle_factor: float,
         interventions: Optional[List[InterventionType]],
         gas_oil_boiler_ban_datetime: datetime.datetime,
         gas_oil_boiler_ban_announce_datetime: datetime.datetime,
@@ -52,6 +53,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.annual_renovation_rate = annual_renovation_rate
         self.household_num_lookahead_years = household_num_lookahead_years
         self.heating_system_hassle_factor = heating_system_hassle_factor
+        self.rented_heating_system_hassle_factor = rented_heating_system_hassle_factor
         self.interventions = interventions or []
         self.boiler_upgrade_scheme_cumulative_spend_gbp = 0
         self.gas_oil_boiler_ban_datetime = gas_oil_boiler_ban_datetime
@@ -247,6 +249,7 @@ def create_and_run_simulation(
     annual_renovation_rate: float,
     household_num_lookahead_years: int,
     heating_system_hassle_factor: float,
+    rented_heating_system_hassle_factor: float,
     interventions: Optional[List[InterventionType]],
     all_agents_heat_pump_suitable: bool,
     gas_oil_boiler_ban_datetime: datetime.datetime,
@@ -268,6 +271,7 @@ def create_and_run_simulation(
         annual_renovation_rate=annual_renovation_rate,
         household_num_lookahead_years=household_num_lookahead_years,
         heating_system_hassle_factor=heating_system_hassle_factor,
+        rented_heating_system_hassle_factor=rented_heating_system_hassle_factor,
         interventions=interventions,
         gas_oil_boiler_ban_datetime=gas_oil_boiler_ban_datetime,
         gas_oil_boiler_ban_announce_datetime=gas_oil_boiler_ban_announce_datetime,

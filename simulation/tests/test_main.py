@@ -79,11 +79,25 @@ class TestParseArgs:
         )
         assert args.heating_system_hassle_factor == 0.5
 
+    def test_rented_heating_system_hassle_factor(self, mandatory_local_args):
+        args = parse_args(
+            [*mandatory_local_args, "--rented-heating-system-hassle-factor", "0.5"]
+        )
+        assert args.rented_heating_system_hassle_factor == 0.5
+
     def test_heating_system_hassle_factor_must_be_between_0_and_1(
         self, mandatory_local_args
     ):
         with pytest.raises(SystemExit):
             parse_args([*mandatory_local_args, "--heating-system-hassle-factor", "10"])
+
+    def test_rented_heating_system_hassle_factor_must_be_between_0_and_1(
+        self, mandatory_local_args
+    ):
+        with pytest.raises(SystemExit):
+            parse_args(
+                [*mandatory_local_args, "--rented-heating-system-hassle-factor", "10"]
+            )
 
     def test_help_flag(self):
         with pytest.raises(SystemExit):

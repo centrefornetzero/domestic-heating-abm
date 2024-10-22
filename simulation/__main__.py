@@ -98,6 +98,13 @@ def parse_args(args=None):
     )
 
     parser.add_argument(
+        "--rented-heating-system-hassle-factor",
+        type=float_between_0_and_1,
+        default=0.4,
+        help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
+    )
+
+    parser.add_argument(
         "--intervention",
         action="append",
         help="Valid interventions are: "
@@ -207,6 +214,7 @@ if __name__ == "__main__":
             args.annual_renovation_rate,
             args.household_num_lookahead_years,
             args.heating_system_hassle_factor,
+            args.rented_heating_system_hassle_factor,
             args.intervention,
             args.all_agents_heat_pump_suitable,
             args.gas_oil_boiler_ban_date,

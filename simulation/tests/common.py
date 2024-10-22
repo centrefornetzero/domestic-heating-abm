@@ -46,6 +46,7 @@ def model_factory(**model_attributes):
         "annual_renovation_rate": 0.05,
         "household_num_lookahead_years": 3,
         "heating_system_hassle_factor": 0.7,
+        "rented_heating_system_hassle_factor": 0.7,
         "interventions": [],
         "gas_oil_boiler_ban_datetime": datetime.datetime(2035, 1, 1),
         "gas_oil_boiler_ban_announce_datetime": datetime.datetime(2025, 1, 1),
