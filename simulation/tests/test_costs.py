@@ -168,10 +168,10 @@ class TestCosts:
         discount_factor = 0.3
         household = household_factory(heating_system=HeatingSystem.HEAT_PUMP_AIR_SOURCE)
         model = model_factory(
-            start_datetime=datetime.datetime(2022, 1, 1),
+            start_datetime=datetime.datetime(2024, 1, 1),
             step_interval=datetime.timedelta(minutes=1440),
             air_source_heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 1, 2), discount_factor),
+                (datetime.datetime(2024, 1, 2), discount_factor),
             ],
         )
         first_quote = get_unit_and_install_costs(
@@ -190,7 +190,7 @@ class TestCosts:
         self, boiler
     ):
 
-        start_datetime = datetime.datetime(2022, 4, 1, 0, 0)
+        start_datetime = datetime.datetime(2024, 4, 1, 0, 0)
         end_datetime = datetime.datetime(2025, 4, 1, 0, 0)
         random_n_days = random.randrange((end_datetime - start_datetime).days)
         start_datetime = start_datetime + datetime.timedelta(days=random_n_days)
@@ -264,9 +264,9 @@ class TestCosts:
         self,
     ):
         model = model_factory(
-            start_datetime=datetime.datetime(2022, 1, 1),
+            start_datetime=datetime.datetime(2024, 1, 1),
             air_source_heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 1, 1), 1.0)
+                (datetime.datetime(2024, 1, 1), 1.0)
             ],
         )
 
@@ -283,9 +283,9 @@ class TestCosts:
     ):
 
         model = model_factory(
-            start_datetime=datetime.datetime(2022, 1, 1),
+            start_datetime=datetime.datetime(2024, 1, 1),
             air_source_heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 1, 1), 1.0)
+                (datetime.datetime(2024, 1, 1), 1.0)
             ],
         )
         household = household_factory(heating_system=HeatingSystem.BOILER_GAS)

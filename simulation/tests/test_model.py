@@ -70,10 +70,10 @@ class TestDomesticHeatingABM:
     ):
 
         model = model_factory(
-            start_datetime=datetime.datetime(2022, 2, 1),
+            start_datetime=datetime.datetime(2024, 2, 1),
             air_source_heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 2, 1), 0.1),
-                (datetime.datetime(2022, 2, 2), 0.3),
+                (datetime.datetime(2024, 2, 1), 0.1),
+                (datetime.datetime(2024, 2, 2), 0.3),
             ],
             step_interval=datetime.timedelta(minutes=1440),
         )

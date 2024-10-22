@@ -70,7 +70,7 @@ def parse_args(args=None):
         "--start-date",
         dest="start_datetime",
         type=convert_to_datetime,
-        default=datetime.datetime(2022, 1, 1),
+        default=datetime.datetime(2024, 1, 1),
     )
 
     parser.add_argument(
