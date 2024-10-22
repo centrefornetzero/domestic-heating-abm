@@ -13,6 +13,7 @@ from simulation.costs import (
     DECOMMISSIONING_COST_MAX,
     MEAN_COST_GBP_BOILER_GAS,
     estimate_boiler_upgrade_scheme_grant,
+    estimate_extended_boiler_upgrade_scheme_grant,
     estimate_rhi_annual_payment,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
@@ -295,3 +296,98 @@ class TestCosts:
         ashp_price_min_cap = MEAN_COST_GBP_BOILER_GAS[household.property_size]
 
         assert heat_pump_cost <= ashp_price_min_cap + DECOMMISSIONING_COST_MAX
+
+    @pytest.mark.parametrize("boiler", set(BOILERS))
+    def test_extended_boiler_upgrade_scheme_grant_is_zero_for_boilers_within_grant_window(
+        self, boiler
+    ):
+
+        start_datetime = datetime.datetime(2022, 4, 1, 0, 0)
+        end_datetime = datetime.datetime(2035, 4, 1, 0, 0)
+        random_n_days = random.randrange((end_datetime - start_datetime).days)
+        start_datetime = start_datetime + datetime.timedelta(days=random_n_days)
+
+        model = model_factory(
+            start_datetime=start_datetime,
+        )
+
+        assert estimate_extended_boiler_upgrade_scheme_grant(boiler, model) == 0
+
+    @pytest.mark.parametrize("heating_system", set(HeatingSystem))
+    def test_extended_boiler_upgrade_scheme_grant_is_zero_when_outside_grant_window(
+        self, heating_system
+    ):
+
+        model = model_factory(start_datetime=datetime.datetime(2036, 1, 1, 0, 0))
+        model.add_agents([household_factory()])
+
+        assert estimate_extended_boiler_upgrade_scheme_grant(heating_system, model) == 0
+
+    @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
+    def test_extended_boiler_upgrade_scheme_grant_is_zero_when_grant_cap_exceeded(
+        self, heat_pump
+    ):
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2024, 1, 1, 0, 0),
+        )
+
+        num_households = random.randint(1, 5)
+        model.add_agents([household_factory()] * num_households)
+
+        model_population_scale = (
+            ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
+        )
+        boiler_upgrade_scheme_budget_scaled = 1_950_000_000 / model_population_scale
+
+        model.boiler_upgrade_scheme_cumulative_spend_gbp = (
+            boiler_upgrade_scheme_budget_scaled * 0.8
+        )
+        assert estimate_extended_boiler_upgrade_scheme_grant(heat_pump, model) > 0
+
+        model.boiler_upgrade_scheme_cumulative_spend_gbp = (
+            boiler_upgrade_scheme_budget_scaled
+        )
+        assert estimate_extended_boiler_upgrade_scheme_grant(heat_pump, model) == 0
+
+    @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
+    def test_extended_boiler_upgrade_scheme_grant_is_non_zero_for_heat_pumps_when_grant_is_active(
+        self,
+    ):
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1, 0, 0),
+        )
+        model.add_agents([household_factory()])
+
+        assert (
+            estimate_extended_boiler_upgrade_scheme_grant(
+                HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
+            )
+            == 7_500
+        )
+        assert (
+            estimate_extended_boiler_upgrade_scheme_grant(
+                HeatingSystem.HEAT_PUMP_GROUND_SOURCE, model
+            )
+            == 7_500
+        )
+
+        # Tapered grant after 2028
+        model = model_factory(
+            start_datetime=datetime.datetime(2028, 5, 1, 0, 0),
+        )
+        model.add_agents([household_factory()])
+
+        assert (
+            estimate_extended_boiler_upgrade_scheme_grant(
+                HeatingSystem.HEAT_PUMP_AIR_SOURCE, model
+            )
+            == 5_000
+        )
+        assert (
+            estimate_extended_boiler_upgrade_scheme_grant(
+                HeatingSystem.HEAT_PUMP_GROUND_SOURCE, model
+            )
+            == 5_000
+        )
