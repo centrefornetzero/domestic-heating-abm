@@ -847,22 +847,24 @@ class TestAgentsWithBoilerBan:
         household = household_factory(
             heating_system=random.choices(list(BOILERS))[0], occupant_type=occupant_type
         )
+        owner_occupier_hassle_factor = 0.1
+        rented_hassle_factor = 0.4
         if (
             occupant_type == OccupantType.RENTED_PRIVATE
             or occupant_type == OccupantType.RENTED_SOCIAL
         ):
             assert (
                 household.reset_heating_system_hassle(
-                    heating_system_hassle_factor=0.1,
-                    rented_heating_system_hassle_factor=0.4,
+                    heating_system_hassle_factor=owner_occupier_hassle_factor,
+                    rented_heating_system_hassle_factor=rented_hassle_factor,
                 )
                 == 0.4
             )
         else:
             assert (
                 household.reset_heating_system_hassle(
-                    heating_system_hassle_factor=0.1,
-                    rented_heating_system_hassle_factor=0.4,
+                    heating_system_hassle_factor=owner_occupier_hassle_factor,
+                    rented_heating_system_hassle_factor=rented_hassle_factor,
                 )
                 == 0.1
             )
