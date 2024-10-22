@@ -338,7 +338,7 @@ class TestCosts:
         model_population_scale = (
             ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
         )
-        boiler_upgrade_scheme_budget_scaled = 1_950_000_000 / model_population_scale
+        boiler_upgrade_scheme_budget_scaled = 1_650_000_000 / model_population_scale
 
         model.boiler_upgrade_scheme_cumulative_spend_gbp = (
             boiler_upgrade_scheme_budget_scaled * 0.8
@@ -350,7 +350,6 @@ class TestCosts:
         )
         assert estimate_extended_boiler_upgrade_scheme_grant(heat_pump, model) == 0
 
-    @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
     def test_extended_boiler_upgrade_scheme_grant_is_non_zero_for_heat_pumps_when_grant_is_active(
         self,
     ):
