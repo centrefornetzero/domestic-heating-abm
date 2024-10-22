@@ -142,12 +142,15 @@ class TestParseArgs:
                 "rhi",
                 "--intervention",
                 "boiler_upgrade_scheme",
+                "--intervention",
+                "extended_boiler_upgrade_scheme",
             ]
         )
 
         assert args.intervention == [
             InterventionType.RHI,
             InterventionType.BOILER_UPGRADE_SCHEME,
+            InterventionType.EXTENDED_BOILER_UPGRADE_SCHEME,
         ]
 
     def test_gas_oil_boiler_ban_date_returns_datetime(self, mandatory_local_args):

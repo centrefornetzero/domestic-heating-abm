@@ -57,6 +57,7 @@ from simulation.costs import (
     LOFT_INSULATION_JOISTS_COST,
     discount_annual_cash_flow,
     estimate_boiler_upgrade_scheme_grant,
+    estimate_extended_boiler_upgrade_scheme_grant,
     estimate_rhi_annual_payment,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
@@ -491,6 +492,12 @@ class Household(Agent):
 
         if InterventionType.BOILER_UPGRADE_SCHEME in model.interventions:
             subsidies = estimate_boiler_upgrade_scheme_grant(heating_system, model)
+            if subsidies > 0:
+                self.boiler_upgrade_grant_available = True
+        elif InterventionType.EXTENDED_BOILER_UPGRADE_SCHEME in model.interventions:
+            subsidies = estimate_extended_boiler_upgrade_scheme_grant(
+                heating_system, model
+            )
             if subsidies > 0:
                 self.boiler_upgrade_grant_available = True
 

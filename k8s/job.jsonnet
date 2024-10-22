@@ -40,17 +40,6 @@ local job(name, args_excl_output) = {
 
 [
   // scenarios
-
-  job('01-%s-rhi' % std.extVar('SHORT_SHA'), [
-    '--intervention',
-    'rhi',
-    '--start-date',
-    '2012-01-01',
-    '--steps',
-    '120',
-    '--heat-pump-installer-annual-growth-rate',
-    '0',
-  ]),
   job('02-%s-baseline' % std.extVar('SHORT_SHA'), [
     '--air-source-heat-pump-price-discount-date',
     '2023-01-01:0.3',
@@ -74,6 +63,34 @@ local job(name, args_excl_output) = {
   job('03c-%s-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'boiler_upgrade_scheme',
+    '--heat-pump-awareness',
+    '0.5',
+    '--air-source-heat-pump-price-discount-date',
+    '2023-01-01:0.3',
+    '--price-gbp-per-kwh-gas',
+    '0.0589',
+    '--price-gbp-per-kwh-electricity',
+    '0.1494',
+  ]),
+  job('03d-%s-extended-bus' % std.extVar('SHORT_SHA'), [
+    '--intervention',
+    'extended_boiler_upgrade_scheme',
+    '--air-source-heat-pump-price-discount-date',
+    '2023-01-01:0.3',
+  ]),
+  job('03e-%s-extended-bus-policy' % std.extVar('SHORT_SHA'), [
+    '--intervention',
+    'extended_boiler_upgrade_scheme',
+    '--air-source-heat-pump-price-discount-date',
+    '2023-01-01:0.3',
+    '--price-gbp-per-kwh-gas',
+    '0.0589',
+    '--price-gbp-per-kwh-electricity',
+    '0.1494',
+  ]),
+  job('03f-%s-extended-bus-policy-high-awareness' % std.extVar('SHORT_SHA'), [
+    '--intervention',
+    'extended_boiler_upgrade_scheme',
     '--heat-pump-awareness',
     '0.5',
     '--air-source-heat-pump-price-discount-date',
