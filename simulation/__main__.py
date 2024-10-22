@@ -174,9 +174,9 @@ def parse_args(args=None):
 
     # SOURCE: Default values from https://energysavingtrust.org.uk/about-us/our-data/ (England, Scotland and Wales)
     # These fuel prices were last updated in November 2021, based on predicted fuel prices for 2022
-    parser.add_argument("--price-gbp-per-kwh-gas", type=float, default=0.0465)
-    parser.add_argument("--price-gbp-per-kwh-electricity", type=float, default=0.2006)
-    parser.add_argument("--price-gbp-per-kwh-oil", type=float, default=0.0482)
+    parser.add_argument("--price-gbp-per-kwh-gas", type=float, default=0.062)
+    parser.add_argument("--price-gbp-per-kwh-electricity", type=float, default=0.245)
+    parser.add_argument("--price-gbp-per-kwh-oil", type=float, default=0.068)
 
     return parser.parse_args(args)
 

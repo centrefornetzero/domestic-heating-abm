@@ -631,7 +631,7 @@ class TestHousehold:
         household = household_factory(heating_system=random.choices(list(BOILERS))[0])
 
         model = model_factory(
-            price_gbp_per_kwh_gas=0.0465,
+            price_gbp_per_kwh_gas=0.062,
         )
 
         _, costs_fuel, _ = household.get_total_heating_system_costs(
@@ -639,7 +639,7 @@ class TestHousehold:
         )
 
         model_with_higher_gas_price = model_factory(
-            price_gbp_per_kwh_gas=0.0465 * 1.2,
+            price_gbp_per_kwh_gas=0.062 * 1.2,
         )
 
         _, costs_fuel_higher_gas_price, _ = household.get_total_heating_system_costs(
