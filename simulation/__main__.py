@@ -70,7 +70,7 @@ def parse_args(args=None):
         "--start-date",
         dest="start_datetime",
         type=convert_to_datetime,
-        default=datetime.datetime(2022, 1, 1),
+        default=datetime.datetime(2024, 1, 1),
     )
 
     parser.add_argument(
@@ -94,6 +94,13 @@ def parse_args(args=None):
         "--heating-system-hassle-factor",
         type=float_between_0_and_1,
         default=0.1,
+        help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
+    )
+
+    parser.add_argument(
+        "--rented-heating-system-hassle-factor",
+        type=float_between_0_and_1,
+        default=0.4,
         help="A value between 0 and 1 which suppresses the likelihood of a household choosing a given heating system (the higher the value, the lower the likelihood)",
     )
 
@@ -161,15 +168,15 @@ def parse_args(args=None):
 
     parser.add_argument(
         "--gas-oil-boiler-ban-announce-date",
-        default=datetime.datetime(2035, 1, 1),
+        default=datetime.datetime(2025, 1, 1),
         type=convert_to_datetime,
     )
 
     # SOURCE: Default values from https://energysavingtrust.org.uk/about-us/our-data/ (England, Scotland and Wales)
     # These fuel prices were last updated in November 2021, based on predicted fuel prices for 2022
-    parser.add_argument("--price-gbp-per-kwh-gas", type=float, default=0.0465)
-    parser.add_argument("--price-gbp-per-kwh-electricity", type=float, default=0.2006)
-    parser.add_argument("--price-gbp-per-kwh-oil", type=float, default=0.0482)
+    parser.add_argument("--price-gbp-per-kwh-gas", type=float, default=0.062)
+    parser.add_argument("--price-gbp-per-kwh-electricity", type=float, default=0.245)
+    parser.add_argument("--price-gbp-per-kwh-oil", type=float, default=0.068)
 
     return parser.parse_args(args)
 
@@ -207,6 +214,7 @@ if __name__ == "__main__":
             args.annual_renovation_rate,
             args.household_num_lookahead_years,
             args.heating_system_hassle_factor,
+            args.rented_heating_system_hassle_factor,
             args.intervention,
             args.all_agents_heat_pump_suitable,
             args.gas_oil_boiler_ban_date,

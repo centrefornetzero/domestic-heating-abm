@@ -57,6 +57,7 @@ from simulation.costs import (
     LOFT_INSULATION_JOISTS_COST,
     discount_annual_cash_flow,
     estimate_boiler_upgrade_scheme_grant,
+    estimate_extended_boiler_upgrade_scheme_grant,
     estimate_rhi_annual_payment,
     get_heating_fuel_costs_net_present_value,
     get_unit_and_install_costs,
@@ -250,7 +251,7 @@ class Household(Agent):
             if not all(
                 [
                     self.is_heat_pump_suitable_archetype,
-                    self.potential_epc_rating.value >= EPCRating.C.value,
+                    self.potential_epc_rating.value >= EPCRating.D.value,
                 ]
             )
             else True
@@ -493,6 +494,12 @@ class Household(Agent):
             subsidies = estimate_boiler_upgrade_scheme_grant(heating_system, model)
             if subsidies > 0:
                 self.boiler_upgrade_grant_available = True
+        elif InterventionType.EXTENDED_BOILER_UPGRADE_SCHEME in model.interventions:
+            subsidies = estimate_extended_boiler_upgrade_scheme_grant(
+                heating_system, model
+            )
+            if subsidies > 0:
+                self.boiler_upgrade_grant_available = True
 
         elif InterventionType.RHI in model.interventions:
             rhi_annual_payment = estimate_rhi_annual_payment(self, heating_system)
@@ -506,8 +513,24 @@ class Household(Agent):
 
         return unit_and_install_costs, fuel_costs_net_present_value, -subsidies
 
+    def reset_heating_system_hassle(
+        self,
+        heating_system_hassle_factor: float,
+        rented_heating_system_hassle_factor: float,
+    ):
+        if (
+            self.occupant_type == OccupantType.RENTED_PRIVATE
+            or self.occupant_type == OccupantType.RENTED_SOCIAL
+        ):
+            return rented_heating_system_hassle_factor
+        else:
+            return heating_system_hassle_factor
+
     def choose_heating_system(
-        self, costs: Dict[HeatingSystem, float], heating_system_hassle_factor: float
+        self,
+        costs: Dict[HeatingSystem, float],
+        heating_system_hassle_factor: float,
+        rented_heating_system_hassle_factor: float,
     ):
 
         weights = []
@@ -519,6 +542,10 @@ class Household(Agent):
             )
             weight = 1 / math.exp(cost_as_proportion_of_budget)
             if self.is_heating_system_hassle(heating_system):
+                heating_system_hassle_factor = self.reset_heating_system_hassle(
+                    heating_system_hassle_factor,
+                    rented_heating_system_hassle_factor,
+                )
                 weight *= 1 - heating_system_hassle_factor
             weights.append(weight)
 
@@ -539,9 +566,9 @@ class Household(Agent):
 
         if self.boiler_upgrade_grant_available:
             if heating_system == HeatingSystem.HEAT_PUMP_AIR_SOURCE:
-                self.boiler_upgrade_grant_used = 5_000
+                self.boiler_upgrade_grant_used = 7_500
             if heating_system == HeatingSystem.HEAT_PUMP_GROUND_SOURCE:
-                self.boiler_upgrade_grant_used = 6_000
+                self.boiler_upgrade_grant_used = 7_500
 
     def reset_previous_heating_decision_log(self) -> None:
 
@@ -641,7 +668,9 @@ class Household(Agent):
             }
 
             chosen_heating_system = self.choose_heating_system(
-                heating_system_replacement_costs, model.heating_system_hassle_factor
+                heating_system_replacement_costs,
+                model.heating_system_hassle_factor,
+                model.rented_heating_system_hassle_factor,
             )
 
             self.install_heating_system(chosen_heating_system, model)

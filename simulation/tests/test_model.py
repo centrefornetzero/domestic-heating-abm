@@ -39,10 +39,10 @@ class TestDomesticHeatingABM:
         assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 0
 
         household_using_boiler_upgrade_grant_ASHP = household_factory()
-        household_using_boiler_upgrade_grant_ASHP.boiler_upgrade_grant_used = 5_000
+        household_using_boiler_upgrade_grant_ASHP.boiler_upgrade_grant_used = 7_500
 
         household_using_boiler_upgrade_grant_GSHP = household_factory()
-        household_using_boiler_upgrade_grant_GSHP.boiler_upgrade_grant_used = 6_000
+        household_using_boiler_upgrade_grant_GSHP.boiler_upgrade_grant_used = 7_500
 
         model.add_agents(
             [
@@ -52,10 +52,10 @@ class TestDomesticHeatingABM:
         )
 
         model.increment_timestep()
-        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 11_000
+        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 15_000
 
         model.increment_timestep()
-        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 22_000
+        assert model.boiler_upgrade_scheme_cumulative_spend_gbp == 30_000
 
     def test_air_source_heat_pump_discount_factor_is_zero_if_no_discount_schedule_passed(
         self,
@@ -70,10 +70,10 @@ class TestDomesticHeatingABM:
     ):
 
         model = model_factory(
-            start_datetime=datetime.datetime(2022, 2, 1),
+            start_datetime=datetime.datetime(2024, 2, 1),
             air_source_heat_pump_price_discount_schedule=[
-                (datetime.datetime(2022, 2, 1), 0.1),
-                (datetime.datetime(2022, 2, 2), 0.3),
+                (datetime.datetime(2024, 2, 1), 0.1),
+                (datetime.datetime(2024, 2, 2), 0.3),
             ],
             step_interval=datetime.timedelta(minutes=1440),
         )

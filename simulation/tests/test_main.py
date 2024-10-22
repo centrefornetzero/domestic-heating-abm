@@ -51,9 +51,9 @@ class TestParseArgs:
         args = parse_args([*mandatory_local_args, "--start-date", "2021-01-01"])
         assert args.start_datetime == datetime.datetime(2021, 1, 1)
 
-    def test_start_date_default_is_start_of_2022(self, mandatory_local_args):
+    def test_start_date_default_is_start_of_2024(self, mandatory_local_args):
         args = parse_args(mandatory_local_args)
-        assert args.start_datetime == datetime.datetime(2022, 1, 1)
+        assert args.start_datetime == datetime.datetime(2024, 1, 1)
 
     def test_default_seed_is_current_datetime_string(self, mandatory_local_args):
         datetime_before = datetime.datetime.now()
@@ -79,11 +79,25 @@ class TestParseArgs:
         )
         assert args.heating_system_hassle_factor == 0.5
 
+    def test_rented_heating_system_hassle_factor(self, mandatory_local_args):
+        args = parse_args(
+            [*mandatory_local_args, "--rented-heating-system-hassle-factor", "0.5"]
+        )
+        assert args.rented_heating_system_hassle_factor == 0.5
+
     def test_heating_system_hassle_factor_must_be_between_0_and_1(
         self, mandatory_local_args
     ):
         with pytest.raises(SystemExit):
             parse_args([*mandatory_local_args, "--heating-system-hassle-factor", "10"])
+
+    def test_rented_heating_system_hassle_factor_must_be_between_0_and_1(
+        self, mandatory_local_args
+    ):
+        with pytest.raises(SystemExit):
+            parse_args(
+                [*mandatory_local_args, "--rented-heating-system-hassle-factor", "10"]
+            )
 
     def test_help_flag(self):
         with pytest.raises(SystemExit):
@@ -142,12 +156,15 @@ class TestParseArgs:
                 "rhi",
                 "--intervention",
                 "boiler_upgrade_scheme",
+                "--intervention",
+                "extended_boiler_upgrade_scheme",
             ]
         )
 
         assert args.intervention == [
             InterventionType.RHI,
             InterventionType.BOILER_UPGRADE_SCHEME,
+            InterventionType.EXTENDED_BOILER_UPGRADE_SCHEME,
         ]
 
     def test_gas_oil_boiler_ban_date_returns_datetime(self, mandatory_local_args):
