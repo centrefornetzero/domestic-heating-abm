@@ -333,10 +333,10 @@ class Household(Agent):
                 weights=RENO_NUM_INSULATION_ELEMENTS_UPGRADED.values(),
             )[0]
 
-        if event_trigger == EventTrigger.EPC_C_UPGRADE:
+        if event_trigger == EventTrigger.EPC_D_UPGRADE:
             # The number of insulation elements a household would require to reach epc_rating C
             # We assume each insulation measure will contribute +1 EPC grade
-            return max(0, EPCRating.C.value - self.epc_rating.value)
+            return max(0, EPCRating.D.value - self.epc_rating.value)
 
         return 0
 
@@ -636,7 +636,7 @@ class Household(Agent):
                     model, event_trigger=EventTrigger.RENOVATION
                 )
             chosen_insulation_costs = self.get_chosen_insulation_costs(
-                event_trigger=EventTrigger.EPC_C_UPGRADE
+                event_trigger=EventTrigger.EPC_D_UPGRADE
             )
 
             costs_unit_and_install = {}
