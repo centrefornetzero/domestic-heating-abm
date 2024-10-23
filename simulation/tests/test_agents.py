@@ -161,18 +161,18 @@ class TestHousehold:
     ) -> None:
 
         household = household_factory(epc_rating=epc_rating)
-        if household.epc_rating.value < EPCRating.C.value:
-            expected_insulation_elements = EPCRating.C.value - epc_rating.value
+        if household.epc_rating.value < EPCRating.D.value:
+            expected_insulation_elements = EPCRating.D.value - epc_rating.value
             assert (
                 household.get_num_insulation_elements(
-                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                    event_trigger=EventTrigger.EPC_D_UPGRADE
                 )
                 == expected_insulation_elements
             )
-        if household.epc_rating.value >= EPCRating.C.value:
+        if household.epc_rating.value >= EPCRating.D.value:
             assert (
                 household.get_num_insulation_elements(
-                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                    event_trigger=EventTrigger.EPC_D_UPGRADE
                 )
                 == 0
             )
@@ -453,24 +453,24 @@ class TestHousehold:
         )
 
     @pytest.mark.parametrize("epc_rating", list(EPCRating))
-    def test_household_chooses_insulation_elements_at_epc_C_upgrade_event_if_current_epc_worse_than_C(
+    def test_household_chooses_insulation_elements_at_epc_D_upgrade_event_if_current_epc_worse_than_C(
         self,
         epc_rating,
     ) -> None:
 
         household = household_factory(epc_rating=epc_rating)
 
-        if epc_rating.value >= EPCRating.C.value:
+        if epc_rating.value >= EPCRating.D.value:
             assert (
                 household.get_chosen_insulation_costs(
-                    event_trigger=EventTrigger.EPC_C_UPGRADE
+                    event_trigger=EventTrigger.EPC_D_UPGRADE
                 )
                 == {}
             )
 
-        if epc_rating.value < EPCRating.C.value:
+        if epc_rating.value < EPCRating.D.value:
             chosen_insulation_elements = household.get_chosen_insulation_costs(
-                event_trigger=EventTrigger.EPC_C_UPGRADE
+                event_trigger=EventTrigger.EPC_D_UPGRADE
             )
 
             assert chosen_insulation_elements

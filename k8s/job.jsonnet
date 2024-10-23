@@ -6,7 +6,7 @@ local job(name, args_excl_output) = {
     namespace: 'domestic-heating-abm',
   },
   spec: {
-    completions: 30,
+    completions: 10,
     parallelism: 5,
     template: {
       spec: {
