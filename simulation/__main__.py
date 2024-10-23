@@ -129,7 +129,7 @@ def parse_args(args=None):
     parser.add_argument(
         "--heat-pump-installer-count",
         type=float,
-        default=2_800,
+        default=10_800,
         help="The number of HP installers at the start of the simulation.",
     )
 
