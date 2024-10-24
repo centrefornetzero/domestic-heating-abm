@@ -57,7 +57,6 @@ def model_factory(**model_attributes):
         "heat_pump_installer_count": 2_800,
         "heat_pump_installer_annual_growth_rate": 0,
         "annual_new_builds": None,
-        "heat_pump_awareness_intervention_factor": 0.0,
     }
 
     return DomesticHeatingABM(**{**default_values, **model_attributes})

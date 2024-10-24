@@ -206,7 +206,6 @@ class InterventionType(enum.Enum):
     BOILER_UPGRADE_SCHEME = 1
     GAS_OIL_BOILER_BAN = 2
     EXTENDED_BOILER_UPGRADE_SCHEME = 3
-    HEAT_PUMP_AWARENESS = 4
 
 
 # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/families/datasets/householdsbytypeofhouseholdandfamilyregionsofenglandandukconstituentcountries
