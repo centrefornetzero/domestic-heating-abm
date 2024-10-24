@@ -421,14 +421,12 @@ class Household(Agent):
 
         return reverse_sigmoid(years_to_ban)
 
-    def get_proba_becomes_heat_pump_aware(
-        self, model, heat_pump_awareness_intervention_factor
-    ):
+    def get_proba_becomes_heat_pump_aware(self, model):
 
         years_since_start = (model.current_datetime - model.start_datetime).days / 365
 
         return heat_pump_awareness_intervention(
-            years_since_start, heat_pump_awareness_intervention_factor
+            years_since_start, model.heat_pump_awareness_intervention_factor
         )
 
     def get_heating_system_options(
@@ -459,9 +457,7 @@ class Household(Agent):
             # if awareness intervention used, allow for more agents to become aware of heat pumps
             if not self.is_heat_pump_aware:
                 self.is_heat_pump_aware = true_with_probability(
-                    self.get_proba_becomes_heat_pump_aware(
-                        model, model.heat_pump_awareness_intervention_factor
-                    )
+                    self.get_proba_becomes_heat_pump_aware(model)
                 )
 
         if not is_gas_oil_boiler_ban_announced:

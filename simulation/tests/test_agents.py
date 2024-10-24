@@ -704,17 +704,16 @@ class TestHousehold:
         model = model_factory(
             start_datetime=datetime.datetime(2025, 1, 1),
             interventions=[InterventionType.HEAT_PUMP_AWARENESS],
+            heat_pump_awareness_intervention_factor=0.1,
         )
 
         proba_becomes_heat_pump_aware = household.get_proba_becomes_heat_pump_aware(
-            model, heat_pump_awareness_intervention_factor=0.1
+            model
         )
 
         model.increment_timestep()
         proba_becomes_heat_pump_aware_updated = (
-            household.get_proba_becomes_heat_pump_aware(
-                model, heat_pump_awareness_intervention_factor=0.1
-            )
+            household.get_proba_becomes_heat_pump_aware(model)
         )
 
         assert proba_becomes_heat_pump_aware < proba_becomes_heat_pump_aware_updated
@@ -726,10 +725,11 @@ class TestHousehold:
         model = model_factory(
             start_datetime=datetime.datetime(2024, 1, 1),
             interventions=[InterventionType.HEAT_PUMP_AWARENESS],
+            heat_pump_awareness_intervention_factor=0.1,
         )
 
         proba_becomes_heat_pump_aware = household.get_proba_becomes_heat_pump_aware(
-            model, heat_pump_awareness_intervention_factor=0.1
+            model
         )
 
         assert proba_becomes_heat_pump_aware == 0
