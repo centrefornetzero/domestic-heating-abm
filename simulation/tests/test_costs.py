@@ -227,7 +227,7 @@ class TestCosts:
         model_population_scale = (
             ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
         )
-        boiler_upgrade_scheme_budget_scaled = 450_000_000 / model_population_scale
+        boiler_upgrade_scheme_budget_scaled = 237_500_000 / model_population_scale
 
         model.boiler_upgrade_scheme_cumulative_spend_gbp = (
             boiler_upgrade_scheme_budget_scaled * 0.8
@@ -338,7 +338,7 @@ class TestCosts:
         model_population_scale = (
             ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
         )
-        boiler_upgrade_scheme_budget_scaled = 1_650_000_000 / model_population_scale
+        boiler_upgrade_scheme_budget_scaled = 5_400_000_000 / model_population_scale
 
         model.boiler_upgrade_scheme_cumulative_spend_gbp = (
             boiler_upgrade_scheme_budget_scaled * 0.8
