@@ -109,6 +109,8 @@ local job(name, args_excl_output) = {
     '0.0682',
     '--price-gbp-per-kwh-electricity',
     '0.182',
+    '--heat-pump-awareness-intervention-factor',
+    '0.05',
   ]),
   job('04a-%s-max-policy' % std.extVar('SHORT_SHA'), [
     '--intervention',
@@ -187,6 +189,8 @@ local job(name, args_excl_output) = {
     '0.0682',
     '--price-gbp-per-kwh-electricity',
     '0.182',
+    '--heat-pump-awareness-intervention-factor',
+    '0.05',
     '--include-new-builds',
   ]),
   job('05-%s-max-industry' % std.extVar('SHORT_SHA'), [

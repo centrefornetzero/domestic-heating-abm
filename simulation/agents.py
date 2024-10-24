@@ -37,7 +37,6 @@ from simulation.constants import (
     RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT,
     SIGMOID_K,
     SIGMOID_OFFSET,
-    HEAT_PUMP_AWARENESS_GDT,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -102,7 +101,7 @@ def reverse_sigmoid(x: float, k: float = SIGMOID_K, offset: float = SIGMOID_OFFS
     return 1 / (1 + math.exp(k * (x + offset)))
 
 
-def heat_pump_awareness_intervention(x: float, m: float = HEAT_PUMP_AWARENESS_GDT):
+def heat_pump_awareness_intervention(x: float, m: float):
 
     return min(m * x, 1)
 
@@ -422,11 +421,15 @@ class Household(Agent):
 
         return reverse_sigmoid(years_to_ban)
 
-    def get_proba_becomes_heat_pump_aware(self, model):
+    def get_proba_becomes_heat_pump_aware(
+        self, model, heat_pump_awareness_intervention_factor
+    ):
 
         years_since_start = (model.current_datetime - model.start_datetime).days / 365
 
-        return heat_pump_awareness_intervention(years_since_start)
+        return heat_pump_awareness_intervention(
+            years_since_start, heat_pump_awareness_intervention_factor
+        )
 
     def get_heating_system_options(
         self, model: "DomesticHeatingABM", event_trigger: EventTrigger
@@ -456,7 +459,9 @@ class Household(Agent):
             # if awareness intervention used, allow for more agents to become aware of heat pumps
             if not self.is_heat_pump_aware:
                 self.is_heat_pump_aware = true_with_probability(
-                    self.get_proba_becomes_heat_pump_aware(model)
+                    self.get_proba_becomes_heat_pump_aware(
+                        model, model.heat_pump_awareness_intervention_factor
+                    )
                 )
 
         if not is_gas_oil_boiler_ban_announced:

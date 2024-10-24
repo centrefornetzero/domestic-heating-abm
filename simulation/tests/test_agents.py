@@ -707,12 +707,14 @@ class TestHousehold:
         )
 
         proba_becomes_heat_pump_aware = household.get_proba_becomes_heat_pump_aware(
-            model
+            model, heat_pump_awareness_intervention_factor=0.1
         )
 
         model.increment_timestep()
         proba_becomes_heat_pump_aware_updated = (
-            household.get_proba_becomes_heat_pump_aware(model)
+            household.get_proba_becomes_heat_pump_aware(
+                model, heat_pump_awareness_intervention_factor=0.1
+            )
         )
 
         assert proba_becomes_heat_pump_aware < proba_becomes_heat_pump_aware_updated
@@ -727,7 +729,7 @@ class TestHousehold:
         )
 
         proba_becomes_heat_pump_aware = household.get_proba_becomes_heat_pump_aware(
-            model
+            model, heat_pump_awareness_intervention_factor=0.1
         )
 
         assert proba_becomes_heat_pump_aware == 0
