@@ -150,7 +150,7 @@ def parse_args(args=None):
         "--heat-pump-awareness-intervention-factor",
         type=float_between_0_and_1,
         default=0.1,
-        help="A value between 0 and 1 which determines how quickly heat pump awareness increases over time with the heat pump awareness intervention. A value of 0 indicates no increase in heat pump awareness.",
+        help="A value between 0 and 1 which determines how quickly heat pump awareness increases over time with the heat pump awareness intervention. A value of 0 is equivalent to not applying the heat pump awareness intervention.",
     )
 
     def check_string_is_isoformat_datetime(string) -> str:
