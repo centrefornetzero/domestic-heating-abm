@@ -99,6 +99,24 @@ class TestParseArgs:
                 [*mandatory_local_args, "--rented-heating-system-hassle-factor", "10"]
             )
 
+    def test_heat_pump_awareness_intervention_factor(self, mandatory_local_args):
+        args = parse_args(
+            [*mandatory_local_args, "--rented-heating-system-hassle-factor", "0.05"]
+        )
+        assert args.rented_heating_system_hassle_factor == 0.05
+
+    def test_heat_pump_awareness_intervention_factor_must_be_between_0_and_1(
+        self, mandatory_local_args
+    ):
+        with pytest.raises(SystemExit):
+            parse_args(
+                [
+                    *mandatory_local_args,
+                    "--heat-pump-awareness-intervention-factor",
+                    "10.0",
+                ]
+            )
+
     def test_help_flag(self):
         with pytest.raises(SystemExit):
             parse_args(["-h"])
@@ -158,6 +176,8 @@ class TestParseArgs:
                 "boiler_upgrade_scheme",
                 "--intervention",
                 "extended_boiler_upgrade_scheme",
+                "--intervention",
+                "heat_pump_awareness",
             ]
         )
 
@@ -165,6 +185,7 @@ class TestParseArgs:
             InterventionType.RHI,
             InterventionType.BOILER_UPGRADE_SCHEME,
             InterventionType.EXTENDED_BOILER_UPGRADE_SCHEME,
+            InterventionType.HEAT_PUMP_AWARENESS,
         ]
 
     def test_gas_oil_boiler_ban_date_returns_datetime(self, mandatory_local_args):

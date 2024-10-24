@@ -146,6 +146,13 @@ def parse_args(args=None):
         help="Include new build projections (from constants.py). Installers will also build heat pumps in new builds from 2025.",
     )
 
+    parser.add_argument(
+        "--heat-pump-awareness-intervention-factor",
+        type=float_between_0_and_1,
+        default=0.1,
+        help="A value between 0 and 1 which determines how quickly heat pump awareness increases over time with the heat pump awareness intervention. A value of 0 is equivalent to not applying the heat pump awareness intervention.",
+    )
+
     def check_string_is_isoformat_datetime(string) -> str:
         datetime.datetime.fromisoformat(string)
         return string
@@ -226,6 +233,7 @@ if __name__ == "__main__":
             args.heat_pump_installer_count,
             args.heat_pump_installer_annual_growth_rate,
             ENGLAND_WALES_ANNUAL_NEW_BUILDS if args.include_new_builds else None,
+            args.heat_pump_awareness_intervention_factor,
         )
 
         with smart_open.open(args.history_file, "w") as file:
