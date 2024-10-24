@@ -101,6 +101,12 @@ def reverse_sigmoid(x: float, k: float = SIGMOID_K, offset: float = SIGMOID_OFFS
     return 1 / (1 + math.exp(k * (x + offset)))
 
 
+def sigmoid(x: float, k: float = SIGMOID_K):
+    # Sigmoid function with y bounded between 0 & 1
+
+    return 2 * 1 / (1 + math.exp(-k * (x / 10))) - 1
+
+
 class Household(Agent):
     def __init__(
         self,
@@ -416,6 +422,12 @@ class Household(Agent):
 
         return reverse_sigmoid(years_to_ban)
 
+    def get_proba_becomes_heat_pump_aware(self, model):
+
+        years_since_start = (model.current_datetime - model.start_datetime).days / 365
+
+        return sigmoid(years_since_start)
+
     def get_heating_system_options(
         self, model: "DomesticHeatingABM", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
@@ -438,6 +450,13 @@ class Household(Agent):
             if exclude_gas_oil_boilers:
                 heating_system_options -= set(
                     [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
+                )
+
+        if InterventionType.HEAT_PUMP_AWARENESS in model.interventions:
+            # if awareness intervention used, allow for more agents to become aware of heat pumps
+            if not self.is_heat_pump_aware:
+                self.is_heat_pump_aware = true_with_probability(
+                    self.get_proba_becomes_heat_pump_aware(model)
                 )
 
         if not is_gas_oil_boiler_ban_announced:

@@ -697,6 +697,41 @@ class TestHousehold:
 
         assert all(heat_pump in heating_system_options for heat_pump in HEAT_PUMPS)
 
+    def test_households_increasingly_likely_to_become_heat_pump_aware(
+        self,
+    ):
+        household = household_factory()
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1),
+            interventions=[InterventionType.HEAT_PUMP_AWARENESS],
+        )
+
+        proba_becomes_heat_pump_aware = household.get_proba_becomes_heat_pump_aware(
+            model
+        )
+
+        model.increment_timestep()
+        proba_becomes_heat_pump_aware_updated = (
+            household.get_proba_becomes_heat_pump_aware(model)
+        )
+
+        assert proba_becomes_heat_pump_aware < proba_becomes_heat_pump_aware_updated
+
+    def test_heat_pump_awareness_increase_is_zero_in_first_year(
+        self,
+    ):
+        household = household_factory()
+        model = model_factory(
+            start_datetime=datetime.datetime(2024, 1, 1),
+            interventions=[InterventionType.HEAT_PUMP_AWARENESS],
+        )
+
+        proba_becomes_heat_pump_aware = household.get_proba_becomes_heat_pump_aware(
+            model
+        )
+
+        assert proba_becomes_heat_pump_aware == 0
+
 
 class TestAgentsWithBoilerBan:
     def test_households_increasingly_likely_to_rule_out_heating_systems_that_will_be_banned_as_time_to_ban_decreases(
