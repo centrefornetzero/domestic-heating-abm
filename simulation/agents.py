@@ -37,6 +37,7 @@ from simulation.constants import (
     RETROFIT_COSTS_SMALL_PROPERTY_SQM_LIMIT,
     SIGMOID_K,
     SIGMOID_OFFSET,
+    HEAT_PUMP_AWARENESS_GDT,
     BuiltForm,
     ConstructionYearBand,
     Element,
@@ -101,10 +102,9 @@ def reverse_sigmoid(x: float, k: float = SIGMOID_K, offset: float = SIGMOID_OFFS
     return 1 / (1 + math.exp(k * (x + offset)))
 
 
-def sigmoid(x: float, k: float = SIGMOID_K):
-    # Sigmoid function with y bounded between 0 & 1
+def heat_pump_awareness_intervention(x: float, m: float = HEAT_PUMP_AWARENESS_GDT):
 
-    return 2 * 1 / (1 + math.exp(-k * (x / 10))) - 1
+    return min(m * x, 1)
 
 
 class Household(Agent):
@@ -426,7 +426,7 @@ class Household(Agent):
 
         years_since_start = (model.current_datetime - model.start_datetime).days / 365
 
-        return sigmoid(years_since_start)
+        return heat_pump_awareness_intervention(years_since_start)
 
     def get_heating_system_options(
         self, model: "DomesticHeatingABM", event_trigger: EventTrigger
