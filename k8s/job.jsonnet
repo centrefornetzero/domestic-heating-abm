@@ -64,7 +64,7 @@ local job(name, args_excl_output) = {
     '--price-gbp-per-kwh-electricity',
     '0.182',
   ]),
-  job('03i-%s-extended-bus-policy-high-awareness-unlimited-installers' % std.extVar('SHORT_SHA'), [
+  job('03i-%s-ext-bus-policy-high-awareness-unlimited-installers' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'extended_boiler_upgrade_scheme',
     '--heat-pump-awareness',
@@ -78,7 +78,7 @@ local job(name, args_excl_output) = {
     '--heat-pump-installer-count',
     '10000000000',
   ]),
-  job('03j-%s-extended-bus-policy-high-awareness-unlimited-installers-new-builds' % std.extVar('SHORT_SHA'), [
+  job('03j-%s-ext-bus-high-awareness-unltd-installers-new-builds' % std.extVar('SHORT_SHA'), [
     '--intervention',
     'extended_boiler_upgrade_scheme',
     '--heat-pump-awareness',
@@ -110,5 +110,24 @@ local job(name, args_excl_output) = {
     '0.0682',
     '--price-gbp-per-kwh-electricity',
     '0.182',
+  ]),
+  job('04e-%s-max-policy-all-suitable' % std.extVar('SHORT_SHA'), [
+    '--intervention',
+    'boiler_upgrade_scheme',
+    '--intervention',
+    'gas_oil_boiler_ban',
+    '--gas-oil-boiler-ban-date',
+    '2035-01-01',
+    '--gas-oil-boiler-ban-announce-date',
+    '2025-01-01',
+    '--heat-pump-awareness',
+    '0.5',
+    '--air-source-heat-pump-price-discount-date',
+    '2026-01-01:0.3',
+    '--price-gbp-per-kwh-gas',
+    '0.0682',
+    '--price-gbp-per-kwh-electricity',
+    '0.182',
+    '--all-agents-heat-pump-suitable',
   ]),
 ]
