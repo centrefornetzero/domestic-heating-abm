@@ -686,3 +686,6 @@ class Household(Agent):
             self.heating_system_costs_subsidies = costs_subsidies
             self.heating_system_costs_insulation = costs_insulation
             self.insulation_element_upgrade_costs = chosen_insulation_costs
+
+        if self.is_heat_pump_aware:
+            model.households_heat_pump_aware_at_current_step += 1
