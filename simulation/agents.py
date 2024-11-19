@@ -123,6 +123,7 @@ class Household(Agent):
         roof_energy_efficiency: int,
         is_heat_pump_suitable_archetype: bool,
         is_heat_pump_aware: bool,
+        is_heat_pump_aware_after_campaign: bool,
     ):
         self.id = id
         # Property / tenure attributes
@@ -149,6 +150,9 @@ class Household(Agent):
         self.windows_energy_efficiency = windows_energy_efficiency
         self.is_heat_pump_aware = (
             self.heating_system in HEAT_PUMPS or is_heat_pump_aware
+        )
+        self.is_heat_pump_aware_after_campaign = (
+            self.heating_system in HEAT_PUMPS or is_heat_pump_aware_after_campaign
         )
 
         # Household investment decision attributes
@@ -416,6 +420,12 @@ class Household(Agent):
 
         return reverse_sigmoid(years_to_ban)
 
+    def update_heat_pump_awareness(self, model) -> None:
+        # If heat pump awareness campaign has been done, update awareness in response to campaign
+        if InterventionType.HEAT_PUMP_CAMPAIGN in model.interventions:
+            if model.current_datetime >= model.heat_pump_awareness_campaign_date:
+                self.is_heat_pump_aware = self.is_heat_pump_aware_after_campaign
+
     def get_heating_system_options(
         self, model: "DomesticHeatingABM", event_trigger: EventTrigger
     ) -> Set[HeatingSystem]:
@@ -613,6 +623,7 @@ class Household(Agent):
 
     def make_decisions(self, model):
 
+        self.update_heat_pump_awareness(model)
         self.update_heating_status(model)
         self.evaluate_renovation(model)
 

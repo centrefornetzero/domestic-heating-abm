@@ -172,6 +172,18 @@ def parse_args(args=None):
         type=convert_to_datetime,
     )
 
+    parser.add_argument(
+        "--heat-pump-awareness-campaign-date",
+        default=datetime.datetime(2028, 1, 1),
+        type=convert_to_datetime,
+    )
+
+    parser.add_argument(
+        "--heat-pump-awareness-due-to-campaign",
+        default=0.8,
+        type=float_between_0_and_1,
+    )
+
     # SOURCE: Default values from https://energysavingtrust.org.uk/about-us/our-data/ (England, Scotland and Wales)
     # These fuel prices were last updated in November 2021, based on predicted fuel prices for 2022
     parser.add_argument("--price-gbp-per-kwh-gas", type=float, default=0.062)
@@ -226,6 +238,8 @@ if __name__ == "__main__":
             args.heat_pump_installer_count,
             args.heat_pump_installer_annual_growth_rate,
             ENGLAND_WALES_ANNUAL_NEW_BUILDS if args.include_new_builds else None,
+            args.heat_pump_awareness_campaign_date,
+            args.heat_pump_awareness_due_to_campaign,
         )
 
         with smart_open.open(args.history_file, "w") as file:

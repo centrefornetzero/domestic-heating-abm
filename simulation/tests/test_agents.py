@@ -47,6 +47,7 @@ class TestHousehold:
             roof_energy_efficiency=2,
             is_heat_pump_suitable_archetype=True,
             is_heat_pump_aware=True,
+            is_heat_pump_aware_after_campaign=True,
         )
         assert household.id == 1
         assert household.location == "London"
@@ -68,6 +69,7 @@ class TestHousehold:
         assert household.is_heat_pump_suitable_archetype
         assert household.heating_fuel == HeatingFuel.ELECTRICITY
         assert household.is_heat_pump_aware
+        assert household.is_heat_pump_aware_after_campaign
         assert household.is_renovating is not None
 
     def test_household_renovation_budget_increases_with_property_value(self) -> None:

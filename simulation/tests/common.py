@@ -35,6 +35,7 @@ def household_factory(**agent_attributes):
         "roof_energy_efficiency": 3,
         "is_heat_pump_suitable_archetype": True,
         "is_heat_pump_aware": True,
+        "is_heat_pump_aware_after_campaign": True,
     }
     return Household(**{**default_values, **agent_attributes})
 
@@ -57,6 +58,7 @@ def model_factory(**model_attributes):
         "heat_pump_installer_count": 2_800,
         "heat_pump_installer_annual_growth_rate": 0,
         "annual_new_builds": None,
+        "heat_pump_awareness_campaign_date": datetime.datetime(2025, 2, 1),
     }
 
     return DomesticHeatingABM(**{**default_values, **model_attributes})

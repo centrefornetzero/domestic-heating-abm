@@ -46,6 +46,7 @@ class DomesticHeatingABM(AgentBasedModel):
         heat_pump_installer_count: int,
         heat_pump_installer_annual_growth_rate: float,
         annual_new_builds: Optional[Dict[int, int]],
+        heat_pump_awareness_campaign_date: datetime.datetime,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -75,6 +76,7 @@ class DomesticHeatingABM(AgentBasedModel):
         self.heat_pump_installations_at_current_step = 0
         self.households_heat_pump_aware_at_current_step = 0
         self.annual_new_builds = annual_new_builds
+        self.heat_pump_awareness_campaign_date = heat_pump_awareness_campaign_date
 
         super().__init__(UnorderedSpace())
 
@@ -207,13 +209,74 @@ class DomesticHeatingABM(AgentBasedModel):
         self.households_heat_pump_aware_at_current_step = 0
 
 
+def construct_population_awareness(
+    household_population: pd.DataFrame, heat_pump_awareness: float
+) -> List[bool]:
+    """Construct a list assigning heat pump awareness to each agent in the population"""
+    # Randomly assign heat pump awareness to the agent population with a probability given by `heat_pump_awareness`
+    return [
+        random.random() < heat_pump_awareness for _ in range(len(household_population))
+    ]
+
+
+def construct_population_awareness_due_to_campaign(
+    population_heat_pump_awareness: List[bool],
+    heat_pump_awareness_due_to_campaign: float,
+    heat_pump_awareness: float,
+) -> List[bool]:
+    """Construct a list assigning heat pump awareness to each agent in the population after the campaign"""
+
+    # Awareness cannot decrease over time
+    # Ensure that the campaign target awareness is at least the current awareness
+    heat_pump_awareness_due_to_campaign = max(
+        heat_pump_awareness_due_to_campaign, heat_pump_awareness
+    )
+
+    # A fraction of the population are always heat pump aware, as defined by `heat_pump_awareness`
+    # To reach the target awareness for the campaign, we need to increase the awareness of the remaning unaware population
+    # Here, the fraction of the remaining population which needs to become aware to reach the campaign target is defined
+    unaware_population_fraction = 1 - heat_pump_awareness
+    if unaware_population_fraction == 0.0:
+        # If all agents aware already, target awareness is zero
+        target_heat_pump_awareness_for_campaign = 0.0
+    else:
+        target_heat_pump_awareness_for_campaign = (
+            heat_pump_awareness_due_to_campaign - heat_pump_awareness
+        ) / unaware_population_fraction
+
+    population_heat_pump_awareness_after_campaign = (
+        population_heat_pump_awareness.copy()
+    )
+    # Randomly assign heat pump awareness to the initially non-aware agent population
+    for i in range(len(population_heat_pump_awareness_after_campaign)):
+        if not population_heat_pump_awareness_after_campaign[i]:
+            rand_gen = random.random()
+            if rand_gen < target_heat_pump_awareness_for_campaign:
+                population_heat_pump_awareness_after_campaign[i] = True
+
+    return population_heat_pump_awareness_after_campaign
+
+
 def create_household_agents(
     household_population: pd.DataFrame,
-    heat_pump_awareness: float,
     simulation_start_datetime: datetime.datetime,
     all_agents_heat_pump_suitable: bool,
+    heat_pump_awareness: float,
+    heat_pump_awareness_due_to_campaign: float,
 ) -> Iterator[Household]:
-    for household in household_population.itertuples():
+
+    population_heat_pump_awareness = construct_population_awareness(
+        household_population, heat_pump_awareness
+    )
+    population_heat_pump_awareness_after_campaign = (
+        construct_population_awareness_due_to_campaign(
+            population_heat_pump_awareness,
+            heat_pump_awareness_due_to_campaign,
+            heat_pump_awareness,
+        )
+    )
+
+    for i, household in enumerate(household_population.itertuples()):
         yield Household(
             id=household.id,
             location=household.location,
@@ -242,7 +305,10 @@ def create_household_agents(
             is_heat_pump_suitable_archetype=True
             if all_agents_heat_pump_suitable
             else household.is_heat_pump_suitable_archetype,
-            is_heat_pump_aware=random.random() < heat_pump_awareness,
+            is_heat_pump_aware=population_heat_pump_awareness[i],
+            is_heat_pump_aware_after_campaign=population_heat_pump_awareness_after_campaign[
+                i
+            ],
         )
 
 
@@ -269,6 +335,8 @@ def create_and_run_simulation(
     heat_pump_installer_count: int,
     heat_pump_installer_annual_growth_rate: float,
     annual_new_builds: Dict[int, int],
+    heat_pump_awareness_campaign_date: datetime.datetime,
+    heat_pump_awareness_due_to_campaign: float,
 ):
 
     model = DomesticHeatingABM(
@@ -288,13 +356,15 @@ def create_and_run_simulation(
         heat_pump_installer_count=heat_pump_installer_count,
         heat_pump_installer_annual_growth_rate=heat_pump_installer_annual_growth_rate,
         annual_new_builds=annual_new_builds,
+        heat_pump_awareness_campaign_date=heat_pump_awareness_campaign_date,
     )
 
     households = create_household_agents(
         household_population,
-        heat_pump_awareness,
         model.start_datetime,
         all_agents_heat_pump_suitable,
+        heat_pump_awareness,
+        heat_pump_awareness_due_to_campaign,
     )
 
     model.add_agents(households)
