@@ -46,6 +46,9 @@ class DomesticHeatingABM(AgentBasedModel):
         heat_pump_installer_count: int,
         heat_pump_installer_annual_growth_rate: float,
         annual_new_builds: Optional[Dict[int, int]],
+        heat_pump_awareness: float,
+        campaign_target_heat_pump_awareness: float,
+        heat_pump_awareness_campaign_date: datetime.datetime,
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -74,6 +77,9 @@ class DomesticHeatingABM(AgentBasedModel):
         )
         self.heat_pump_installations_at_current_step = 0
         self.annual_new_builds = annual_new_builds
+        self.heat_pump_awareness = heat_pump_awareness
+        self.campaign_target_heat_pump_awareness = campaign_target_heat_pump_awareness
+        self.heat_pump_awareness_campaign_date = heat_pump_awareness_campaign_date
         self.households_heat_pump_aware_at_current_step = 0
 
         super().__init__(UnorderedSpace())
@@ -269,6 +275,8 @@ def create_and_run_simulation(
     heat_pump_installer_count: int,
     heat_pump_installer_annual_growth_rate: float,
     annual_new_builds: Dict[int, int],
+    campaign_target_heat_pump_awareness: float,
+    heat_pump_awareness_campaign_date: datetime.datetime,
 ):
 
     model = DomesticHeatingABM(
@@ -288,6 +296,9 @@ def create_and_run_simulation(
         heat_pump_installer_count=heat_pump_installer_count,
         heat_pump_installer_annual_growth_rate=heat_pump_installer_annual_growth_rate,
         annual_new_builds=annual_new_builds,
+        heat_pump_awareness=heat_pump_awareness,
+        campaign_target_heat_pump_awareness=campaign_target_heat_pump_awareness,
+        heat_pump_awareness_campaign_date=heat_pump_awareness_campaign_date,
     )
 
     households = create_household_agents(

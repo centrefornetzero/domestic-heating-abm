@@ -611,8 +611,32 @@ class Household(Agent):
             )
         )
 
+    def proba_of_becoming_heat_pump_aware_required_to_reach_campaign_target(
+        self, model
+    ) -> float:
+        return (
+            model.campaign_target_heat_pump_awareness - model.heat_pump_awareness
+        ) / (1 - model.heat_pump_awareness)
+
+    def update_heat_pump_awareness(self, model) -> None:
+
+        if InterventionType.HEAT_PUMP_CAMPAIGN in model.interventions:
+            if (
+                model.current_datetime == model.heat_pump_awareness_campaign_date
+                and model.heat_pump_awareness_at_timestep
+                < model.campaign_target_heat_pump_awareness
+                and not self.is_heat_pump_aware
+            ):
+                proba_to_become_heat_pump_aware = self.proba_of_becoming_heat_pump_aware_required_to_reach_campaign_target(
+                    model
+                )
+                self.is_heat_pump_aware = true_with_probability(
+                    proba_to_become_heat_pump_aware
+                )
+
     def make_decisions(self, model):
 
+        self.update_heat_pump_awareness(model)
         self.update_heating_status(model)
         self.evaluate_renovation(model)
 
