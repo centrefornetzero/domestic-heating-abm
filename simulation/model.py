@@ -209,25 +209,55 @@ class DomesticHeatingABM(AgentBasedModel):
         self.households_heat_pump_aware_at_current_step = 0
 
 
-def construct_population_awareness(
+def population_heat_pump_awareness(
     household_population: pd.DataFrame, heat_pump_awareness: float
 ) -> List[bool]:
-    """Construct a list assigning heat pump awareness to each agent in the population"""
-    # Randomly assign heat pump awareness to the agent population with a probability given by `heat_pump_awareness`
+    """Randomly assign heat pump awareness to each agent in the population
+      with a probability given by input param `heat_pump_awareness`
+
+    Args:
+        household_population (pd.DataFrame): household population
+        heat_pump_awareness (float): probability of household becoming heat
+          pump aware
+
+    Returns:
+        List[bool]: list of length equal to the number of households in the
+          population of True/False values depending on whether the household
+            is heat pump aware or not
+    """
     return [
         random.random() < heat_pump_awareness for _ in range(len(household_population))
     ]
 
 
-def construct_population_awareness_due_to_campaign(
-    population_heat_pump_awareness: List[bool],
+def population_heat_pump_awareness_due_to_campaign(
+    agents_heat_pump_awareness: List[bool],
     heat_pump_awareness_due_to_campaign: float,
     heat_pump_awareness: float,
 ) -> List[bool]:
-    """Construct a list assigning heat pump awareness to each agent in the population after the campaign"""
+    """If heat pump campaign is set as intervention in input params to the ABM,
+      then some agents who are not initially heat pump aware will later become
+        heat pump aware at the time of the campaign.
+    This function randomly designates agents to become heat pump aware due to
+      the campaign.
+    The probability of an agent becoming heat pump aware due to the campaign
+      is given by the input param `heat_pump_awareness_due_to_campaign`.
 
-    # Awareness cannot decrease over time
-    # Ensure that the campaign target awareness is at least the current awareness
+    Args:
+        agents_heat_pump_awareness (List[bool]): agent awareness of heat pumps
+          at the beginning of the simulation
+        heat_pump_awareness_due_to_campaign (float): probability of household
+          becoming heat pump aware due to campaign intervention
+        heat_pump_awareness (float): probability of a household being
+          initially heat pump aware irrespecictive the campaign intervention
+
+    Returns:
+        List[bool]: list of length equal to the number of households in the
+          population of True/False values depending on whether the household
+            will become heat pump aware or not due to the campaign intervention
+    """
+    # Ensure that the campaign target awareness is at least the initial awareness
+    # If a user sets a lower target awareness than the initial awareness this is the same as the campaign having no effect on heat pump awareness
     heat_pump_awareness_due_to_campaign = max(
         heat_pump_awareness_due_to_campaign, heat_pump_awareness
     )
@@ -244,17 +274,15 @@ def construct_population_awareness_due_to_campaign(
             heat_pump_awareness_due_to_campaign - heat_pump_awareness
         ) / unaware_population_fraction
 
-    population_heat_pump_awareness_after_campaign = (
-        population_heat_pump_awareness.copy()
-    )
+    agents_heat_pump_awareness_after_campaign = agents_heat_pump_awareness.copy()
     # Randomly assign heat pump awareness to the initially non-aware agent population
-    for i in range(len(population_heat_pump_awareness_after_campaign)):
-        if not population_heat_pump_awareness_after_campaign[i]:
+    for i in range(len(agents_heat_pump_awareness_after_campaign)):
+        if not agents_heat_pump_awareness_after_campaign[i]:
             rand_gen = random.random()
             if rand_gen < target_heat_pump_awareness_for_campaign:
-                population_heat_pump_awareness_after_campaign[i] = True
+                agents_heat_pump_awareness_after_campaign[i] = True
 
-    return population_heat_pump_awareness_after_campaign
+    return agents_heat_pump_awareness_after_campaign
 
 
 def create_household_agents(
@@ -265,12 +293,12 @@ def create_household_agents(
     heat_pump_awareness_due_to_campaign: float,
 ) -> Iterator[Household]:
 
-    population_heat_pump_awareness = construct_population_awareness(
+    agents_heat_pump_awareness = population_heat_pump_awareness(
         household_population, heat_pump_awareness
     )
-    population_heat_pump_awareness_after_campaign = (
-        construct_population_awareness_due_to_campaign(
-            population_heat_pump_awareness,
+    agents_heat_pump_awareness_after_campaign = (
+        population_heat_pump_awareness_due_to_campaign(
+            agents_heat_pump_awareness,
             heat_pump_awareness_due_to_campaign,
             heat_pump_awareness,
         )
@@ -305,8 +333,8 @@ def create_household_agents(
             is_heat_pump_suitable_archetype=True
             if all_agents_heat_pump_suitable
             else household.is_heat_pump_suitable_archetype,
-            is_heat_pump_aware=population_heat_pump_awareness[i],
-            is_heat_pump_aware_after_campaign=population_heat_pump_awareness_after_campaign[
+            is_heat_pump_aware=agents_heat_pump_awareness[i],
+            is_heat_pump_aware_after_campaign=agents_heat_pump_awareness_after_campaign[
                 i
             ],
         )

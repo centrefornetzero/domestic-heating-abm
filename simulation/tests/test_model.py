@@ -276,17 +276,12 @@ class TestCreateHouseholdAgents:
         heat_pump_awareness = 0.4
         heat_pump_awareness_due_to_campaign = 0.8
 
-        # population_heat_pump_awareness = construct_population_awareness(household_population, heat_pump_awareness)
-        # population_heat_pump_awareness_after_campaign = construct_population_awareness_due_to_campaign(household_population, heat_pump_awareness, heat_pump_awareness_due_to_campaign)
-
         household_agents = create_household_agents(
             self.household_population,
             self.simulation_start_datetime,
             self.all_agents_heat_pump_suitable,
             heat_pump_awareness,
             heat_pump_awareness_due_to_campaign,
-            # population_heat_pump_awareness,
-            # population_heat_pump_awareness_after_campaign
         )
         household = next(household_agents)
 
