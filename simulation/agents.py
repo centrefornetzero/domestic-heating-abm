@@ -440,8 +440,12 @@ class Household(Agent):
                     [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
                 )
 
-        if not is_gas_oil_boiler_ban_announced:
-            # if a gas/boiler ban is announced, we assume all households are aware of heat pumps
+        is_gas_oil_boiler_ban_in_place = (
+            InterventionType.GAS_OIL_BOILER_BAN in model.interventions
+            and model.current_datetime >= model.gas_oil_boiler_ban_datetime
+        )
+        if not is_gas_oil_boiler_ban_in_place:
+            # if a gas/boiler ban is in place, we assume all households are aware of heat pumps
             if not self.is_heat_pump_aware:
                 heating_system_options -= HEAT_PUMPS
 
