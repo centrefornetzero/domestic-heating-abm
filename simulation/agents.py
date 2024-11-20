@@ -616,6 +616,9 @@ class Household(Agent):
         self.update_heating_status(model)
         self.evaluate_renovation(model)
 
+        if self.is_heat_pump_aware:
+            model.households_heat_pump_aware_at_current_step += 1
+
         if self.is_renovating:
             if self.renovate_insulation:
                 chosen_elements = self.get_chosen_insulation_costs(

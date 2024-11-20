@@ -277,6 +277,10 @@ def model_heat_pump_installations_at_current_step(model) -> int:
     return model.heat_pump_installations_at_current_step
 
 
+def model_heat_pump_awareness_at_timestep(model) -> float:
+    return model.heat_pump_awareness_at_timestep
+
+
 def is_first_timestep(model: "DomesticHeatingABM") -> bool:
     return model.current_datetime == model.start_datetime + model.step_interval
 
@@ -303,7 +307,6 @@ def get_agent_collectors(
         collect_when(model, is_first_timestep)(household_discount_rate),
         collect_when(model, is_first_timestep)(household_renovation_budget),
         collect_when(model, is_first_timestep)(household_is_heat_pump_suitable),
-        collect_when(model, is_first_timestep)(household_is_heat_pump_aware),
         household_heating_system,
         household_heating_system_previous,
         household_heating_functioning,
@@ -340,6 +343,7 @@ def get_agent_collectors(
         household_heating_system_costs_insulation_heat_pump_air_source,
         household_heating_system_costs_insulation_heat_pump_ground_source,
         household_boiler_upgrade_grant_used,
+        household_is_heat_pump_aware,
     ]
 
 
@@ -355,4 +359,5 @@ def get_model_collectors(
         collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_gas),
         collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_electricity),
         collect_when(model, is_first_timestep)(model_price_gbp_per_kwh_oil),
+        model_heat_pump_awareness_at_timestep,
     ]

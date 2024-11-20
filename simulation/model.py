@@ -74,6 +74,7 @@ class DomesticHeatingABM(AgentBasedModel):
         )
         self.heat_pump_installations_at_current_step = 0
         self.annual_new_builds = annual_new_builds
+        self.households_heat_pump_aware_at_current_step = 0
 
         super().__init__(UnorderedSpace())
 
@@ -193,12 +194,17 @@ class DomesticHeatingABM(AgentBasedModel):
             ]
         )
 
+    @property
+    def heat_pump_awareness_at_timestep(self) -> float:
+        return self.households_heat_pump_aware_at_current_step / self.household_count
+
     def increment_timestep(self):
         self.current_datetime += self.step_interval
         self.boiler_upgrade_scheme_cumulative_spend_gbp += (
             self.boiler_upgrade_scheme_spend_gbp
         )
         self.heat_pump_installations_at_current_step = 0
+        self.households_heat_pump_aware_at_current_step = 0
 
 
 def create_household_agents(
