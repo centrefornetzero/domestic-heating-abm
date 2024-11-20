@@ -624,28 +624,25 @@ class Household(Agent):
 
     def update_heat_pump_awareness(self, model) -> None:
 
-        if InterventionType.HEAT_PUMP_CAMPAIGN in model.interventions:
-            if (
-                model.current_datetime == model.heat_pump_awareness_campaign_date
-                and model.heat_pump_awareness_at_timestep
-                < model.campaign_target_heat_pump_awareness
-                and not self.is_heat_pump_aware
-            ):
-                proba_to_become_heat_pump_aware = self.proba_of_becoming_heat_pump_aware_required_to_reach_campaign_target(
-                    model
-                )
-                self.is_heat_pump_aware = true_with_probability(
-                    proba_to_become_heat_pump_aware
-                )
+        if (
+            InterventionType.HEAT_PUMP_CAMPAIGN in model.interventions
+            and model.current_datetime == model.heat_pump_awareness_campaign_date
+            and model.heat_pump_awareness_at_timestep
+            < model.campaign_target_heat_pump_awareness
+            and not self.is_heat_pump_aware
+        ):
+            proba_to_become_heat_pump_aware = self.proba_of_becoming_heat_pump_aware_required_to_reach_campaign_target(
+                model
+            )
+            self.is_heat_pump_aware = true_with_probability(
+                proba_to_become_heat_pump_aware
+            )
 
     def make_decisions(self, model):
 
         self.update_heat_pump_awareness(model)
         self.update_heating_status(model)
         self.evaluate_renovation(model)
-
-        if self.is_heat_pump_aware:
-            model.households_heat_pump_aware_at_current_step += 1
 
         if self.is_renovating:
             if self.renovate_insulation:
@@ -717,3 +714,6 @@ class Household(Agent):
             self.heating_system_costs_subsidies = costs_subsidies
             self.heating_system_costs_insulation = costs_insulation
             self.insulation_element_upgrade_costs = chosen_insulation_costs
+
+        if self.is_heat_pump_aware:
+            model.households_heat_pump_aware_at_current_step += 1
