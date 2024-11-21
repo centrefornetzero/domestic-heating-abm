@@ -267,7 +267,7 @@ def test_create_household_agents() -> None:
             "is_heat_pump_suitable_archetype": [True],
         }
     )
-    heat_pump_awareness = 0.4
+    heat_pump_awareness = [True]
     simulation_start_datetime = datetime.datetime.now()
     all_agents_heat_pump_suitable = False
     household_agents = create_household_agents(

@@ -619,14 +619,14 @@ class Household(Agent):
         self, model
     ) -> float:
         return (
-            model.campaign_target_heat_pump_awareness - model.heat_pump_awareness
-        ) / (1 - model.heat_pump_awareness)
+            model.campaign_target_heat_pump_awareness
+            - model.heat_pump_awareness_at_timestep
+        ) / (1 - model.heat_pump_awareness_at_timestep)
 
     def update_heat_pump_awareness(self, model) -> None:
-
         if (
             InterventionType.HEAT_PUMP_CAMPAIGN in model.interventions
-            and model.current_datetime == model.heat_pump_awareness_campaign_date
+            and model.current_datetime >= model.heat_pump_awareness_campaign_date
             and model.heat_pump_awareness_at_timestep
             < model.campaign_target_heat_pump_awareness
             and not self.is_heat_pump_aware
@@ -637,6 +637,8 @@ class Household(Agent):
             self.is_heat_pump_aware = true_with_probability(
                 proba_to_become_heat_pump_aware
             )
+            if self.is_heat_pump_aware:
+                model.num_households_switching_to_heat_pump_aware += 1
 
     def make_decisions(self, model):
 
@@ -714,6 +716,3 @@ class Household(Agent):
             self.heating_system_costs_subsidies = costs_subsidies
             self.heating_system_costs_insulation = costs_insulation
             self.insulation_element_upgrade_costs = chosen_insulation_costs
-
-        if self.is_heat_pump_aware:
-            model.households_heat_pump_aware_at_current_step += 1

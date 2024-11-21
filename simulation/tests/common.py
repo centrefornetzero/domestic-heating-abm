@@ -60,6 +60,7 @@ def model_factory(**model_attributes):
         "heat_pump_awareness": 0.5,
         "campaign_target_heat_pump_awareness": 0.8,
         "heat_pump_awareness_campaign_date": datetime.datetime(2028, 1, 1),
+        "population_heat_pump_awareness": [],
     }
 
     return DomesticHeatingABM(**{**default_values, **model_attributes})

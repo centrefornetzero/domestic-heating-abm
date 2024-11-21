@@ -49,6 +49,7 @@ class DomesticHeatingABM(AgentBasedModel):
         heat_pump_awareness: float,
         campaign_target_heat_pump_awareness: float,
         heat_pump_awareness_campaign_date: datetime.datetime,
+        population_heat_pump_awareness: List[bool],
     ):
         self.start_datetime = start_datetime
         self.step_interval = step_interval
@@ -80,7 +81,10 @@ class DomesticHeatingABM(AgentBasedModel):
         self.heat_pump_awareness = heat_pump_awareness
         self.campaign_target_heat_pump_awareness = campaign_target_heat_pump_awareness
         self.heat_pump_awareness_campaign_date = heat_pump_awareness_campaign_date
-        self.households_heat_pump_aware_at_current_step = 0
+
+        self.population_heat_pump_awareness = population_heat_pump_awareness
+        self.num_households_heat_pump_aware = sum(population_heat_pump_awareness)
+        self.num_households_switching_to_heat_pump_aware = 0
 
         super().__init__(UnorderedSpace())
 
@@ -202,7 +206,10 @@ class DomesticHeatingABM(AgentBasedModel):
 
     @property
     def heat_pump_awareness_at_timestep(self) -> float:
-        return self.households_heat_pump_aware_at_current_step / self.household_count
+        return (
+            self.num_households_heat_pump_aware
+            + self.num_households_switching_to_heat_pump_aware
+        ) / self.household_count
 
     def increment_timestep(self):
         self.current_datetime += self.step_interval
@@ -210,16 +217,15 @@ class DomesticHeatingABM(AgentBasedModel):
             self.boiler_upgrade_scheme_spend_gbp
         )
         self.heat_pump_installations_at_current_step = 0
-        self.households_heat_pump_aware_at_current_step = 0
 
 
 def create_household_agents(
     household_population: pd.DataFrame,
-    heat_pump_awareness: float,
+    population_heat_pump_awareness: List[bool],
     simulation_start_datetime: datetime.datetime,
     all_agents_heat_pump_suitable: bool,
 ) -> Iterator[Household]:
-    for household in household_population.itertuples():
+    for i, household in enumerate(household_population.itertuples()):
         yield Household(
             id=household.id,
             location=household.location,
@@ -248,7 +254,7 @@ def create_household_agents(
             is_heat_pump_suitable_archetype=True
             if all_agents_heat_pump_suitable
             else household.is_heat_pump_suitable_archetype,
-            is_heat_pump_aware=random.random() < heat_pump_awareness,
+            is_heat_pump_aware=population_heat_pump_awareness[i],
         )
 
 
@@ -279,6 +285,10 @@ def create_and_run_simulation(
     heat_pump_awareness_campaign_date: datetime.datetime,
 ):
 
+    population_heat_pump_awareness = [
+        random.random() < heat_pump_awareness for _ in range(len(household_population))
+    ]
+
     model = DomesticHeatingABM(
         start_datetime=start_datetime,
         step_interval=step_interval,
@@ -299,11 +309,12 @@ def create_and_run_simulation(
         heat_pump_awareness=heat_pump_awareness,
         campaign_target_heat_pump_awareness=campaign_target_heat_pump_awareness,
         heat_pump_awareness_campaign_date=heat_pump_awareness_campaign_date,
+        population_heat_pump_awareness=population_heat_pump_awareness,
     )
 
     households = create_household_agents(
         household_population,
-        heat_pump_awareness,
+        population_heat_pump_awareness,
         model.start_datetime,
         all_agents_heat_pump_suitable,
     )
