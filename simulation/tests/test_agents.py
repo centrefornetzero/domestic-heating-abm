@@ -697,6 +697,82 @@ class TestHousehold:
 
         assert all(heat_pump in heating_system_options for heat_pump in HEAT_PUMPS)
 
+    def test_heat_pump_awareness_updated_after_successful_campaign(
+        self,
+    ):
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1),
+            step_interval=relativedelta(months=1),
+            interventions=[InterventionType.HEAT_PUMP_CAMPAIGN],
+            heat_pump_awareness_campaign_date=datetime.datetime(2025, 3, 1),
+            campaign_target_heat_pump_awareness=1.0,
+        )
+        agent = household_factory(is_heat_pump_aware=False)
+        model.add_agents([agent])
+
+        agent_awarness_before_campaign = agent.is_heat_pump_aware
+        model_awarness_before_campaign = model.heat_pump_awareness_at_timestep
+
+        # Expect heat pump awareness to be 0 for first two timesteps, increasing to 1 after campaign date
+        assert not agent_awarness_before_campaign
+        assert pytest.approx(model_awarness_before_campaign) == 0.0
+
+        model.increment_timestep()
+        agent.make_decisions(model)
+        agent_awarness_before_campaign = agent.is_heat_pump_aware
+        model_awarness_before_campaign = model.heat_pump_awareness_at_timestep
+
+        assert not agent_awarness_before_campaign
+        assert pytest.approx(model_awarness_before_campaign) == 0.0
+
+        model.increment_timestep()
+        agent.make_decisions(model)
+        agent_awarness_after_campaign = agent.is_heat_pump_aware
+        model_awarness_after_campaign = model.heat_pump_awareness_at_timestep
+
+        assert agent_awarness_after_campaign
+        assert pytest.approx(model_awarness_after_campaign) == 1.0
+
+        # Check agent stays aware for another timestep...
+        model.increment_timestep()
+        agent.make_decisions(model)
+        agent_awarness_after_campaign = agent.is_heat_pump_aware
+        model_awarness_after_campaign = model.heat_pump_awareness_at_timestep
+
+        assert agent_awarness_after_campaign
+        assert pytest.approx(model_awarness_after_campaign) == 1.0
+
+    def test_heat_pump_awareness_does_not_increase_when_campaign_target_is_same_as_current_awareness(
+        self,
+    ):
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1),
+            step_interval=relativedelta(months=1),
+            interventions=[InterventionType.HEAT_PUMP_CAMPAIGN],
+            heat_pump_awareness_campaign_date=datetime.datetime(2025, 2, 1),
+            heat_pump_awareness=0.0,
+            campaign_target_heat_pump_awareness=0.0,
+            population_heat_pump_awareness=[False],
+        )
+        agent = household_factory(is_heat_pump_aware=False)
+        model.add_agents([agent])
+
+        agent_awarness_before_campaign = agent.is_heat_pump_aware
+        model_awarness_before_campaign = model.heat_pump_awareness_at_timestep
+
+        assert not agent_awarness_before_campaign
+        assert pytest.approx(model_awarness_before_campaign) == 0.0
+
+        model.increment_timestep()
+        agent.make_decisions(model)
+        agent_awarness_after_campaign = agent.is_heat_pump_aware
+        model_awarness_after_campaign = model.heat_pump_awareness_at_timestep
+
+        assert not agent_awarness_after_campaign
+        assert pytest.approx(model_awarness_after_campaign) == 0.0
+
 
 class TestAgentsWithBoilerBan:
     def test_households_increasingly_likely_to_rule_out_heating_systems_that_will_be_banned_as_time_to_ban_decreases(

@@ -158,6 +158,8 @@ class TestParseArgs:
                 "boiler_upgrade_scheme",
                 "--intervention",
                 "extended_boiler_upgrade_scheme",
+                "--intervention",
+                "heat_pump_campaign",
             ]
         )
 
@@ -165,6 +167,7 @@ class TestParseArgs:
             InterventionType.RHI,
             InterventionType.BOILER_UPGRADE_SCHEME,
             InterventionType.EXTENDED_BOILER_UPGRADE_SCHEME,
+            InterventionType.HEAT_PUMP_CAMPAIGN,
         ]
 
     def test_gas_oil_boiler_ban_date_returns_datetime(self, mandatory_local_args):
@@ -285,6 +288,21 @@ class TestValidateArgs:
                 "2025-01-01",
                 "--gas-oil-boiler-ban-announce-date",
                 "2030-01-01",
+            ]
+        )
+        with pytest.raises(ValueError):
+            validate_args(args)
+
+    def test_campaign_target_less_than_heat_pump_awareness_raises_value_error(
+        self, mandatory_local_args
+    ):
+        args = parse_args(
+            [
+                *mandatory_local_args,
+                "--campaign-target-heat-pump-awareness",
+                "0.1",
+                "--heat-pump-awareness",
+                "0.5",
             ]
         )
         with pytest.raises(ValueError):

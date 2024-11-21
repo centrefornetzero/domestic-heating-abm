@@ -440,8 +440,12 @@ class Household(Agent):
                     [HeatingSystem.BOILER_GAS, HeatingSystem.BOILER_OIL]
                 )
 
-        if not is_gas_oil_boiler_ban_announced:
-            # if a gas/boiler ban is announced, we assume all households are aware of heat pumps
+        is_gas_oil_boiler_ban_in_place = (
+            InterventionType.GAS_OIL_BOILER_BAN in model.interventions
+            and model.current_datetime >= model.gas_oil_boiler_ban_datetime
+        )
+        if not is_gas_oil_boiler_ban_in_place:
+            # if a gas/boiler ban is in place, we assume all households are aware of heat pumps
             if not self.is_heat_pump_aware:
                 heating_system_options -= HEAT_PUMPS
 
@@ -611,8 +615,44 @@ class Household(Agent):
             )
         )
 
+    def proba_of_becoming_heat_pump_aware_required_to_reach_campaign_target(
+        self, model
+    ) -> float:
+        heat_pump_awareness_at_previous_timestep = (
+            model.heat_pump_awareness_at_timestep
+            - (
+                model.num_households_switching_to_heat_pump_aware_at_current_timestep
+                / model.household_count
+            )
+        )
+        return (
+            model.campaign_target_heat_pump_awareness
+            - heat_pump_awareness_at_previous_timestep
+        ) / (1 - heat_pump_awareness_at_previous_timestep)
+
+    def update_heat_pump_awareness(self, model) -> None:
+        if (
+            InterventionType.HEAT_PUMP_CAMPAIGN in model.interventions
+            and model.current_datetime >= model.heat_pump_awareness_campaign_date
+            and model.heat_pump_awareness_at_timestep
+            < model.campaign_target_heat_pump_awareness
+            and not self.is_heat_pump_aware
+        ):
+            proba_to_become_heat_pump_aware = self.proba_of_becoming_heat_pump_aware_required_to_reach_campaign_target(
+                model
+            )
+            self.is_heat_pump_aware = true_with_probability(
+                proba_to_become_heat_pump_aware
+            )
+            if self.is_heat_pump_aware:
+                model.num_households_switching_to_heat_pump_aware += 1
+                model.num_households_switching_to_heat_pump_aware_at_current_timestep += (
+                    1
+                )
+
     def make_decisions(self, model):
 
+        self.update_heat_pump_awareness(model)
         self.update_heating_status(model)
         self.evaluate_renovation(model)
 
