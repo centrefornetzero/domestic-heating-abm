@@ -12,6 +12,7 @@ from simulation.constants import (
     ConstructionYearBand,
     EPCRating,
     HeatingSystem,
+    InterventionType,
     OccupantType,
     PropertyType,
 )
@@ -245,63 +246,120 @@ class TestDomesticHeatingABM:
         assert model.has_heat_pump_installation_capacity
 
 
-def test_create_household_agents() -> None:
+class test_household_agents:
+
     household_population = pd.DataFrame(
         {
-            "id": [1],
-            "location": ["Birmingham"],
-            "property_value_gbp": [264_000],
-            "total_floor_area_m2": [82],
-            "is_off_gas_grid": [False],
-            "construction_year_band": ["BUILT_2007_ONWARDS"],
-            "property_type": ["house"],
-            "built_form": ["mid_terrace"],
-            "heating_system": ["boiler_gas"],
-            "epc_rating": ["C"],
-            "potential_epc_rating": ["B"],
-            "occupant_type": ["owner_occupied"],
-            "is_solid_wall": [False],
-            "walls_energy_efficiency": [3],
-            "windows_energy_efficiency": [3],
-            "roof_energy_efficiency": [3],
-            "is_heat_pump_suitable_archetype": [True],
+            "id": [1, 2, 3, 4],
+            "location": ["Birmingham", "London", "Manchester", "Bristol"],
+            "property_value_gbp": [264_000, 700_000, 300_000, 350_000],
+            "total_floor_area_m2": [82, 100, 90, 95],
+            "is_off_gas_grid": [False, False, False, False],
+            "construction_year_band": [
+                "BUILT_2007_ONWARDS",
+                "BUILT_2007_ONWARDS",
+                "BUILT_2007_ONWARDS",
+                "BUILT_2007_ONWARDS",
+            ],
+            "property_type": ["house", "house", "house", "house"],
+            "built_form": ["mid_terrace", "detached", "semi_detached", "end_terrace"],
+            "heating_system": ["boiler_gas", "boiler_gas", "boiler_gas", "boiler_gas"],
+            "epc_rating": ["C", "D", "C", "D"],
+            "potential_epc_rating": ["B", "C", "B", "B"],
+            "occupant_type": [
+                "owner_occupied",
+                "owner_occupied",
+                "owner_occupied",
+                "owner_occupied",
+            ],
+            "is_solid_wall": [False, False, False, False],
+            "walls_energy_efficiency": [3, 3, 3, 3],
+            "windows_energy_efficiency": [3, 3, 3, 3],
+            "roof_energy_efficiency": [3, 3, 3, 3],
+            "is_heat_pump_suitable_archetype": [True, True, True, False],
         }
     )
-    heat_pump_awareness = [True]
+
     simulation_start_datetime = datetime.datetime.now()
     all_agents_heat_pump_suitable = False
-    household_agents = create_household_agents(
-        household_population,
-        heat_pump_awareness,
-        simulation_start_datetime,
-        all_agents_heat_pump_suitable,
-    )
-    household = next(household_agents)
 
-    assert household.id == 1
-    assert household.location == "Birmingham"
-    assert household.property_value_gbp == 264_000
-    assert household.total_floor_area_m2 == 82
-    assert not household.is_off_gas_grid
-    assert household.construction_year_band == ConstructionYearBand.BUILT_2007_ONWARDS
-    assert household.property_type == PropertyType.HOUSE
-    assert household.built_form == BuiltForm.MID_TERRACE
-    assert household.heating_system == HeatingSystem.BOILER_GAS
-    assert (
-        simulation_start_datetime.date()
-        - datetime.timedelta(days=365 * HEATING_SYSTEM_LIFETIME_YEARS)
-        <= household.heating_system_install_date
-        <= simulation_start_datetime.date()
-    )
-    assert household.epc_rating == EPCRating.C
-    assert household.potential_epc_rating == EPCRating.B
-    assert household.occupant_type == OccupantType.OWNER_OCCUPIED
-    assert not household.is_solid_wall
-    assert household.walls_energy_efficiency == 3
-    assert household.windows_energy_efficiency == 3
-    assert household.roof_energy_efficiency == 3
-    assert household.is_heat_pump_suitable_archetype
-    assert household.is_heat_pump_aware is not None
+    def test_create_household_agents(self) -> None:
+        population_heat_pump_awareness = [True, True, True, True]
+        household_agents = create_household_agents(
+            self.household_population,
+            population_heat_pump_awareness,
+            self.simulation_start_datetime,
+            self.all_agents_heat_pump_suitable,
+        )
+        household = next(household_agents)
 
-    with pytest.raises(StopIteration):
+        assert household.id == 1
+        assert household.location == "Birmingham"
+        assert household.property_value_gbp == 264_000
+        assert household.total_floor_area_m2 == 82
+        assert not household.is_off_gas_grid
+        assert (
+            household.construction_year_band == ConstructionYearBand.BUILT_2007_ONWARDS
+        )
+        assert household.property_type == PropertyType.HOUSE
+        assert household.built_form == BuiltForm.MID_TERRACE
+        assert household.heating_system == HeatingSystem.BOILER_GAS
+        assert (
+            self.simulation_start_datetime.date()
+            - datetime.timedelta(days=365 * HEATING_SYSTEM_LIFETIME_YEARS)
+            <= household.heating_system_install_date
+            <= self.simulation_start_datetime.date()
+        )
+        assert household.epc_rating == EPCRating.C
+        assert household.potential_epc_rating == EPCRating.B
+        assert household.occupant_type == OccupantType.OWNER_OCCUPIED
+        assert not household.is_solid_wall
+        assert household.walls_energy_efficiency == 3
+        assert household.windows_energy_efficiency == 3
+        assert household.roof_energy_efficiency == 3
+        assert household.is_heat_pump_suitable_archetype
+        assert household.is_heat_pump_aware is not None
+
         next(household_agents)
+        next(household_agents)
+        next(household_agents)
+
+        with pytest.raises(StopIteration):
+            next(household_agents)
+
+    def test_all_household_agents_become_heat_pump_aware_with_100_per_cent_campaign_success(
+        self,
+    ) -> None:
+        population_heat_pump_awareness = [False, False, False, False]
+        campaign_target_heat_pump_awareness = 1.0
+
+        household_agents = create_household_agents(
+            self.household_population,
+            population_heat_pump_awareness,
+            self.simulation_start_datetime,
+            self.all_agents_heat_pump_suitable,
+        )
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2025, 1, 1),
+            step_interval=relativedelta(months=1),
+            interventions=[InterventionType.HEAT_PUMP_CAMPAIGN],
+            heat_pump_awareness_campaign_date=datetime.datetime(2025, 2, 1),
+            heat_pump_awareness=0.0,
+            campaign_target_heat_pump_awareness=campaign_target_heat_pump_awareness,
+            population_heat_pump_awareness=population_heat_pump_awareness,
+        )
+        model.add_agents([household_agents])
+        assert model.heat_pump_awareness_at_timestep == 0.0
+
+        model.increment_timestep()
+        for household in household_agents:
+            household.make_decisions(model)
+            assert household.is_heat_pump_aware
+
+        assert model.heat_pump_awareness_at_timestep == 1.0
+
+        model.increment_timestep()
+        for household in household_agents:
+            household.make_decisions(model)
+            assert household.is_heat_pump_aware
