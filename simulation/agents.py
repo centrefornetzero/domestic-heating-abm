@@ -618,10 +618,17 @@ class Household(Agent):
     def proba_of_becoming_heat_pump_aware_required_to_reach_campaign_target(
         self, model
     ) -> float:
+        heat_pump_awareness_at_previous_timestep = (
+            model.heat_pump_awareness_at_timestep
+            - (
+                model.num_households_switching_to_heat_pump_aware_at_current_timestep
+                / model.household_count
+            )
+        )
         return (
             model.campaign_target_heat_pump_awareness
-            - model.heat_pump_awareness_at_timestep
-        ) / (1 - model.heat_pump_awareness_at_timestep)
+            - heat_pump_awareness_at_previous_timestep
+        ) / (1 - heat_pump_awareness_at_previous_timestep)
 
     def update_heat_pump_awareness(self, model) -> None:
         if (
@@ -639,6 +646,9 @@ class Household(Agent):
             )
             if self.is_heat_pump_aware:
                 model.num_households_switching_to_heat_pump_aware += 1
+                model.num_households_switching_to_heat_pump_aware_at_current_timestep += (
+                    1
+                )
 
     def make_decisions(self, model):
 

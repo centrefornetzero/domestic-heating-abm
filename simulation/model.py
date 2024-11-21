@@ -217,6 +217,7 @@ class DomesticHeatingABM(AgentBasedModel):
             self.boiler_upgrade_scheme_spend_gbp
         )
         self.heat_pump_installations_at_current_step = 0
+        self.num_households_switching_to_heat_pump_aware_at_current_timestep = 0
 
 
 def create_household_agents(
