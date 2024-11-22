@@ -10,6 +10,7 @@ from simulation.constants import (
     HeatingSystem,
 )
 from simulation.costs import (
+    BOILER_UPGRADE_SCHEME_GRANT_CAP,
     DECOMMISSIONING_COST_MAX,
     MEAN_COST_GBP_BOILER_GAS,
     estimate_boiler_upgrade_scheme_grant,
@@ -324,12 +325,13 @@ class TestCosts:
         assert estimate_extended_boiler_upgrade_scheme_grant(heating_system, model) == 0
 
     @pytest.mark.parametrize("heat_pump", set(HEAT_PUMPS))
+    @pytest.mark.parametrize("year", list(range(2024, 2035)))
     def test_extended_boiler_upgrade_scheme_grant_is_zero_when_grant_cap_exceeded(
-        self, heat_pump
+        self, heat_pump, year
     ):
 
         model = model_factory(
-            start_datetime=datetime.datetime(2024, 1, 1, 0, 0),
+            start_datetime=datetime.datetime(year, 6, 1, 0, 0),
         )
 
         num_households = random.randint(1, 5)
@@ -338,7 +340,9 @@ class TestCosts:
         model_population_scale = (
             ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
         )
-        boiler_upgrade_scheme_budget_scaled = 5_400_000_000 / model_population_scale
+        boiler_upgrade_scheme_budget_scaled = (
+            BOILER_UPGRADE_SCHEME_GRANT_CAP[year] / model_population_scale
+        )
 
         model.boiler_upgrade_scheme_cumulative_spend_gbp = (
             boiler_upgrade_scheme_budget_scaled * 0.8
