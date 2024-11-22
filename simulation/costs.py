@@ -155,6 +155,23 @@ HEAT_PUMP_GROUND_SOURCE_REINSTALL_DISCOUNT = 0.5
 # Source: Distribution based on values in https://www.theccc.org.uk/publication/analysis-of-alternative-uk-heat-decarbonisation-pathways/
 DECOMMISSIONING_COST_MIN, DECOMMISSIONING_COST_MAX = 500, 2_000
 
+# Grant cap is set to £250M for 2024-’25, SOURCE: https://www.gov.uk/government/publications/boiler-upgrade-scheme-budget-increase-and-approval-to-over-allocate-vouchers/approval-to-increase-the-budget-and-over-allocate-vouchers-for-the-boiler-upgrade-scheme-november-2024
+# Grant cap is set to £1.54B for 2025-’28, SOURCE: https://www.gov.uk/government/news/families-business-and-industry-to-get-energy-efficiency-support
+# Assume limited spend PA of £515M in this period, and further assume this will be extended to 2035
+BOILER_UPGRADE_SCHEME_GRANT_CAP = {
+    2024: 250_000_000,
+    2025: 765_000_000,
+    2026: 1280_000_000,
+    2027: 1795_000_000,
+    2028: 2310_000_000,
+    2029: 2825_000_000,
+    2030: 3340_000_000,
+    2031: 3855_000_000,
+    2032: 4370_000_000,
+    2033: 4885_000_000,
+    2034: 5400_000_000,
+}
+
 
 def get_unit_and_install_costs(
     household: "Household",
@@ -345,13 +362,28 @@ def estimate_extended_boiler_upgrade_scheme_grant(
         return 0
 
     model_population_scale = ENGLAND_WALES_HOUSEHOLD_COUNT_2020 / model.household_count
-    boiler_upgrade_funding_cap_gbp = 5_400_000_000 / model_population_scale
-    if (
+
+    if (model.current_datetime.date() < datetime.date(2025, 4, 1)) and (
         model.boiler_upgrade_scheme_cumulative_spend_gbp
-        >= boiler_upgrade_funding_cap_gbp
+        >= BOILER_UPGRADE_SCHEME_GRANT_CAP[2024] / model_population_scale
     ):
         return 0
 
+    for year in BOILER_UPGRADE_SCHEME_GRANT_CAP.keys():
+        boiler_upgrade_funding_cap_gbp = (
+            BOILER_UPGRADE_SCHEME_GRANT_CAP[year] / model_population_scale
+        )
+        if (
+            (model.current_datetime.date() >= datetime.date(year, 4, 1))
+            and (model.current_datetime.date() < datetime.date(year + 1, 4, 1))
+            and (
+                model.boiler_upgrade_scheme_cumulative_spend_gbp
+                >= boiler_upgrade_funding_cap_gbp
+            )
+        ):
+            return 0
+
+    # Date range for BUS scheme 2022-2035
     if (
         not datetime.date(2022, 4, 1)
         <= model.current_datetime.date()
@@ -359,6 +391,7 @@ def estimate_extended_boiler_upgrade_scheme_grant(
     ):
         return 0
 
+    # Grant is £7.5k up to 2028, then reduces to £5k after 2028
     if (
         not datetime.date(2022, 4, 1)
         <= model.current_datetime.date()
