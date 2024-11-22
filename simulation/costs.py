@@ -157,7 +157,8 @@ DECOMMISSIONING_COST_MIN, DECOMMISSIONING_COST_MAX = 500, 2_000
 
 # Grant cap is set to £250M for 2024-’25, SOURCE: https://www.gov.uk/government/publications/boiler-upgrade-scheme-budget-increase-and-approval-to-over-allocate-vouchers/approval-to-increase-the-budget-and-over-allocate-vouchers-for-the-boiler-upgrade-scheme-november-2024
 # Grant cap is set to £1.54B for 2025-’28, SOURCE: https://www.gov.uk/government/news/families-business-and-industry-to-get-energy-efficiency-support
-# Assume limited spend PA of £515M in this period, and further assume this will be extended to 2035
+# Assume limited spend of £515M per annum during 2025-’28, unless the grant was underspent in year in which case the underspent amount gets carried forward to the future years
+# Assume £515M PA grant will be extended to 2035.
 BOILER_UPGRADE_SCHEME_GRANT_CAP = {
     2024: 250_000_000,
     2025: 765_000_000,
