@@ -195,21 +195,22 @@ def validate_args(args):
             f"Boiler ban announcement date must be on or before ban date, got gas_oil_boiler_ban_date:{args.gas_oil_boiler_ban_date}, gas_oil_boiler_ban_announce_date:{args.gas_oil_boiler_ban_announce_date}"
         )
 
-    # Check that target awareness inputs increase over the model horizon
-    campaigns = sorted(args.campaign_target_heat_pump_awareness_date)
-    _, awareness_factors = zip(*campaigns)
-    awareness_factors = list(awareness_factors)
-    awareness_factors.insert(0, args.heat_pump_awareness)
-    increasing_awareness = all(
-        [
-            awareness_factors[i - 1] < awareness_factors[i]
-            for i in range(1, len(awareness_factors))
-        ]
-    )
-    if not increasing_awareness:
-        raise ValueError(
-            f"Campaign target awareness must be greater than or equal to the population heat pump awareness, got campaign_target_heat_pump_awareness:{args.campaign_target_heat_pump_awareness_date}, heat_pump_awareness:{args.heat_pump_awareness}"
+    if args.campaign_target_heat_pump_awareness_date is not None:
+        # Check that target awareness inputs increase over the model horizon
+        campaigns = sorted(args.campaign_target_heat_pump_awareness_date)
+        _, awareness_factors = zip(*campaigns)
+        awareness_factors = list(awareness_factors)
+        awareness_factors.insert(0, args.heat_pump_awareness)
+        increasing_awareness = all(
+            [
+                awareness_factors[i - 1] < awareness_factors[i]
+                for i in range(1, len(awareness_factors))
+            ]
         )
+        if not increasing_awareness:
+            raise ValueError(
+                f"Campaign target awareness must be greater than or equal to the population heat pump awareness, got campaign_target_heat_pump_awareness:{args.campaign_target_heat_pump_awareness_date}, heat_pump_awareness:{args.heat_pump_awareness}"
+            )
 
 
 if __name__ == "__main__":
