@@ -261,8 +261,7 @@ class TestDomesticHeatingABM:
             start_datetime=datetime.datetime(2024, 2, 1),
             heat_pump_awareness=0.25,
             heat_pump_awareness_campaign_schedule=[
-                (datetime.datetime(2024, 2, 2), 0.5),
-                (datetime.datetime(2024, 2, 3), 0.7),
+                {0.5: datetime.datetime(2024, 2, 2), 0.7: datetime.datetime(2024, 2, 3)}
             ],
             step_interval=datetime.timedelta(minutes=1440),
         )
@@ -375,9 +374,7 @@ class test_household_agents:
             step_interval=relativedelta(months=1),
             interventions=[InterventionType.HEAT_PUMP_CAMPAIGN],
             heat_pump_awareness=0.0,
-            heat_pump_awareness_campaign_schedule=[
-                (datetime.datetime(2025, 2, 1), campaign_target_heat_pump_awareness)
-            ],
+            heat_pump_awareness_campaign_schedule={campaign_target_heat_pump_awareness: datetime.datetime(2025, 2, 1)},
             population_heat_pump_awareness=population_heat_pump_awareness,
         )
         model.add_agents([household_agents])

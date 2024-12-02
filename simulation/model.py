@@ -81,11 +81,9 @@ class DomesticHeatingABM(AgentBasedModel):
         self.annual_new_builds = annual_new_builds
         self.heat_pump_awareness = heat_pump_awareness
         self.heat_pump_awareness_campaign_schedule = (
-            sorted(heat_pump_awareness_campaign_schedule)
-            if heat_pump_awareness_campaign_schedule
+            heat_pump_awareness_campaign_schedule[0] if heat_pump_awareness_campaign_schedule
             else None
         )
-
         self.population_heat_pump_awareness = population_heat_pump_awareness
         self.num_households_heat_pump_aware = sum(population_heat_pump_awareness)
         self.num_households_switching_to_heat_pump_aware = 0
@@ -219,17 +217,14 @@ class DomesticHeatingABM(AgentBasedModel):
     def campaign_target_heat_pump_awareness(self) -> float:
 
         if self.heat_pump_awareness_campaign_schedule:
-
-            step_dates, awareness_factors = zip(
-                *self.heat_pump_awareness_campaign_schedule
-            )
-
-            index = bisect(step_dates, self.current_datetime)
-            current_date_precedes_first_campaign_date = index == 0
-
+            first_campaign_date = self.heat_pump_awareness_campaign_schedule[min(self.heat_pump_awareness_campaign_schedule, key=self.heat_pump_awareness_campaign_schedule.get)]
+            current_date_precedes_first_campaign_date = self.current_datetime < first_campaign_date
             if current_date_precedes_first_campaign_date:
                 return self.heat_pump_awareness
-            return awareness_factors[index - 1]
+            else:
+                campaigns_begun = {awareness : date for (awareness, date) in self.heat_pump_awareness_campaign_schedule.items() if date <= self.current_datetime}
+                current_campaign = max(campaigns_begun, key=campaigns_begun.get)
+                return current_campaign
 
         return self.heat_pump_awareness
 
