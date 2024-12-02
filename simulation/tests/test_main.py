@@ -300,7 +300,7 @@ class TestValidateArgs:
             [
                 *mandatory_local_args,
                 "--campaign-target-heat-pump-awareness-date",
-                '{"2024-03-01":0.1}',
+                "2024-03-01:0.1",
                 "--heat-pump-awareness",
                 "0.5",
             ]

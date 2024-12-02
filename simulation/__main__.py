@@ -4,7 +4,6 @@ import os
 import random
 import sys
 import uuid
-import json
 from functools import partial
 
 import pandas as pd
@@ -45,13 +44,6 @@ def parse_args(args=None):
     def map_string_to_datetime_float_tuple(date_price_discount_string):
         date, price_discount = date_price_discount_string.split(":")
         return datetime.datetime.strptime(date, "%Y-%m-%d"), float(price_discount)
-
-    def map_string_to_datetime_float_dict(date_target_awareness_string):
-        date_target_awareness = json.loads(date_target_awareness_string)
-        date_target_awareness_dict = {}
-        for date, awareness in date_target_awareness.items():
-            date_target_awareness_dict[float(awareness)] = datetime.datetime.strptime(date, "%Y-%m-%d")
-        return date_target_awareness_dict
 
     parser = argparse.ArgumentParser()
 
@@ -189,9 +181,9 @@ def parse_args(args=None):
     parser.add_argument(
         "--campaign-target-heat-pump-awareness-date",
         action="append",
-        type=map_string_to_datetime_float_dict,
+        type=map_string_to_datetime_float_tuple,
         help="A factor by which heat pump awareness will increase by a specified date.",
-        metavar="{YYYY-MM-DD:heat_pump_awareness}",
+        metavar="YYYY-MM-DD:heat_pump_awareness",
     )
 
     return parser.parse_args(args)
@@ -203,13 +195,18 @@ def validate_args(args):
             f"Boiler ban announcement date must be on or before ban date, got gas_oil_boiler_ban_date:{args.gas_oil_boiler_ban_date}, gas_oil_boiler_ban_announce_date:{args.gas_oil_boiler_ban_announce_date}"
         )
 
-    print(args.campaign_target_heat_pump_awareness_date)
     if args.campaign_target_heat_pump_awareness_date is not None:
         # Check that target awareness inputs increase over the model horizon
-        campaigns = args.campaign_target_heat_pump_awareness_date[0]
-        campaigns[args.heat_pump_awareness] = args.start_datetime
-        campaigns = dict(sorted(campaigns.items()))
-        increasing_awareness = sorted(list(campaigns.values())) == list(campaigns.values())
+        campaigns = sorted(args.campaign_target_heat_pump_awareness_date)
+        _, awareness_factors = zip(*campaigns)
+        awareness_factors = list(awareness_factors)
+        awareness_factors.insert(0, args.heat_pump_awareness)
+        increasing_awareness = all(
+            [
+                awareness_factors[i - 1] < awareness_factors[i]
+                for i in range(1, len(awareness_factors))
+            ]
+        )
         if not increasing_awareness:
             raise ValueError(
                 f"Campaign target awareness must be greater than or equal to the population heat pump awareness, got campaign_target_heat_pump_awareness:{args.campaign_target_heat_pump_awareness_date}, heat_pump_awareness:{args.heat_pump_awareness}"
