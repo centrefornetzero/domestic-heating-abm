@@ -189,6 +189,33 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 
+def check_parsed_target_heat_pump_awareness(
+    campaigns: dict, initial_awareness: float
+) -> bool:
+    """Determine whether target heat pump awareness increases over the model horizon
+
+    Args:
+        campaigns (dict): modelled heat pump awareness campaigns
+        initial_awareness (float): initial (t=0) heat pump awareness
+
+    Returns:
+        bool: True if target awareness values are set to increase over model horizon
+    """
+
+    campaigns_date_ordered = sorted(campaigns)
+    _, awareness_factors = zip(*campaigns_date_ordered)
+    awareness_factors = list(awareness_factors)
+    awareness_factors.insert(0, initial_awareness)
+
+    increasing_awareness = all(
+        [
+            awareness_factors[i - 1] < awareness_factors[i]
+            for i in range(1, len(awareness_factors))
+        ]
+    )
+    return increasing_awareness
+
+
 def validate_args(args):
     if args.gas_oil_boiler_ban_announce_date > args.gas_oil_boiler_ban_date:
         raise ValueError(
@@ -197,15 +224,8 @@ def validate_args(args):
 
     if args.campaign_target_heat_pump_awareness_date is not None:
         # Check that target awareness inputs increase over the model horizon
-        campaigns = sorted(args.campaign_target_heat_pump_awareness_date)
-        _, awareness_factors = zip(*campaigns)
-        awareness_factors = list(awareness_factors)
-        awareness_factors.insert(0, args.heat_pump_awareness)
-        increasing_awareness = all(
-            [
-                awareness_factors[i - 1] < awareness_factors[i]
-                for i in range(1, len(awareness_factors))
-            ]
+        increasing_awareness = check_parsed_target_heat_pump_awareness(
+            args.campaign_target_heat_pump_awareness_date, args.heat_pump_awareness
         )
         if not increasing_awareness:
             raise ValueError(
