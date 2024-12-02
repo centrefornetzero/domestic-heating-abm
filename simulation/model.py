@@ -47,8 +47,9 @@ class DomesticHeatingABM(AgentBasedModel):
         heat_pump_installer_annual_growth_rate: float,
         annual_new_builds: Optional[Dict[int, int]],
         heat_pump_awareness: float,
-        campaign_target_heat_pump_awareness: float,
-        heat_pump_awareness_campaign_date: datetime.datetime,
+        heat_pump_awareness_campaign_schedule: Optional[
+            List[Tuple[datetime.datetime, float]]
+        ],
         population_heat_pump_awareness: List[bool],
     ):
         self.start_datetime = start_datetime
@@ -79,8 +80,11 @@ class DomesticHeatingABM(AgentBasedModel):
         self.heat_pump_installations_at_current_step = 0
         self.annual_new_builds = annual_new_builds
         self.heat_pump_awareness = heat_pump_awareness
-        self.campaign_target_heat_pump_awareness = campaign_target_heat_pump_awareness
-        self.heat_pump_awareness_campaign_date = heat_pump_awareness_campaign_date
+        self.heat_pump_awareness_campaign_schedule = (
+            sorted(heat_pump_awareness_campaign_schedule)
+            if heat_pump_awareness_campaign_schedule
+            else None
+        )
 
         self.population_heat_pump_awareness = population_heat_pump_awareness
         self.num_households_heat_pump_aware = sum(population_heat_pump_awareness)
@@ -211,6 +215,24 @@ class DomesticHeatingABM(AgentBasedModel):
             + self.num_households_switching_to_heat_pump_aware
         ) / self.household_count
 
+    @property
+    def campaign_target_heat_pump_awareness(self) -> float:
+
+        if self.heat_pump_awareness_campaign_schedule:
+
+            step_dates, awareness_factors = zip(
+                *self.heat_pump_awareness_campaign_schedule
+            )
+
+            index = bisect(step_dates, self.current_datetime)
+            current_date_precedes_first_campaign_date = index == 0
+
+            if current_date_precedes_first_campaign_date:
+                return self.heat_pump_awareness
+            return awareness_factors[index - 1]
+
+        return self.heat_pump_awareness
+
     def increment_timestep(self):
         self.current_datetime += self.step_interval
         self.boiler_upgrade_scheme_cumulative_spend_gbp += (
@@ -282,8 +304,9 @@ def create_and_run_simulation(
     heat_pump_installer_count: int,
     heat_pump_installer_annual_growth_rate: float,
     annual_new_builds: Dict[int, int],
-    campaign_target_heat_pump_awareness: float,
-    heat_pump_awareness_campaign_date: datetime.datetime,
+    heat_pump_awareness_campaign_schedule: Optional[
+        List[Tuple[datetime.datetime, float]]
+    ],
 ):
 
     population_heat_pump_awareness = [
@@ -308,8 +331,7 @@ def create_and_run_simulation(
         heat_pump_installer_annual_growth_rate=heat_pump_installer_annual_growth_rate,
         annual_new_builds=annual_new_builds,
         heat_pump_awareness=heat_pump_awareness,
-        campaign_target_heat_pump_awareness=campaign_target_heat_pump_awareness,
-        heat_pump_awareness_campaign_date=heat_pump_awareness_campaign_date,
+        heat_pump_awareness_campaign_schedule=heat_pump_awareness_campaign_schedule,
         population_heat_pump_awareness=population_heat_pump_awareness,
     )
 

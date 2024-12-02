@@ -633,7 +633,6 @@ class Household(Agent):
     def update_heat_pump_awareness(self, model) -> None:
         if (
             InterventionType.HEAT_PUMP_CAMPAIGN in model.interventions
-            and model.current_datetime >= model.heat_pump_awareness_campaign_date
             and model.heat_pump_awareness_at_timestep
             < model.campaign_target_heat_pump_awareness
             and not self.is_heat_pump_aware

@@ -245,6 +245,36 @@ class TestDomesticHeatingABM:
         assert 0 < capacity_new_build < capacity_existing_build
         assert model.has_heat_pump_installation_capacity
 
+    def test_heat_pump_awareness_campaign_is_intial_awareness_if_no_campaign_schedule_passed(
+        self,
+    ):
+
+        model = model_factory(heat_pump_awareness_campaign_schedule=None)
+
+        assert model.campaign_target_heat_pump_awareness == model.heat_pump_awareness
+
+    def test_heat_pump_awareness_changes_when_crosses_campaign_schedule_date(
+        self,
+    ):
+
+        model = model_factory(
+            start_datetime=datetime.datetime(2024, 2, 1),
+            heat_pump_awareness=0.25,
+            heat_pump_awareness_campaign_schedule=[
+                (datetime.datetime(2024, 2, 2), 0.5),
+                (datetime.datetime(2024, 2, 3), 0.7),
+            ],
+            step_interval=datetime.timedelta(minutes=1440),
+        )
+
+        assert model.campaign_target_heat_pump_awareness == 0.25
+
+        model.increment_timestep()
+        assert model.campaign_target_heat_pump_awareness == 0.5
+
+        model.increment_timestep()
+        assert model.campaign_target_heat_pump_awareness == 0.7
+
 
 class test_household_agents:
 
@@ -344,9 +374,10 @@ class test_household_agents:
             start_datetime=datetime.datetime(2025, 1, 1),
             step_interval=relativedelta(months=1),
             interventions=[InterventionType.HEAT_PUMP_CAMPAIGN],
-            heat_pump_awareness_campaign_date=datetime.datetime(2025, 2, 1),
             heat_pump_awareness=0.0,
-            campaign_target_heat_pump_awareness=campaign_target_heat_pump_awareness,
+            heat_pump_awareness_campaign_schedule=[
+                (datetime.datetime(2025, 2, 1), campaign_target_heat_pump_awareness)
+            ],
             population_heat_pump_awareness=population_heat_pump_awareness,
         )
         model.add_agents([household_agents])

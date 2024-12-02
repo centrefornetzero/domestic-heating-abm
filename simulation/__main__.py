@@ -179,18 +179,41 @@ def parse_args(args=None):
     parser.add_argument("--price-gbp-per-kwh-oil", type=float, default=0.068)
 
     parser.add_argument(
-        "--heat-pump-awareness-campaign-date",
-        default=datetime.datetime(2028, 1, 1),
-        type=convert_to_datetime,
-    )
-
-    parser.add_argument(
-        "--campaign-target-heat-pump-awareness",
-        default=0.8,
-        type=float_between_0_and_1,
+        "--campaign-target-heat-pump-awareness-date",
+        action="append",
+        type=map_string_to_datetime_float_tuple,
+        help="A factor by which heat pump awareness will increase by a specified date.",
+        metavar="YYYY-MM-DD:heat_pump_awareness",
     )
 
     return parser.parse_args(args)
+
+
+def check_parsed_target_heat_pump_awareness(
+    campaigns: dict, initial_awareness: float
+) -> bool:
+    """Determine whether target heat pump awareness increases over the model horizon
+
+    Args:
+        campaigns (dict): modelled heat pump awareness campaigns
+        initial_awareness (float): initial (t=0) heat pump awareness
+
+    Returns:
+        bool: True if target awareness values are set to increase over model horizon
+    """
+
+    campaigns_date_ordered = sorted(campaigns)
+    _, awareness_factors = zip(*campaigns_date_ordered)
+    awareness_factors = list(awareness_factors)
+    awareness_factors.insert(0, initial_awareness)
+
+    increasing_awareness = all(
+        [
+            awareness_factors[i - 1] < awareness_factors[i]
+            for i in range(1, len(awareness_factors))
+        ]
+    )
+    return increasing_awareness
 
 
 def validate_args(args):
@@ -199,10 +222,15 @@ def validate_args(args):
             f"Boiler ban announcement date must be on or before ban date, got gas_oil_boiler_ban_date:{args.gas_oil_boiler_ban_date}, gas_oil_boiler_ban_announce_date:{args.gas_oil_boiler_ban_announce_date}"
         )
 
-    if args.campaign_target_heat_pump_awareness < args.heat_pump_awareness:
-        raise ValueError(
-            f"Campaign target awareness must be greater than or equal to the population heat pump awareness, got campaign_target_heat_pump_awareness:{args.campaign_target_heat_pump_awareness}, heat_pump_awareness:{args.heat_pump_awareness}"
+    if args.campaign_target_heat_pump_awareness_date is not None:
+        # Check that target awareness inputs increase over the model horizon
+        increasing_awareness = check_parsed_target_heat_pump_awareness(
+            args.campaign_target_heat_pump_awareness_date, args.heat_pump_awareness
         )
+        if not increasing_awareness:
+            raise ValueError(
+                f"Campaign target awareness must be greater than or equal to the population heat pump awareness, got campaign_target_heat_pump_awareness:{args.campaign_target_heat_pump_awareness_date}, heat_pump_awareness:{args.heat_pump_awareness}"
+            )
 
 
 if __name__ == "__main__":
@@ -243,8 +271,7 @@ if __name__ == "__main__":
             args.heat_pump_installer_count,
             args.heat_pump_installer_annual_growth_rate,
             ENGLAND_WALES_ANNUAL_NEW_BUILDS if args.include_new_builds else None,
-            args.campaign_target_heat_pump_awareness,
-            args.heat_pump_awareness_campaign_date,
+            args.campaign_target_heat_pump_awareness_date,
         )
 
         with smart_open.open(args.history_file, "w") as file:

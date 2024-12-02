@@ -10,7 +10,11 @@ from dateutil.relativedelta import relativedelta
 
 import simulation.__main__
 from abm import read_jsonlines
-from simulation.__main__ import parse_args, validate_args
+from simulation.__main__ import (
+    check_parsed_target_heat_pump_awareness,
+    parse_args,
+    validate_args,
+)
 from simulation.constants import InterventionType
 
 
@@ -299,11 +303,17 @@ class TestValidateArgs:
         args = parse_args(
             [
                 *mandatory_local_args,
-                "--campaign-target-heat-pump-awareness",
-                "0.1",
+                "--campaign-target-heat-pump-awareness-date",
+                "2024-03-01:0.1",
                 "--heat-pump-awareness",
                 "0.5",
             ]
         )
+
+        increasing_awareness = check_parsed_target_heat_pump_awareness(
+            args.campaign_target_heat_pump_awareness_date, args.heat_pump_awareness
+        )
+        assert not increasing_awareness
+
         with pytest.raises(ValueError):
             validate_args(args)

@@ -705,8 +705,10 @@ class TestHousehold:
             start_datetime=datetime.datetime(2025, 1, 1),
             step_interval=relativedelta(months=1),
             interventions=[InterventionType.HEAT_PUMP_CAMPAIGN],
-            heat_pump_awareness_campaign_date=datetime.datetime(2025, 3, 1),
-            campaign_target_heat_pump_awareness=1.0,
+            heat_pump_awareness=0.0,
+            heat_pump_awareness_campaign_schedule=[
+                (datetime.datetime(2025, 3, 1), 1.0)
+            ],
         )
         agent = household_factory(is_heat_pump_aware=False)
         model.add_agents([agent])
@@ -751,9 +753,10 @@ class TestHousehold:
             start_datetime=datetime.datetime(2025, 1, 1),
             step_interval=relativedelta(months=1),
             interventions=[InterventionType.HEAT_PUMP_CAMPAIGN],
-            heat_pump_awareness_campaign_date=datetime.datetime(2025, 2, 1),
+            heat_pump_awareness_campaign_schedule=[
+                (datetime.datetime(2025, 2, 1), 0.0)
+            ],
             heat_pump_awareness=0.0,
-            campaign_target_heat_pump_awareness=0.0,
             population_heat_pump_awareness=[False],
         )
         agent = household_factory(is_heat_pump_aware=False)
